@@ -70,8 +70,26 @@ async function connectToMongo() {
       cachedDb = localDb
       return cachedDb
     }
-    const mongoUri = process.env.MONGODB_URI || process.env.MONGO_URL
+    let mongoUri = (process.env.MONGODB_URI || process.env.MONGO_URL || '').trim()
+    if ((mongoUri.startsWith('"') && mongoUri.endsWith('"')) || (mongoUri.startsWith("'") && mongoUri.endsWith("'"))) {
+      mongoUri = mongoUri.slice(1, -1).trim()
+    }
+    if (mongoUri.startsWith('<') && mongoUri.endsWith('>')) {
+      mongoUri = mongoUri.slice(1, -1).trim()
+    }
+
     if (mongoUri) {
+      if (!mongoUri.startsWith('mongodb://') && !mongoUri.startsWith('mongodb+srv://')) {
+        const err = new Error('Invalid MONGODB_URI scheme: expected connection string to start with "mongodb://" or "mongodb+srv://"')
+        console.warn('[DB]', err.message)
+        clientPromise = null
+        if (process.env.USE_LOCAL_DB === 'false') {
+          cachedDb = null
+          throw err
+        }
+        cachedDb = localDb
+        return cachedDb
+      }
       try {
         const client = new MongoClient(mongoUri, {
           serverSelectionTimeoutMS: 5000,
