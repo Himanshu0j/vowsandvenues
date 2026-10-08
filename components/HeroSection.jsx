@@ -125,11 +125,11 @@ export default function HeroSection({
         </p>
 
         {/* 4. LUXURY 3D MULTI-FIELD DISCOVERY SEARCH BOX */}
-        <div className="bg-white/95 backdrop-blur-xl rounded-3xl p-4 sm:p-7 shadow-2xl border-2 border-amber-400/30 text-stone-900 text-left max-w-4xl mx-auto transition-all card-3d-hover">
+        <div className="bg-gradient-to-br from-[#fffdf9]/95 via-[#fefaf2]/95 to-[#faf2e4]/95 backdrop-blur-xl rounded-3xl p-4 sm:p-7 shadow-[0_25px_60px_rgba(0,0,0,0.35)] border-2 border-amber-400/80 ring-4 ring-amber-400/20 text-stone-900 text-left max-w-4xl mx-auto transition-all card-3d-hover">
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-2.5 sm:gap-3 mb-4">
             
             {/* Field 1: Event Type */}
-            <div className="bg-stone-50/90 rounded-2xl p-2.5 sm:p-3 border border-stone-200 hover:border-amber-500 transition-all shadow-sm">
+            <div className="bg-gradient-to-br from-rose-50 to-pink-100/60 rounded-2xl p-2.5 sm:p-3 border-2 border-rose-200 hover:border-rose-400 transition-all shadow-xs">
               <label className="block text-[10px] sm:text-[11px] font-bold text-[#4a1525] uppercase tracking-wider mb-1 flex items-center gap-1.5">
                 <span className="w-2 h-2 rounded-full bg-rose-500"></span> Event Type
               </label>
@@ -145,7 +145,7 @@ export default function HeroSection({
             </div>
 
             {/* Field 2: Location */}
-            <div className="bg-stone-50/90 rounded-2xl p-2.5 sm:p-3 border border-stone-200 hover:border-amber-500 transition-all shadow-sm">
+            <div className="bg-gradient-to-br from-amber-50 to-yellow-100/60 rounded-2xl p-2.5 sm:p-3 border-2 border-amber-200 hover:border-amber-400 transition-all shadow-xs">
               <label className="block text-[10px] sm:text-[11px] font-bold text-[#4a1525] uppercase tracking-wider mb-1 flex items-center gap-1.5">
                 <span className="w-2 h-2 rounded-full bg-amber-500"></span> City Location
               </label>
@@ -164,7 +164,7 @@ export default function HeroSection({
             </div>
 
             {/* Field 3: Event Date */}
-            <div className="bg-stone-50/90 rounded-2xl p-2.5 sm:p-3 border border-stone-200 hover:border-amber-500 transition-all shadow-sm">
+            <div className="bg-gradient-to-br from-emerald-50 to-teal-100/60 rounded-2xl p-2.5 sm:p-3 border-2 border-emerald-200 hover:border-emerald-400 transition-all shadow-xs">
               <label className="block text-[10px] sm:text-[11px] font-bold text-[#4a1525] uppercase tracking-wider mb-1 flex items-center gap-1.5">
                 <span className="w-2 h-2 rounded-full bg-emerald-500"></span> Event Date
               </label>
@@ -177,7 +177,7 @@ export default function HeroSection({
             </div>
 
             {/* Field 4: Guest Count */}
-            <div className="bg-stone-50/90 rounded-2xl p-2.5 sm:p-3 border border-stone-200 hover:border-amber-500 transition-all shadow-sm">
+            <div className="bg-gradient-to-br from-sky-50 to-blue-100/60 rounded-2xl p-2.5 sm:p-3 border-2 border-sky-200 hover:border-sky-400 transition-all shadow-xs">
               <label className="block text-[10px] sm:text-[11px] font-bold text-[#4a1525] uppercase tracking-wider mb-1 flex items-center gap-1.5">
                 <span className="w-2 h-2 rounded-full bg-blue-500"></span> Guest Count
               </label>
@@ -194,7 +194,7 @@ export default function HeroSection({
             </div>
 
             {/* Field 5: Target Budget */}
-            <div className="bg-stone-50/90 rounded-2xl p-2.5 sm:p-3 border border-stone-200 hover:border-amber-500 transition-all shadow-sm">
+            <div className="bg-gradient-to-br from-purple-50 to-fuchsia-100/60 rounded-2xl p-2.5 sm:p-3 border-2 border-purple-200 hover:border-purple-400 transition-all shadow-xs">
               <label className="block text-[10px] sm:text-[11px] font-bold text-[#4a1525] uppercase tracking-wider mb-1 flex items-center gap-1.5">
                 <span className="w-2 h-2 rounded-full bg-purple-500"></span> Target Budget
               </label>

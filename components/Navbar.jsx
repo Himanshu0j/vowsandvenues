@@ -42,7 +42,7 @@ export default function Navbar({
   const unreadCount = notifications.filter(n => !n.read).length
 
   return (
-    <header className="sticky top-0 z-50 bg-[#faf8f5]/92 backdrop-blur-xl border-b border-[#e8e2d5]/80 shadow-[0_4px_25px_rgba(74,21,37,0.04)] transition-all">
+    <header className="sticky top-0 z-50 bg-gradient-to-r from-[#fcf8ef]/95 via-[#fdfaf3]/95 to-[#faf4e9]/95 backdrop-blur-xl border-b-2 border-amber-300/60 shadow-[0_4px_30px_rgba(74,21,37,0.06)] transition-all">
       {/* 1. TOP ANNOUNCEMENT BANNER */}
       {announcement?.enabled && (
         <div className="bg-gradient-to-r from-[#380e1b] via-[#4a1525] to-[#380e1b] text-[#f5ebd7] text-[11px] sm:text-xs py-2 px-4 text-center font-medium tracking-wide flex items-center justify-center gap-2 border-b border-[#c5a059]/30 relative overflow-hidden">
@@ -82,9 +82,9 @@ export default function Navbar({
           </div>
 
           {/* CITY SELECTOR PILL */}
-          <div className="hidden xl:flex items-center bg-white/90 hover:bg-amber-50/70 transition-all rounded-full px-4 py-1.5 border border-amber-200/80 shadow-sm text-xs font-medium text-[#44403c] hover:scale-105">
+          <div className="hidden xl:flex items-center bg-amber-100/70 hover:bg-amber-200/80 transition-all rounded-full px-4 py-1.5 border border-amber-300/80 shadow-xs text-xs font-medium text-[#44403c] hover:scale-105">
             <MapPin className="w-3.5 h-3.5 text-[#4a1525] mr-1.5" />
-            <span className="text-[#78716c] mr-1">Location:</span>
+            <span className="text-amber-900 font-semibold mr-1">Location:</span>
             <select
               value={selectedCity}
               onChange={(e) => setSelectedCity(e.target.value)}

@@ -37,7 +37,7 @@
     "expectedStatus": 200,
     "actualStatus": 200,
     "pass": true,
-    "details": "Total vendors: 38"
+    "details": "Total vendors: 40"
   },
   {
     "category": "Vendors",
@@ -53,7 +53,7 @@
     "expectedStatus": 200,
     "actualStatus": 200,
     "pass": true,
-    "details": "Lucknow vendors: 16"
+    "details": "Lucknow vendors: 18"
   },
   {
     "category": "Vendors",
@@ -61,7 +61,7 @@
     "expectedStatus": 200,
     "actualStatus": 200,
     "pass": true,
-    "details": "Top rated count: 37"
+    "details": "Top rated count: 39"
   },
   {
     "category": "Vendors",
@@ -69,7 +69,7 @@
     "expectedStatus": 200,
     "actualStatus": 200,
     "pass": true,
-    "details": "Verified count: 37"
+    "details": "Verified count: 39"
   },
   {
     "category": "Vendors",
@@ -77,22 +77,22 @@
     "expectedStatus": 200,
     "actualStatus": 200,
     "pass": true,
-    "details": "Matching count: 38"
+    "details": "Matching count: 40"
   },
   {
     "category": "Auth",
     "testName": "POST /api/auth/signup (Customer)",
     "expectedStatus": 201,
     "actualStatus": 201,
-    "pass": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJiZTJjMmI1NS0xZmE3LTQ5OTctYmZjYy1kZDhlZDM0YTdmMTIiLCJyb2xlIjoiY3VzdG9tZXIiLCJlbWFpbCI6InFhX2N1c3RvbWVyXzE3OTE0OTg3MTE2NjhAdGVzdC5jb20iLCJpYXQiOjE3OTE0OTg3MTEsImV4cCI6MTc5MjEwMzUxMX0.1UgXcpB7QH2lZySf84xS1YxnBTdt84oOjJNmV9D-nNw",
-    "details": "User ID: be2c2b55-1fa7-4997-bfcc-dd8ed34a7f12"
+    "pass": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJjNDBkZjM3Ni0wNGE4LTQyZDItOTBjNC04NzlhYjY2ZjhhOWUiLCJyb2xlIjoiY3VzdG9tZXIiLCJlbWFpbCI6InFhX2N1c3RvbWVyXzE3OTE0OTk2NDE2MTNAdGVzdC5jb20iLCJpYXQiOjE3OTE0OTk2NDIsImV4cCI6MTc5MjEwNDQ0Mn0.JKssD953ZGYuENy8oOTgq0eh8Ydb7FjtaLL4cmtiXYU",
+    "details": "User ID: c40df376-04a8-42d2-90c4-879ab66f8a9e"
   },
   {
     "category": "Auth",
     "testName": "POST /api/auth/login (Customer)",
     "expectedStatus": 200,
     "actualStatus": 200,
-    "pass": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJiZTJjMmI1NS0xZmE3LTQ5OTctYmZjYy1kZDhlZDM0YTdmMTIiLCJyb2xlIjoiY3VzdG9tZXIiLCJlbWFpbCI6InFhX2N1c3RvbWVyXzE3OTE0OTg3MTE2NjhAdGVzdC5jb20iLCJpYXQiOjE3OTE0OTg3MTIsImV4cCI6MTc5MjEwMzUxMn0.kps_6XFU1_dYRKUS9cR7-W770ElanMK9pjCN6yE8iDc",
+    "pass": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJjNDBkZjM3Ni0wNGE4LTQyZDItOTBjNC04NzlhYjY2ZjhhOWUiLCJyb2xlIjoiY3VzdG9tZXIiLCJlbWFpbCI6InFhX2N1c3RvbWVyXzE3OTE0OTk2NDE2MTNAdGVzdC5jb20iLCJpYXQiOjE3OTE0OTk2NDIsImV4cCI6MTc5MjEwNDQ0Mn0.JKssD953ZGYuENy8oOTgq0eh8Ydb7FjtaLL4cmtiXYU",
     "details": ""
   },
   {
@@ -100,7 +100,7 @@
     "testName": "POST /api/auth/signup (Vendor)",
     "expectedStatus": 201,
     "actualStatus": 201,
-    "pass": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI1MTE0MGVkNC1jOGNiLTQ2OTQtOTc5Ni1lZGYyN2Y3NmI0YmYiLCJyb2xlIjoidmVuZG9yIiwiZW1haWwiOiJxYV92ZW5kb3JfMTc5MTQ5ODcxMTY2OEB0ZXN0LmNvbSIsImlhdCI6MTc5MTQ5ODcxMiwiZXhwIjoxNzkyMTAzNTEyfQ.ozuGVfbhSazyIlWFemxe7sNLh10_SjXo4m1jAJ-KMwA",
+    "pass": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJjZWQ4ZmY3NS01MjYzLTQ0ZWMtYmNiOS1iYzdjMjIzZDg3ZjMiLCJyb2xlIjoidmVuZG9yIiwiZW1haWwiOiJxYV92ZW5kb3JfMTc5MTQ5OTY0MTYxM0B0ZXN0LmNvbSIsImlhdCI6MTc5MTQ5OTY0MiwiZXhwIjoxNzkyMTA0NDQyfQ.2BypbJ1vuY0csFenrJlTh-6XifO8T_mgW60-31oNuFM",
     "details": ""
   },
   {
@@ -132,8 +132,8 @@
     "testName": "POST /api/vendors (Vendor onboarding registration)",
     "expectedStatus": 201,
     "actualStatus": 201,
-    "pass": "v_9c848129",
-    "details": "Created vendor ID: v_9c848129"
+    "pass": "v_48d15b57",
+    "details": "Created vendor ID: v_48d15b57"
   },
   {
     "category": "Vendor KYC",
@@ -164,8 +164,8 @@
     "testName": "POST /api/events (Create 5-service event plan)",
     "expectedStatus": 201,
     "actualStatus": 201,
-    "pass": "evt_d5e544d6",
-    "details": "Event ID: evt_d5e544d6"
+    "pass": "evt_06605f4d",
+    "details": "Event ID: evt_06605f4d"
   },
   {
     "category": "Event Builder",
@@ -228,8 +228,8 @@
     "testName": "POST /api/bookings (Create multi-vendor booking)",
     "expectedStatus": 201,
     "actualStatus": 201,
-    "pass": "bk_8b6db472",
-    "details": "Booking ID: bk_8b6db472, Status: undefined"
+    "pass": "bk_093c5776",
+    "details": "Booking ID: bk_093c5776, Status: undefined"
   },
   {
     "category": "Bookings",
@@ -317,8 +317,8 @@
     "testName": "POST /api/media (Admin uploads image asset)",
     "expectedStatus": 201,
     "actualStatus": 201,
-    "pass": "med_67d9089a",
-    "details": "Media ID: med_67d9089a"
+    "pass": "med_c5d94442",
+    "details": "Media ID: med_c5d94442"
   },
   {
     "category": "Media Library",
@@ -349,8 +349,8 @@
     "testName": "POST /api/disputes (Customer logs dispute/issue)",
     "expectedStatus": 201,
     "actualStatus": 201,
-    "pass": "disp_57313672",
-    "details": "Dispute ID: disp_57313672"
+    "pass": "disp_13f3d93c",
+    "details": "Dispute ID: disp_13f3d93c"
   },
   {
     "category": "Disputes",
@@ -365,8 +365,8 @@
     "testName": "POST /api/support (Customer creates support ticket)",
     "expectedStatus": 201,
     "actualStatus": 201,
-    "pass": "tkt_6c4ab8c6",
-    "details": "Ticket ID: tkt_6c4ab8c6"
+    "pass": "tkt_4b299083",
+    "details": "Ticket ID: tkt_4b299083"
   },
   {
     "category": "Support",
@@ -381,8 +381,8 @@
     "testName": "POST /api/quotes (Customer requests customized quotation)",
     "expectedStatus": 201,
     "actualStatus": 201,
-    "pass": "qt_37ea8803",
-    "details": "Quote ID: qt_37ea8803"
+    "pass": "qt_d18d9c82",
+    "details": "Quote ID: qt_d18d9c82"
   },
   {
     "category": "Quotes",
@@ -398,7 +398,7 @@
     "expectedStatus": 201,
     "actualStatus": 201,
     "pass": true,
-    "details": "Review ID: rev_16f618c4"
+    "details": "Review ID: rev_a953d8e8"
   },
   {
     "category": "Reviews",

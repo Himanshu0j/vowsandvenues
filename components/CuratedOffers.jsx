@@ -35,9 +35,9 @@ export default function CuratedOffers({ offers = [], onSelectOffer }) {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
         {offers.map((offer, idx) => {
           const cardThemes = [
-            { bg: "bg-gradient-to-br from-amber-50/80 via-white to-rose-50/50", border: "border-amber-300 hover:border-amber-500", badgeBg: "bg-gradient-to-r from-amber-500 to-amber-700 text-white", accentText: "text-amber-800" },
-            { bg: "bg-gradient-to-br from-emerald-50/80 via-white to-amber-50/50", border: "border-emerald-300 hover:border-emerald-500", badgeBg: "bg-gradient-to-r from-emerald-600 to-teal-700 text-white", accentText: "text-emerald-800" },
-            { bg: "bg-gradient-to-br from-rose-50/80 via-white to-purple-50/50", border: "border-rose-300 hover:border-rose-500", badgeBg: "bg-gradient-to-r from-rose-600 to-pink-700 text-white", accentText: "text-rose-800" }
+            { bg: "bg-gradient-to-br from-[#fef3c7] via-[#fffdf5] to-[#fde68a]", border: "border-amber-400 hover:border-amber-600", badgeBg: "bg-gradient-to-r from-amber-600 to-amber-800 text-white", accentText: "text-amber-900" },
+            { bg: "bg-gradient-to-br from-[#d1fae5] via-[#f7fef9] to-[#a7f3d0]", border: "border-emerald-400 hover:border-emerald-600", badgeBg: "bg-gradient-to-r from-emerald-700 to-teal-800 text-white", accentText: "text-emerald-950" },
+            { bg: "bg-gradient-to-br from-[#ffe4e6] via-[#fff5f6] to-[#fecdd3]", border: "border-rose-400 hover:border-rose-600", badgeBg: "bg-gradient-to-r from-rose-700 to-pink-800 text-white", accentText: "text-rose-950" }
           ]
           const theme = cardThemes[idx % 3]
 
@@ -63,15 +63,15 @@ export default function CuratedOffers({ offers = [], onSelectOffer }) {
                 <h3 className="font-serif font-bold text-lg text-stone-900 mb-2 group-hover:text-[#4a1525] transition-colors">
                   {offer.title}
                 </h3>
-                <p className="text-xs text-stone-600 leading-relaxed mb-6">
+                <p className="text-xs text-stone-700 leading-relaxed mb-6 font-medium">
                   {offer.desc || offer.description}
                 </p>
               </div>
 
-              <div className="pt-4 border-t border-stone-200/80 flex items-center justify-between">
+              <div className="pt-4 border-t border-stone-300/60 flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <span className="font-mono text-xs font-bold text-stone-900 bg-white px-3 py-1.5 rounded-lg border border-amber-300/80 shadow-inner flex items-center gap-1.5">
-                    <Tag className="w-3 h-3 text-amber-600" />
+                  <span className="font-mono text-xs font-bold text-stone-900 bg-amber-100/90 px-3 py-1.5 rounded-lg border border-amber-400/90 shadow-xs flex items-center gap-1.5">
+                    <Tag className="w-3 h-3 text-amber-700" />
                     {offer.code}
                   </span>
                   <button

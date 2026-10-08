@@ -1534,31 +1534,31 @@ export default function VowsAndVenuesApp() {
                   {cmsContent.testimonials.map((t, idx) => (
                     <div
                       key={idx}
-                      className="card-3d-wrap group bg-white rounded-3xl p-6 sm:p-8 border border-[#e8e2d5] hover:border-amber-400/80 shadow-[0_4px_20px_rgba(0,0,0,0.04)] hover:shadow-[0_20px_45px_rgba(74,21,37,0.12)] transition-all duration-500 hover:-translate-y-2 flex flex-col justify-between relative overflow-hidden"
+                      className="card-3d-wrap group bg-gradient-to-br from-[#fffdfa] via-[#fbf5eb] to-[#f6ede0] rounded-3xl p-6 sm:p-8 border-2 border-amber-300/80 hover:border-amber-500 shadow-[0_4px_20px_rgba(74,21,37,0.06)] hover:shadow-[0_20px_45px_rgba(74,21,37,0.15)] transition-all duration-500 hover:-translate-y-2 flex flex-col justify-between relative overflow-hidden"
                     >
-                      <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-amber-300 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+                      <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-amber-400 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
                       <div>
-                        <div className="flex items-center gap-1.5 text-amber-500 mb-4 bg-amber-50/70 w-fit px-2.5 py-1 rounded-full border border-amber-200/50">
+                        <div className="flex items-center gap-1.5 text-amber-500 mb-4 bg-amber-100/80 w-fit px-3 py-1 rounded-full border border-amber-300/70 shadow-xs">
                           {[...Array(5)].map((_, i) => (
                             <Star key={i} className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
                           ))}
                         </div>
-                        <p className="font-serif italic text-sm sm:text-base text-stone-800 leading-relaxed mb-6">
+                        <p className="font-serif italic text-sm sm:text-base text-stone-800 leading-relaxed mb-6 font-medium">
                           &ldquo;{t.quote}&rdquo;
                         </p>
                       </div>
 
-                      <div className="flex items-center gap-3 pt-4 border-t border-stone-100">
+                      <div className="flex items-center gap-3 pt-4 border-t border-amber-200/60">
                         <img
                           src={getOptimizedImageUrl(t.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb', { width: 120, quality: 75 })}
                           alt={t.author}
                           loading="lazy"
                           decoding="async"
-                          className="w-12 h-12 rounded-full object-cover border-2 border-amber-400/60 shadow-sm group-hover:scale-105 transition-transform"
+                          className="w-12 h-12 rounded-full object-cover border-2 border-amber-400/80 shadow-sm group-hover:scale-105 transition-transform"
                         />
                         <div>
                           <div className="font-serif font-bold text-sm text-[#1c1917] group-hover:text-[#4a1525] transition-colors">{t.author}</div>
-                          <div className="text-[11px] text-stone-500 font-medium">{t.event} &bull; {t.city}</div>
+                          <div className="text-[11px] text-stone-600 font-semibold">{t.event} &bull; {t.city}</div>
                         </div>
                       </div>
                     </div>
@@ -1583,13 +1583,13 @@ export default function VowsAndVenuesApp() {
                   {cmsContent.faqs.map((faq, i) => (
                     <details
                       key={i}
-                      className="group bg-white rounded-2xl border border-[#e8e2d5] p-5 transition-all [&_summary::-webkit-details-marker]:hidden"
+                      className="group bg-gradient-to-br from-[#fffdfa] via-[#fcf8f0] to-[#f8f1e3] rounded-2xl border-2 border-amber-200/80 hover:border-amber-400 p-5 shadow-xs transition-all [&_summary::-webkit-details-marker]:hidden"
                     >
                       <summary className="flex items-center justify-between font-serif font-bold text-base text-[#1c1917] cursor-pointer">
                         <span>{faq.q}</span>
                         <ChevronDown className="w-4 h-4 text-[#78716c] group-open:rotate-180 transition-transform" />
                       </summary>
-                      <p className="mt-3 text-xs text-[#57534e] leading-relaxed">
+                      <p className="mt-3 text-xs text-stone-700 leading-relaxed font-medium">
                         {faq.a}
                       </p>
                     </details>
@@ -1667,7 +1667,7 @@ export default function VowsAndVenuesApp() {
                   value={filterSearch}
                   onChange={(e) => setFilterSearch(e.target.value)}
                   onKeyDown={(e) => { if (e.key === 'Enter') fetchFilteredVendors(); }}
-                  className="w-full pl-10 pr-4 py-2.5 bg-white border border-stone-200 rounded-2xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-800 shadow-sm"
+                  className="w-full pl-10 pr-4 py-2.5 bg-gradient-to-r from-[#fffdfa] to-[#fbf6ec] border-2 border-amber-300/90 rounded-2xl text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 shadow-xs"
                 />
               </div>
             </div>
@@ -1676,7 +1676,7 @@ export default function VowsAndVenuesApp() {
             <div className="flex items-center gap-2 overflow-x-auto pb-4 mb-6 no-scrollbar">
               <button
                 onClick={() => setFilterCategory('all')}
-                className={`px-4 py-2 rounded-xl text-xs font-semibold whitespace-nowrap transition-all ${filterCategory === 'all' ? 'bg-emerald-900 text-amber-200 shadow-sm' : 'bg-white border border-stone-200 text-stone-700 hover:bg-stone-50'}`}
+                className={`px-4 py-2 rounded-xl text-xs font-semibold whitespace-nowrap transition-all ${filterCategory === 'all' ? 'bg-[#4a1525] text-amber-200 shadow-sm' : 'bg-gradient-to-r from-amber-50 to-amber-100/80 border border-amber-300 text-stone-800 hover:bg-amber-200'}`}
               >
                 All Categories ({vendors.length})
               </button>
@@ -1684,7 +1684,7 @@ export default function VowsAndVenuesApp() {
                 <button
                   key={c.id}
                   onClick={() => setFilterCategory(c.slug)}
-                  className={`px-4 py-2 rounded-xl text-xs font-semibold whitespace-nowrap transition-all ${filterCategory === c.slug ? 'bg-emerald-900 text-amber-200 shadow-sm' : 'bg-white border border-stone-200 text-stone-700 hover:bg-stone-50'}`}
+                  className={`px-4 py-2 rounded-xl text-xs font-semibold whitespace-nowrap transition-all ${filterCategory === c.slug ? 'bg-[#4a1525] text-amber-200 shadow-sm' : 'bg-gradient-to-r from-amber-50 to-amber-100/80 border border-amber-300 text-stone-800 hover:bg-amber-200'}`}
                 >
                   {c.name}
                 </button>
@@ -1694,10 +1694,10 @@ export default function VowsAndVenuesApp() {
             {/* Layout: Filters Sidebar + Vendor Cards Grid */}
             <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
               {/* SIDEBAR FILTERS (Desktop) */}
-              <div className="hidden lg:block space-y-6 bg-white p-6 rounded-3xl border border-stone-200 shadow-sm h-fit sticky top-28">
-                <div className="flex items-center justify-between pb-4 border-b border-stone-100">
-                  <h3 className="font-serif font-bold text-base text-emerald-950 flex items-center gap-2">
-                    <Filter className="w-4 h-4 text-emerald-800" /> Filter Vendors
+              <div className="hidden lg:block space-y-6 bg-gradient-to-br from-[#fffdfa] via-[#fcf8f0] to-[#f8f1e3] p-6 rounded-3xl border-2 border-amber-300/80 shadow-md h-fit sticky top-28">
+                <div className="flex items-center justify-between pb-4 border-b border-amber-200/80">
+                  <h3 className="font-serif font-bold text-base text-[#4a1525] flex items-center gap-2">
+                    <Filter className="w-4 h-4 text-amber-700" /> Filter Vendors
                   </h3>
                   <button
                     onClick={() => {
@@ -1709,7 +1709,7 @@ export default function VowsAndVenuesApp() {
                       setFilterMaxPrice(300000)
                       setFilterSortBy('recommended')
                     }}
-                    className="text-xs text-stone-500 hover:text-emerald-900 underline"
+                    className="text-xs text-amber-800 hover:text-[#4a1525] font-semibold underline"
                   >
                     Reset All
                   </button>
@@ -1721,7 +1721,7 @@ export default function VowsAndVenuesApp() {
                   <select
                     value={filterCity}
                     onChange={(e) => setFilterCity(e.target.value)}
-                    className="w-full bg-stone-50 border border-stone-200 rounded-xl px-3 py-2 text-xs font-medium text-stone-800 focus:outline-none cursor-pointer"
+                    className="w-full bg-amber-50/80 border border-amber-200 rounded-xl px-3 py-2 text-xs font-semibold text-stone-800 focus:outline-none cursor-pointer"
                   >
                     <option value="all">All Indian Cities</option>
                     {CITIES.filter(c => c !== 'All Cities').map(c => (

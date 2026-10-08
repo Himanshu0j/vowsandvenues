@@ -23,7 +23,7 @@ export default function VendorCard({
   const imageUrl = getOptimizedImageUrl(vendor.heroImage || vendor.image, { width: 600, quality: 75 })
 
   return (
-    <div className="card-3d-wrap group relative rounded-3xl overflow-hidden bg-white border border-[#e8e2d5] hover:border-amber-400/60 shadow-[0_4px_20px_rgba(0,0,0,0.05)] hover:shadow-[0_20px_45px_rgba(74,21,37,0.14)] transition-all duration-500 hover:-translate-y-2 flex flex-col justify-between">
+    <div className="card-3d-wrap group relative rounded-3xl overflow-hidden bg-gradient-to-b from-[#fffefd] via-[#fdfbf7] to-[#f8f2e7] border-2 border-[#decfaa] hover:border-amber-500 shadow-[0_4px_20px_rgba(74,21,37,0.06)] hover:shadow-[0_20px_50px_rgba(74,21,37,0.18)] transition-all duration-500 hover:-translate-y-2 flex flex-col justify-between">
       {/* Top celebratory accent shimmer line on card */}
       <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-[#c5a059] to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 z-10" />
 
@@ -87,13 +87,13 @@ export default function VendorCard({
         <div>
           {/* Verified Badge & Location */}
           <div className="flex items-center justify-between gap-2 mb-1.5 text-xs">
-            <div className="flex items-center gap-1 text-stone-600 truncate font-medium">
+            <div className="flex items-center gap-1 text-stone-600 truncate font-semibold">
               <MapPin className="w-3.5 h-3.5 text-[#4a1525] shrink-0" />
               <span className="truncate">{vendor.locality ? `${vendor.locality}, ${vendor.city}` : vendor.city}</span>
             </div>
             
             {vendor.verified && (
-              <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-800 text-[10px] font-bold border border-emerald-300 shadow-sm shrink-0">
+              <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-900 text-[10px] font-bold border border-emerald-300 shadow-xs shrink-0">
                 <ShieldCheck className="w-3 h-3 text-emerald-600" /> Verified
               </span>
             )}
@@ -111,7 +111,7 @@ export default function VendorCard({
           {vendor.amenities && vendor.amenities.length > 0 && (
             <div className="flex flex-wrap gap-1 mb-3">
               {vendor.amenities.slice(0, 3).map((am, i) => (
-                <span key={i} className="text-[10px] text-stone-600 bg-[#faf8f5] hover:bg-amber-50/70 px-2 py-0.5 rounded-md border border-[#e8e2d5] transition-colors">
+                <span key={i} className="text-[10px] text-amber-950 bg-amber-100/80 hover:bg-amber-200/80 px-2 py-0.5 rounded-md border border-amber-300/60 transition-colors font-medium">
                   {am}
                 </span>
               ))}
@@ -120,14 +120,14 @@ export default function VendorCard({
         </div>
 
         {/* 3. PRICING & ACTIONS */}
-        <div className="pt-3 border-t border-[#f2ede4] flex items-center justify-between mt-2">
+        <div className="pt-3 border-t border-[#ebdcc9] flex items-center justify-between mt-2">
           <div>
-            <div className="text-[10px] uppercase font-bold text-stone-400 tracking-wider">
+            <div className="text-[9.5px] uppercase font-bold text-amber-900 bg-amber-100/90 px-2 py-0.5 rounded-md border border-amber-300/60 inline-block mb-1">
               Starting From
             </div>
             <div className="font-serif font-bold text-base sm:text-lg text-emerald-950">
               ₹{(vendor.startingPrice || 25000).toLocaleString('en-IN')}
-              <span className="text-[11px] font-sans font-normal text-stone-500">
+              <span className="text-[11px] font-sans font-normal text-stone-600">
                 {' '}/{vendor.priceUnit || 'event'}
               </span>
             </div>
@@ -136,7 +136,7 @@ export default function VendorCard({
           <div className="flex items-center gap-2">
             <button
               onClick={() => onSelectVendor(vendor)}
-              className="px-3.5 py-1.5 rounded-full bg-[#f2ede4] hover:bg-[#eae3d7] text-[#1c1917] text-xs font-semibold transition-all border border-[#dfd7c8] hover:shadow-sm"
+              className="px-3.5 py-1.5 rounded-full bg-amber-100/90 hover:bg-amber-200 text-stone-900 text-xs font-bold transition-all border border-amber-300/80 hover:shadow-xs"
             >
               Details
             </button>
