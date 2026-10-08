@@ -99,7 +99,8 @@ async function connectToMongo() {
       try {
         const client = new MongoClient(mongoUri, {
           serverSelectionTimeoutMS: 5000,
-          connectTimeoutMS: 5000
+          connectTimeoutMS: 5000,
+          tls: true
         })
         clientPromise = client.connect().then(() => {
           const targetDb = process.env.DB_NAME || 'vows_and_venues_staging'
