@@ -71,6 +71,12 @@ async function connectToMongo() {
       return cachedDb
     }
     let mongoUri = (process.env.MONGODB_URI || process.env.MONGO_URL || '').trim()
+    if (mongoUri.startsWith('MONGODB_URI=')) {
+      mongoUri = mongoUri.slice('MONGODB_URI='.length).trim()
+    }
+    if (mongoUri.startsWith('MONGO_URL=')) {
+      mongoUri = mongoUri.slice('MONGO_URL='.length).trim()
+    }
     if ((mongoUri.startsWith('"') && mongoUri.endsWith('"')) || (mongoUri.startsWith("'") && mongoUri.endsWith("'"))) {
       mongoUri = mongoUri.slice(1, -1).trim()
     }
