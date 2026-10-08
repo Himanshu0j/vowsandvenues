@@ -78,21 +78,39 @@ async function connectToMongo() {
           connectTimeoutMS: 5000
         })
         clientPromise = client.connect().then(() => {
-          cachedDb = client.db(process.env.DB_NAME || 'vows_and_venues_staging')
-          console.log('[DB] Successfully connected to persistent MongoDB cluster.')
+          const targetDb = process.env.DB_NAME || 'vows_and_venues_staging'
+          cachedDb = client.db(targetDb)
+          console.log(`[DB] Successfully connected to persistent MongoDB cluster (database: ${targetDb}).`)
           return cachedDb
         }).catch((err) => {
-          console.warn('[DB] MongoDB connection failed, falling back to localDb:', err.message)
+          console.warn('[DB] MongoDB connection failed:', err.message)
+          clientPromise = null
+          if (process.env.USE_LOCAL_DB === 'false') {
+            cachedDb = null
+            throw err
+          }
           cachedDb = localDb
           return cachedDb
         })
       } catch (e) {
-        console.warn('[DB] MongoDB client initialization failed, using localDb:', e.message)
+        console.warn('[DB] MongoDB client initialization failed:', e.message)
+        clientPromise = null
+        if (process.env.USE_LOCAL_DB === 'false') {
+          cachedDb = null
+          throw e
+        }
         cachedDb = localDb
         return cachedDb
       }
     } else {
       // No MongoDB URI provided
+      if (process.env.USE_LOCAL_DB === 'false') {
+        const err = new Error('MONGODB_URI is required when USE_LOCAL_DB is false')
+        console.error('[DB]', err.message)
+        clientPromise = null
+        cachedDb = null
+        throw err
+      }
       if (process.env.NODE_ENV !== 'production') {
         try {
           const client = new MongoClient('mongodb://localhost:27017', {
@@ -100,7 +118,8 @@ async function connectToMongo() {
             connectTimeoutMS: 1500
           })
           clientPromise = client.connect().then(() => {
-            cachedDb = client.db(process.env.DB_NAME || 'vows_and_venues_staging')
+            const targetDb = process.env.DB_NAME || 'vows_and_venues_staging'
+            cachedDb = client.db(targetDb)
             return cachedDb
           }).catch(() => {
             cachedDb = localDb
@@ -111,7 +130,7 @@ async function connectToMongo() {
           return cachedDb
         }
       } else {
-        console.warn('[DB] No MONGODB_URI configured in production environment. Using persistent local storage.')
+        console.warn('[DB] No MONGODB_URI configured. Using persistent local storage.')
         cachedDb = localDb
         return cachedDb
       }
@@ -1979,12 +1998,6 @@ async function handleRoute(request, { params }) {
   }
 
   try {
-    const db = await connectToMongo()
-    if (!seedPromise) {
-      seedPromise = ensureSeeded(db).catch((e) => { seedPromise = null; throw e })
-    }
-    await seedPromise
-
     // OPTIONS preflight
     if (method === 'OPTIONS') {
       return cors(new NextResponse(null, { status: 200 }))
@@ -2008,12 +2021,19 @@ async function handleRoute(request, { params }) {
     if ((route === '/health' || route === '/api/health') && method === 'GET') {
       let dbHealthy = false
       let dbType = 'unknown'
+      const targetDbName = process.env.DB_NAME || 'vows_and_venues_staging'
       try {
-        if (db) {
-          const testCount = await db.collection('categories').countDocuments().catch(() => -1)
+        const testDb = await connectToMongo().catch(() => null)
+        if (testDb) {
+          const testCount = await testDb.collection('categories').countDocuments().catch(() => -1)
           if (testCount >= 0) {
-            dbHealthy = true
-            dbType = (db === localDb || process.env.USE_LOCAL_DB === 'true') ? 'local_db' : 'mongodb'
+            dbType = (testDb === localDb || process.env.USE_LOCAL_DB === 'true') ? 'local_db' : 'mongodb'
+            // If staging requires MongoDB (USE_LOCAL_DB === 'false'), local_db is NOT considered healthy
+            if (process.env.USE_LOCAL_DB === 'false' && dbType !== 'mongodb') {
+              dbHealthy = false
+            } else {
+              dbHealthy = true
+            }
           }
         }
       } catch (_) {
@@ -2024,25 +2044,35 @@ async function handleRoute(request, { params }) {
       return cors(NextResponse.json({
         status: dbHealthy ? 'healthy' : 'degraded',
         timestamp: new Date().toISOString(),
-        service: 'vows-and-venues-staging',
-        version: '2.0.0',
+        service: 'vowsandvenues-staging',
+        environment: process.env.APP_ENV || (process.env.NODE_ENV === 'production' ? 'staging' : process.env.NODE_ENV || 'staging'),
         database: {
           connected: dbHealthy,
-          type: dbType
+          type: dbType,
+          name: targetDbName
         },
+        productionDatabaseIsolated: targetDbName !== 'production' && targetDbName !== 'vows_and_venues_production',
+        version: '2.0.0',
         uptime: Math.round(process.uptime())
       }, { status: statusCode }))
     }
 
+    const db = await connectToMongo()
+    if (!seedPromise) {
+      seedPromise = ensureSeeded(db).catch((e) => { seedPromise = null; throw e })
+    }
+    await seedPromise
+
     // ==========================================================
-    // /api/seed — Gated. Blocked in production unless SEED_KEY matches.
+    // /api/seed — Gated. Blocked in production & staging unless SEED_KEY matches.
     // ==========================================================
     if (route === '/seed' && method === 'GET') {
-      if (IS_PRODUCTION) {
+      const isDev = process.env.NODE_ENV === 'development' && process.env.USE_LOCAL_DB === 'true'
+      if (!isDev) {
         const supplied = request.headers.get('x-seed-key') || query.seedKey
         if (!process.env.SEED_KEY || !supplied || supplied !== process.env.SEED_KEY) {
           return cors(NextResponse.json(
-            { error: 'Seed endpoint is disabled in production' },
+            { error: 'Seed endpoint is disabled in production and staging environments without a valid SEED_KEY' },
             { status: 403 }
           ))
         }

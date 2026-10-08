@@ -36,6 +36,10 @@ async function runE2ETests() {
 
   // --- HEALTH & METADATA ---
   {
+    const r = await request('/api/health');
+    record('Core', 'GET /api/health endpoint', 200, r.status, r.status === 200 && r.data?.status === 'healthy' && r.data?.database?.connected === true, `Type: ${r.data?.database?.type}, Env: ${r.data?.environment}`);
+  }
+  {
     const r = await request('/api/root');
     record('Core', 'GET /api/root health check', 200, r.status, r.status === 200 && r.data?.platform);
   }

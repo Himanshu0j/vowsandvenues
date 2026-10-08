@@ -8,15 +8,20 @@ services:
     buildCommand: yarn install --frozen-lockfile && yarn build
     startCommand: yarn start
     healthCheckPath: /api/health
+    autoDeploy: true
     envVars:
       - key: NODE_ENV
         value: production
+      - key: APP_ENV
+        value: staging
       - key: USE_LOCAL_DB
         value: "false"
       - key: DB_NAME
         value: vows_and_venues_staging
       - key: CORS_ORIGINS
-        value: https://vowsandvenues-staging.onrender.com,https://vowsandvenues.in
+        value: https://vowsandvenues-staging.onrender.com,http://localhost:3000
+      - key: PAYMENT_GATEWAY_MODE
+        value: sandbox
       - key: JWT_SECRET
         generateValue: true
       - key: ADMIN_SECRET
