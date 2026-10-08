@@ -1,7 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 
-const BASE_URL = 'http://localhost:3000';
+const BASE_URL = process.env.TARGET_URL || 'http://localhost:3000';
 
 async function request(endpoint, options = {}) {
   const url = endpoint.startsWith('http') ? endpoint : `${BASE_URL}${endpoint}`;
