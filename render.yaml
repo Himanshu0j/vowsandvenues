@@ -5,7 +5,7 @@ services:
     plan: starter
     region: oregon
     branch: staging
-    buildCommand: yarn install --frozen-lockfile && yarn build
+    buildCommand: yarn install --production=false --frozen-lockfile && yarn build
     startCommand: yarn start
     healthCheckPath: /api/health
     autoDeploy: true
