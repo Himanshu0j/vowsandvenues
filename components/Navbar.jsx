@@ -42,14 +42,16 @@ export default function Navbar({
   const unreadCount = notifications.filter(n => !n.read).length
 
   return (
-    <header className="sticky top-0 z-50 bg-[#faf8f5]/95 backdrop-blur-md border-b border-[#e8e2d5] transition-all">
+    <header className="sticky top-0 z-50 bg-[#faf8f5]/92 backdrop-blur-xl border-b border-[#e8e2d5]/80 shadow-[0_4px_25px_rgba(74,21,37,0.04)] transition-all">
       {/* 1. TOP ANNOUNCEMENT BANNER */}
       {announcement?.enabled && (
-        <div className="bg-[#4a1525] text-[#f5ebd7] text-[11px] sm:text-xs py-1.5 px-4 text-center font-medium tracking-wide flex items-center justify-center gap-2 border-b border-[#5c1d2e]">
-          <span>{announcement.text}</span>
+        <div className="bg-gradient-to-r from-[#380e1b] via-[#4a1525] to-[#380e1b] text-[#f5ebd7] text-[11px] sm:text-xs py-2 px-4 text-center font-medium tracking-wide flex items-center justify-center gap-2 border-b border-[#c5a059]/30 relative overflow-hidden">
+          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-amber-200/10 to-transparent -translate-x-full animate-[shimmer-sweep_3.5s_infinite]" />
+          <Sparkles className="w-3.5 h-3.5 text-amber-300 animate-pulse" />
+          <span className="font-serif tracking-wide">{announcement.text}</span>
           <button
             onClick={() => setActiveTab('explore')}
-            className="underline underline-offset-2 hover:text-white font-semibold ml-1 cursor-pointer"
+            className="underline underline-offset-2 hover:text-amber-200 font-bold ml-1 cursor-pointer transition-colors"
           >
             Explore Now &rarr;
           </button>
@@ -65,28 +67,28 @@ export default function Navbar({
             onClick={() => { setActiveTab('home'); setMobileMenuOpen(false); }}
             className="flex items-center gap-3 cursor-pointer group select-none"
           >
-            <div className="w-10 h-10 rounded-full bg-[#4a1525] text-[#c5a059] flex items-center justify-center border border-[#c5a059]/40 shadow-sm group-hover:scale-105 transition-transform">
-              <span className="font-serif font-bold text-lg leading-none">V</span>
+            <div className="w-11 h-11 rounded-2xl bg-gradient-to-br from-[#4a1525] via-[#370e1b] to-[#20050e] text-[#c5a059] flex items-center justify-center border border-[#c5a059]/40 shadow-md group-hover:scale-105 group-hover:rotate-2 transition-all duration-300 ring-2 ring-amber-400/20">
+              <span className="font-serif font-bold text-xl leading-none text-amber-200">V</span>
             </div>
             <div>
               <div className="font-serif text-2xl font-bold tracking-tight text-[#1c1917] flex items-center gap-1.5">
                 <span>Vows &amp; Venues</span>
-                <span className="w-1.5 h-1.5 rounded-full bg-[#c5a059] inline-block"></span>
+                <span className="w-2 h-2 rounded-full bg-[#c5a059] inline-block animate-pulse"></span>
               </div>
-              <div className="text-[9px] uppercase font-semibold tracking-[0.2em] text-[#78716c] -mt-0.5">
+              <div className="text-[9px] uppercase font-bold tracking-[0.22em] text-[#78716c] -mt-0.5">
                 Luxury Indian Event Marketplace
               </div>
             </div>
           </div>
 
           {/* CITY SELECTOR PILL */}
-          <div className="hidden xl:flex items-center bg-[#f2ede4] hover:bg-[#eae3d7] transition-colors rounded-full px-4 py-1.5 border border-[#dfd7c8] text-xs font-medium text-[#44403c]">
+          <div className="hidden xl:flex items-center bg-white/90 hover:bg-amber-50/70 transition-all rounded-full px-4 py-1.5 border border-amber-200/80 shadow-sm text-xs font-medium text-[#44403c] hover:scale-105">
             <MapPin className="w-3.5 h-3.5 text-[#4a1525] mr-1.5" />
             <span className="text-[#78716c] mr-1">Location:</span>
             <select
               value={selectedCity}
               onChange={(e) => setSelectedCity(e.target.value)}
-              className="bg-transparent text-[#1c1917] font-semibold focus:outline-none cursor-pointer pr-1"
+              className="bg-transparent text-[#1c1917] font-bold focus:outline-none cursor-pointer pr-1"
             >
               {cities.map(c => (
                 <option key={c} value={c}>{c}</option>
@@ -98,9 +100,9 @@ export default function Navbar({
           <nav className="hidden md:flex items-center gap-1 lg:gap-1.5 text-[13px] font-medium text-[#44403c]">
             <button
               onClick={() => setActiveTab('home')}
-              className={`px-3.5 py-2 rounded-full transition-all ${
+              className={`px-3.5 py-2 rounded-full transition-all duration-300 hover:-translate-y-0.5 ${
                 activeTab === 'home'
-                  ? 'text-[#4a1525] bg-[#ebd8de]/50 font-semibold border border-[#d9b8c3]/60'
+                  ? 'text-[#4a1525] bg-gradient-to-r from-amber-100/70 via-rose-100/60 to-amber-100/70 font-bold border border-amber-300/80 shadow-sm'
                   : 'hover:text-[#1c1917] hover:bg-[#f2ede4]'
               }`}
             >
@@ -108,9 +110,9 @@ export default function Navbar({
             </button>
             <button
               onClick={() => setActiveTab('explore')}
-              className={`px-3.5 py-2 rounded-full transition-all ${
+              className={`px-3.5 py-2 rounded-full transition-all duration-300 hover:-translate-y-0.5 ${
                 activeTab === 'explore'
-                  ? 'text-[#4a1525] bg-[#ebd8de]/50 font-semibold border border-[#d9b8c3]/60'
+                  ? 'text-[#4a1525] bg-gradient-to-r from-amber-100/70 via-rose-100/60 to-amber-100/70 font-bold border border-amber-300/80 shadow-sm'
                   : 'hover:text-[#1c1917] hover:bg-[#f2ede4]'
               }`}
             >
@@ -118,9 +120,9 @@ export default function Navbar({
             </button>
             <button
               onClick={() => setActiveTab('categories')}
-              className={`px-3.5 py-2 rounded-full transition-all ${
+              className={`px-3.5 py-2 rounded-full transition-all duration-300 hover:-translate-y-0.5 ${
                 activeTab === 'categories'
-                  ? 'text-[#4a1525] bg-[#ebd8de]/50 font-semibold border border-[#d9b8c3]/60'
+                  ? 'text-[#4a1525] bg-gradient-to-r from-amber-100/70 via-rose-100/60 to-amber-100/70 font-bold border border-amber-300/80 shadow-sm'
                   : 'hover:text-[#1c1917] hover:bg-[#f2ede4]'
               }`}
             >
@@ -128,9 +130,9 @@ export default function Navbar({
             </button>
             <button
               onClick={() => setActiveTab('packages')}
-              className={`px-3.5 py-2 rounded-full transition-all ${
+              className={`px-3.5 py-2 rounded-full transition-all duration-300 hover:-translate-y-0.5 ${
                 activeTab === 'packages'
-                  ? 'text-[#4a1525] bg-[#ebd8de]/50 font-semibold border border-[#d9b8c3]/60'
+                  ? 'text-[#4a1525] bg-gradient-to-r from-amber-100/70 via-rose-100/60 to-amber-100/70 font-bold border border-amber-300/80 shadow-sm'
                   : 'hover:text-[#1c1917] hover:bg-[#f2ede4]'
               }`}
             >
@@ -138,15 +140,15 @@ export default function Navbar({
             </button>
             <button
               onClick={() => setActiveTab('builder')}
-              className={`px-3.5 py-2 rounded-full relative transition-all flex items-center gap-1.5 ${
+              className={`px-3.5 py-2 rounded-full relative transition-all duration-300 hover:-translate-y-0.5 flex items-center gap-1.5 ${
                 activeTab === 'builder'
-                  ? 'text-[#4a1525] bg-[#ebd8de]/50 font-semibold border border-[#d9b8c3]/60'
+                  ? 'text-[#4a1525] bg-gradient-to-r from-amber-100/70 via-rose-100/60 to-amber-100/70 font-bold border border-amber-300/80 shadow-sm'
                   : 'hover:text-[#1c1917] hover:bg-[#f2ede4]'
               }`}
             >
               <span>Build My Event</span>
               {budgetCount > 0 && (
-                <span className="bg-[#4a1525] text-[#f5ebd7] text-[10px] font-bold px-1.5 py-0.2 rounded-full">
+                <span className="bg-gradient-to-r from-[#4a1525] to-[#781f37] text-amber-200 text-[10px] font-bold px-2 py-0.5 rounded-full shadow-sm animate-pulse">
                   {budgetCount}
                 </span>
               )}
@@ -159,15 +161,15 @@ export default function Navbar({
             <button
               onClick={() => setActiveTab('wishlist')}
               title="Saved Wishlist"
-              className={`p-2.5 rounded-full border relative transition-all ${
+              className={`p-2.5 rounded-full border relative transition-all duration-300 hover:scale-110 active:scale-95 ${
                 activeTab === 'wishlist'
-                  ? 'bg-rose-50 text-rose-600 border-rose-300'
-                  : 'bg-[#f5f2eb] hover:bg-[#eae3d7] border-[#dfd7c8] text-[#44403c]'
+                  ? 'bg-rose-50 text-rose-600 border-rose-300 shadow-sm'
+                  : 'bg-white/80 hover:bg-[#eae3d7] border-[#dfd7c8] text-[#44403c] shadow-sm'
               }`}
             >
               <Heart className={`w-4 h-4 ${wishlistCount > 0 ? 'fill-rose-500 text-rose-500' : ''}`} />
               {wishlistCount > 0 && (
-                <span className="absolute -top-1 -right-1 bg-rose-600 text-white text-[10px] font-bold w-4 h-4 rounded-full flex items-center justify-center">
+                <span className="absolute -top-1 -right-1 bg-rose-600 text-white text-[10px] font-bold w-4 h-4 rounded-full flex items-center justify-center shadow-sm">
                   {wishlistCount}
                 </span>
               )}
@@ -224,23 +226,23 @@ export default function Navbar({
               <div className="relative">
                 <button
                   onClick={() => setShowProfileMenu(!showProfileMenu)}
-                  className="flex items-center gap-2 pl-2 pr-3 py-1.5 rounded-full bg-[#4a1525] text-white hover:bg-[#3d111e] transition-colors border border-[#5c1d2e] shadow-sm"
+                  className="btn-3d-wine flex items-center gap-2 pl-2 pr-3.5 py-1.5 rounded-full bg-gradient-to-r from-[#4a1525] via-[#5e192f] to-[#4a1525] text-white hover:brightness-110 transition-all border border-[#c5a059]/40 shadow-md hover:scale-105 active:scale-95"
                 >
-                  <div className="w-7 h-7 rounded-full bg-[#c5a059] text-[#1c1917] font-bold text-xs flex items-center justify-center">
+                  <div className="w-7 h-7 rounded-full bg-gradient-to-br from-amber-300 to-amber-500 text-[#1c1917] font-bold text-xs flex items-center justify-center shadow-sm">
                     {currentUser.name ? currentUser.name[0].toUpperCase() : 'U'}
                   </div>
-                  <span className="text-xs font-semibold hidden sm:inline max-w-[100px] truncate">
+                  <span className="text-xs font-semibold hidden sm:inline max-w-[100px] truncate text-amber-100">
                     {currentUser.name}
                   </span>
-                  <ChevronDown className="w-3.5 h-3.5 opacity-80" />
+                  <ChevronDown className="w-3.5 h-3.5 opacity-80 text-amber-300" />
                 </button>
 
                 {showProfileMenu && (
-                  <div className="absolute right-0 mt-3 w-64 bg-white rounded-2xl shadow-xl border border-[#e8e2d5] p-2 z-50 animate-in fade-in slide-in-from-top-2 text-xs">
-                    <div className="p-3 border-b border-stone-100 bg-[#faf8f5] rounded-xl mb-1">
+                  <div className="absolute right-0 mt-3 w-64 bg-white/95 backdrop-blur-xl rounded-2xl shadow-2xl border border-amber-200/70 p-2 z-50 animate-in fade-in slide-in-from-top-2 text-xs">
+                    <div className="p-3 border-b border-stone-100 bg-gradient-to-br from-amber-50/60 to-rose-50/40 rounded-xl mb-1 border border-amber-100/60">
                       <div className="font-bold text-stone-900 truncate">{currentUser.name}</div>
                       <div className="text-[11px] text-stone-500 truncate">{currentUser.email}</div>
-                      <div className="inline-block mt-1.5 px-2 py-0.5 bg-[#ebd8de] text-[#4a1525] rounded-full text-[10px] font-bold uppercase tracking-wider">
+                      <div className="inline-block mt-1.5 px-2.5 py-0.5 bg-[#ebd8de] text-[#4a1525] rounded-full text-[10px] font-bold uppercase tracking-wider border border-[#4a1525]/20">
                         Role: {userRole}
                       </div>
                     </div>
@@ -302,9 +304,10 @@ export default function Navbar({
             ) : (
               <button
                 onClick={onOpenAuth}
-                className="px-4 sm:px-5 py-2 rounded-full bg-[#4a1525] hover:bg-[#3d111e] text-[#f5ebd7] text-xs font-semibold transition-all shadow-sm border border-[#5c1d2e]"
+                className="btn-3d-wine px-5 py-2 rounded-full bg-gradient-to-r from-[#4a1525] via-[#5c1a2e] to-[#4a1525] hover:brightness-110 text-[#f5ebd7] text-xs font-bold transition-all shadow-md border border-[#c5a059]/40 hover:scale-105 active:scale-95 flex items-center gap-1.5"
               >
-                Sign In
+                <Sparkles className="w-3.5 h-3.5 text-amber-300" />
+                <span>Sign In</span>
               </button>
             )}
 

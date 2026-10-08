@@ -27,21 +27,25 @@ export default function FooterSection({
   }
 
   return (
-    <footer className="bg-[#1c1917] text-white pt-16 pb-12 border-t border-[#332f2b]">
+    <footer className="bg-gradient-to-b from-[#1c1917] via-[#161413] to-[#0f0e0d] text-white pt-16 pb-12 border-t border-amber-900/30 relative">
+      {/* Decorative top gold hairline */}
+      <div className="absolute top-0 left-0 right-0 h-0.5 bg-gradient-to-r from-transparent via-[#c5a059] to-transparent opacity-60" />
+
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
         
         {/* 1. TOP BRAND STORY & CONCIERGE CALLOUT */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 pb-12 border-b border-stone-800">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 pb-12 border-b border-stone-800/80">
           <div className="space-y-4">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-full bg-[#4a1525] text-[#c5a059] flex items-center justify-center border border-[#c5a059]/40 font-serif font-bold text-lg">
+              <div className="w-11 h-11 rounded-2xl bg-gradient-to-br from-[#4a1525] via-[#350c18] to-[#20050d] text-[#c5a059] flex items-center justify-center border border-[#c5a059]/50 font-serif font-bold text-xl shadow-lg ring-2 ring-amber-400/20">
                 V
               </div>
               <div>
-                <span className="font-serif text-2xl font-bold tracking-tight text-white">
-                  Vows &amp; Venues
+                <span className="font-serif text-2xl font-bold tracking-tight text-white flex items-center gap-1.5">
+                  <span>Vows &amp; Venues</span>
+                  <span className="w-1.5 h-1.5 rounded-full bg-[#c5a059]"></span>
                 </span>
-                <div className="text-[9px] uppercase tracking-[0.2em] text-[#c5a059] font-bold">
+                <div className="text-[9px] uppercase tracking-[0.22em] text-[#c5a059] font-bold">
                   India's Premier Wedding Atelier
                 </div>
               </div>

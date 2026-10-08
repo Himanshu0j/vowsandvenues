@@ -48,38 +48,90 @@ export default function HeroSection({
         style={{ backgroundImage: `url('${optimizedHeroBg}')` }}
       />
 
-      {/* 2. ELEGANT EDITORIAL OVERLAYS (Warm dark chocolate & vignette, no neon glow) */}
-      <div className="absolute inset-0 bg-gradient-to-t from-[#141210] via-[#1c1917]/80 to-[#1c1917]/60" />
-      <div className="absolute inset-0 bg-radial from-transparent via-[#141210]/40 to-[#141210]/80 pointer-events-none" />
+      {/* 2. ELEGANT EDITORIAL OVERLAYS (Rich Royal Emerald & Dark Wine Vignette) */}
+      <div className="absolute inset-0 bg-gradient-to-t from-[#0e0c0a] via-[#1a1412]/80 to-[#10241b]/70" />
+      <div className="absolute inset-0 bg-radial from-transparent via-[#0e0c0a]/40 to-[#0e0c0a]/85 pointer-events-none" />
+
+      {/* 3D FLOATING CELEBRATION BADGES (Desktop) */}
+      <div className="hidden xl:flex absolute left-6 2xl:left-12 top-1/2 -translate-y-1/2 flex-col gap-4 z-20 animate-float-slow pointer-events-none">
+        <div className="royal-glass-dark p-4 rounded-2xl shadow-2xl border border-amber-400/30 text-left max-w-[220px] backdrop-blur-md">
+          <div className="flex items-center gap-2.5 mb-2">
+            <span className="w-8 h-8 rounded-xl bg-gradient-to-br from-amber-400 to-amber-600 text-stone-900 flex items-center justify-center text-base shadow-md font-bold">🏰</span>
+            <div>
+              <div className="text-[10px] font-bold text-amber-300 uppercase tracking-wider">Royal Venues</div>
+              <div className="text-xs font-serif font-bold text-white">Udaipur &amp; Jaipur</div>
+            </div>
+          </div>
+          <p className="text-[10.5px] text-stone-300 font-light leading-snug">Heritage Palaces, Forts &amp; Boutique Banquet Resorsts</p>
+          <div className="mt-2.5 pt-2 border-t border-white/10 text-[10px] font-semibold text-emerald-400 flex items-center gap-1.5">
+            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span> 100% Direct Date Lock
+          </div>
+        </div>
+
+        <div className="royal-glass-dark p-3.5 rounded-2xl shadow-xl border border-rose-400/30 text-left max-w-[210px] backdrop-blur-md">
+          <div className="flex items-center gap-2">
+            <span className="text-lg">🍲</span>
+            <span className="text-xs font-serif font-bold text-amber-200">Shahi Awadhi Feasts</span>
+          </div>
+          <p className="text-[10px] text-stone-300 mt-1">Live Chaat &amp; Galouti Counters</p>
+        </div>
+      </div>
+
+      <div className="hidden xl:flex absolute right-6 2xl:right-12 top-1/2 -translate-y-1/2 flex-col gap-4 z-20 animate-float-reverse pointer-events-none">
+        <div className="royal-glass-dark p-4 rounded-2xl shadow-2xl border border-amber-400/30 text-left max-w-[220px] backdrop-blur-md">
+          <div className="flex items-center gap-2.5 mb-2">
+            <span className="w-8 h-8 rounded-xl bg-gradient-to-br from-rose-500 to-pink-600 text-white flex items-center justify-center text-base shadow-md font-bold">💍</span>
+            <div>
+              <div className="text-[10px] font-bold text-amber-300 uppercase tracking-wider">14,200+ Celebrations</div>
+              <div className="text-xs font-serif font-bold text-white">Curated in India</div>
+            </div>
+          </div>
+          <div className="flex items-center gap-1.5 mt-1">
+            <div className="flex text-amber-400 text-xs">★★★★★</div>
+            <span className="text-[10.5px] text-white font-bold">4.95 / 5 Rating</span>
+          </div>
+          <div className="mt-2.5 pt-2 border-t border-white/10 text-[10px] font-semibold text-amber-300 flex items-center gap-1">
+            <span>🛡️</span> Verified Quality Creators
+          </div>
+        </div>
+
+        <div className="royal-glass-dark p-3.5 rounded-2xl shadow-xl border border-indigo-400/30 text-left max-w-[210px] backdrop-blur-md">
+          <div className="flex items-center gap-2">
+            <span className="text-lg">📸</span>
+            <span className="text-xs font-serif font-bold text-amber-200">4K Drone &amp; Cinema</span>
+          </div>
+          <p className="text-[10px] text-stone-300 mt-1">Candid Master Storytellers</p>
+        </div>
+      </div>
 
       {/* 3. HERO CONTENT WRAPPER */}
       <div className="relative max-w-5xl mx-auto w-full text-center z-10">
         
         {/* Editorial Eyebrow Tag */}
-        <div className="inline-flex items-center gap-2 px-3.5 sm:px-4 py-1.5 rounded-full bg-[#f5ebd7]/15 border border-[#c5a059]/40 text-[#e8d08d] text-xs sm:text-[13px] font-medium mb-4 sm:mb-6 tracking-wide backdrop-blur-md">
-          <Sparkles className="w-3.5 h-3.5 text-[#c5a059] shrink-0" />
+        <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-gradient-to-r from-amber-950/60 via-[#4a1525]/70 to-amber-950/60 border border-amber-400/40 text-amber-200 text-xs sm:text-[13px] font-medium mb-4 sm:mb-6 tracking-wide backdrop-blur-md shadow-lg animate-pulse-glow">
+          <Sparkles className="w-3.5 h-3.5 text-amber-400 shrink-0" />
           <span className="truncate max-w-[280px] sm:max-w-none">{heroData.badge || "India's Premier Luxury Wedding & Event Concierge"}</span>
         </div>
 
         {/* Master Headline */}
-        <h1 className="font-serif text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight text-white mb-4 sm:mb-6 leading-[1.15]">
+        <h1 className="font-serif text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight text-white mb-4 sm:mb-6 leading-[1.15] drop-shadow-md">
           Plan Your Perfect Celebration, <br className="hidden sm:inline" />
           <span className="gold-shimmer italic font-normal">All in One Place</span>
         </h1>
 
         {/* Subtitle */}
-        <p className="max-w-2xl mx-auto text-sm sm:text-base md:text-lg text-[#e7e2d8] font-light mb-8 sm:mb-10 leading-relaxed drop-shadow-sm px-2">
+        <p className="max-w-2xl mx-auto text-sm sm:text-base md:text-lg text-amber-100/90 font-light mb-8 sm:mb-10 leading-relaxed drop-shadow px-2">
           {heroData.subheadline}
         </p>
 
-        {/* 4. LUXURY MULTI-FIELD DISCOVERY SEARCH BOX */}
-        <div className="bg-[#ffffff]/98 backdrop-blur-xl rounded-3xl p-3.5 sm:p-6 shadow-2xl border border-[#e8e2d5] text-[#1c1917] text-left max-w-4xl mx-auto transition-all">
+        {/* 4. LUXURY 3D MULTI-FIELD DISCOVERY SEARCH BOX */}
+        <div className="bg-white/95 backdrop-blur-xl rounded-3xl p-4 sm:p-7 shadow-2xl border-2 border-amber-400/30 text-stone-900 text-left max-w-4xl mx-auto transition-all card-3d-hover">
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-2.5 sm:gap-3 mb-4">
             
             {/* Field 1: Event Type */}
-            <div className="bg-[#faf8f5] rounded-2xl p-2.5 sm:p-3 border border-[#e8e2d5] hover:border-[#c5a059] transition-colors">
+            <div className="bg-stone-50/90 rounded-2xl p-2.5 sm:p-3 border border-stone-200 hover:border-amber-500 transition-all shadow-sm">
               <label className="block text-[10px] sm:text-[11px] font-bold text-[#4a1525] uppercase tracking-wider mb-1 flex items-center gap-1.5">
-                <Sparkles className="w-3.5 h-3.5 text-[#c5a059]" /> Event Type
+                <span className="w-2 h-2 rounded-full bg-rose-500"></span> Event Type
               </label>
               <select
                 value={heroSearch.eventType}
@@ -93,9 +145,9 @@ export default function HeroSection({
             </div>
 
             {/* Field 2: Location */}
-            <div className="bg-[#faf8f5] rounded-2xl p-2.5 sm:p-3 border border-[#e8e2d5] hover:border-[#c5a059] transition-colors">
+            <div className="bg-stone-50/90 rounded-2xl p-2.5 sm:p-3 border border-stone-200 hover:border-amber-500 transition-all shadow-sm">
               <label className="block text-[10px] sm:text-[11px] font-bold text-[#4a1525] uppercase tracking-wider mb-1 flex items-center gap-1.5">
-                <MapPin className="w-3.5 h-3.5 text-[#c5a059]" /> City Location
+                <span className="w-2 h-2 rounded-full bg-amber-500"></span> City Location
               </label>
               <select
                 value={heroSearch.city}
@@ -112,9 +164,9 @@ export default function HeroSection({
             </div>
 
             {/* Field 3: Event Date */}
-            <div className="bg-[#faf8f5] rounded-2xl p-2.5 sm:p-3 border border-[#e8e2d5] hover:border-[#c5a059] transition-colors">
+            <div className="bg-stone-50/90 rounded-2xl p-2.5 sm:p-3 border border-stone-200 hover:border-amber-500 transition-all shadow-sm">
               <label className="block text-[10px] sm:text-[11px] font-bold text-[#4a1525] uppercase tracking-wider mb-1 flex items-center gap-1.5">
-                <Calendar className="w-3.5 h-3.5 text-[#c5a059]" /> Event Date
+                <span className="w-2 h-2 rounded-full bg-emerald-500"></span> Event Date
               </label>
               <input
                 type="date"
@@ -125,9 +177,9 @@ export default function HeroSection({
             </div>
 
             {/* Field 4: Guest Count */}
-            <div className="bg-[#faf8f5] rounded-2xl p-2.5 sm:p-3 border border-[#e8e2d5] hover:border-[#c5a059] transition-colors">
+            <div className="bg-stone-50/90 rounded-2xl p-2.5 sm:p-3 border border-stone-200 hover:border-amber-500 transition-all shadow-sm">
               <label className="block text-[10px] sm:text-[11px] font-bold text-[#4a1525] uppercase tracking-wider mb-1 flex items-center gap-1.5">
-                <Users className="w-3.5 h-3.5 text-[#c5a059]" /> Guest Count
+                <span className="w-2 h-2 rounded-full bg-blue-500"></span> Guest Count
               </label>
               <select
                 value={heroSearch.guests}
@@ -142,9 +194,9 @@ export default function HeroSection({
             </div>
 
             {/* Field 5: Target Budget */}
-            <div className="bg-[#faf8f5] rounded-2xl p-2.5 sm:p-3 border border-[#e8e2d5] hover:border-[#c5a059] transition-colors">
+            <div className="bg-stone-50/90 rounded-2xl p-2.5 sm:p-3 border border-stone-200 hover:border-amber-500 transition-all shadow-sm">
               <label className="block text-[10px] sm:text-[11px] font-bold text-[#4a1525] uppercase tracking-wider mb-1 flex items-center gap-1.5">
-                <DollarSign className="w-3.5 h-3.5 text-[#c5a059]" /> Target Budget
+                <span className="w-2 h-2 rounded-full bg-purple-500"></span> Target Budget
               </label>
               <select
                 value={heroSearch.budget}
@@ -159,39 +211,51 @@ export default function HeroSection({
             </div>
           </div>
 
-          {/* Primary & Secondary Action CTAs */}
-          <div className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-3 border-t border-[#f0eae1]">
-            <div className="flex items-center gap-2 overflow-x-auto no-scrollbar w-full sm:w-auto text-xs text-[#78716c] py-1">
-              <span className="font-semibold text-[#1c1917] whitespace-nowrap">Trending Categories:</span>
-              <span className="bg-[#f2ede4] text-[#44403c] px-3 py-1 rounded-full whitespace-nowrap font-medium text-[11px]">Heritage Palaces</span>
-              <span className="bg-[#f2ede4] text-[#44403c] px-3 py-1 rounded-full whitespace-nowrap font-medium text-[11px]">Awadhi Feasts</span>
-              <span className="bg-[#f2ede4] text-[#44403c] px-3 py-1 rounded-full whitespace-nowrap font-medium text-[11px]">Floral Mandaps</span>
+          {/* Primary & Secondary Action CTAs with Colorful Chips */}
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-3.5 border-t border-stone-200">
+            <div className="flex items-center gap-2 overflow-x-auto no-scrollbar w-full sm:w-auto text-xs py-1">
+              <span className="font-bold text-stone-900 whitespace-nowrap text-[11px] uppercase tracking-wider">Trending:</span>
+              <span className="bg-amber-100 text-amber-900 border border-amber-300 px-3 py-1 rounded-full whitespace-nowrap font-semibold text-[11px] flex items-center gap-1 shadow-sm">
+                🏰 Heritage Palaces
+              </span>
+              <span className="bg-orange-100 text-orange-900 border border-orange-300 px-3 py-1 rounded-full whitespace-nowrap font-semibold text-[11px] flex items-center gap-1 shadow-sm">
+                🍲 Awadhi Feasts
+              </span>
+              <span className="bg-rose-100 text-rose-900 border border-rose-300 px-3 py-1 rounded-full whitespace-nowrap font-semibold text-[11px] flex items-center gap-1 shadow-sm">
+                🌸 Floral Mandaps
+              </span>
+              <span className="bg-sky-100 text-sky-900 border border-sky-300 px-3 py-1 rounded-full whitespace-nowrap font-semibold text-[11px] flex items-center gap-1 shadow-sm">
+                📸 Candid Cinema
+              </span>
             </div>
 
-            <div className="flex items-center gap-2.5 w-full sm:w-auto">
+            <div className="flex items-center gap-3 w-full sm:w-auto">
               <button
                 onClick={onExploreVendors}
-                className="flex-1 sm:flex-none px-5 sm:px-6 py-2.5 sm:py-3 rounded-full bg-[#f2ede4] hover:bg-[#e7e0d3] text-[#1c1917] font-semibold text-xs sm:text-sm transition-colors text-center border border-[#dfd7c8]"
+                className="flex-1 sm:flex-none px-5 sm:px-6 py-2.5 sm:py-3 rounded-full bg-white hover:bg-stone-50 text-stone-800 font-bold text-xs sm:text-sm transition-all text-center border-2 border-stone-300 hover:border-amber-500 shadow-sm active:scale-95"
               >
-                Explore Vendors
+                Explore All Creators
               </button>
               <button
                 onClick={onStartPlanning}
-                className="flex-1 sm:flex-none px-6 sm:px-7 py-2.5 sm:py-3 rounded-full bg-[#4a1525] hover:bg-[#3b101d] text-[#f5ebd7] font-bold text-xs sm:text-sm shadow-lg flex items-center justify-center gap-2 border border-[#5c1d2e] active:scale-95 transition-all"
+                className="flex-1 sm:flex-none px-6 sm:px-8 py-2.5 sm:py-3 rounded-full btn-3d-wine text-amber-100 font-bold text-xs sm:text-sm flex items-center justify-center gap-2 active:scale-95"
               >
                 <span>Build My Event</span>
-                <ArrowRight className="w-4 h-4 text-[#c5a059]" />
+                <ArrowRight className="w-4 h-4 text-amber-300" />
               </button>
             </div>
           </div>
         </div>
 
-        {/* 5. TRUST SIGNALS & PROOF TILES */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-2.5 sm:gap-4 mt-8 sm:mt-10 max-w-4xl mx-auto text-left">
+        {/* 5. 3D TRUST SIGNALS & PROOF TILES */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 mt-8 sm:mt-10 max-w-4xl mx-auto text-left">
           {(heroData.stats || []).map((s, idx) => (
-            <div key={idx} className="bg-white/10 backdrop-blur-md rounded-2xl p-3 sm:p-4 border border-white/15">
-              <div className="font-serif text-xl sm:text-3xl font-bold text-[#e8d08d]">{s.value}</div>
-              <div className="text-[10px] sm:text-xs text-[#e7e2d8] mt-0.5 font-medium">{s.label}</div>
+            <div 
+              key={idx} 
+              className="royal-glass-dark rounded-2xl p-3.5 sm:p-4 border border-amber-400/25 shadow-xl hover:-translate-y-1 transition-transform duration-300"
+            >
+              <div className="font-serif text-2xl sm:text-3xl font-bold gold-shimmer">{s.value}</div>
+              <div className="text-[11px] sm:text-xs text-amber-100/90 mt-0.5 font-medium">{s.label}</div>
             </div>
           ))}
         </div>

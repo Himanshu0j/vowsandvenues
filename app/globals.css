@@ -77,12 +77,152 @@ h1, h2, h3, h4, .font-serif {
   100% { background-position: 200% 0; }
 }
 
+@keyframes float-slow {
+  0%, 100% {
+    transform: translateY(0px) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-9px) rotate(0.8deg);
+  }
+}
+
+@keyframes float-reverse {
+  0%, 100% {
+    transform: translateY(0px) rotate(0deg);
+  }
+  50% {
+    transform: translateY(9px) rotate(-0.8deg);
+  }
+}
+
+@keyframes float-gentle {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-5px);
+  }
+}
+
+@keyframes shimmer-sweep {
+  0% {
+    transform: translateX(-150%) skewX(-20deg);
+  }
+  100% {
+    transform: translateX(250%) skewX(-20deg);
+  }
+}
+
+@keyframes pulse-glow {
+  0%, 100% {
+    box-shadow: 0 0 15px rgba(212, 175, 55, 0.25), 0 0 30px rgba(197, 160, 89, 0.15);
+  }
+  50% {
+    box-shadow: 0 0 25px rgba(212, 175, 55, 0.45), 0 0 45px rgba(197, 160, 89, 0.3);
+  }
+}
+
+.animate-float-slow {
+  animation: float-slow 6s ease-in-out infinite;
+}
+
+.animate-float-reverse {
+  animation: float-reverse 7s ease-in-out infinite;
+}
+
+.animate-float-gentle {
+  animation: float-gentle 4s ease-in-out infinite;
+}
+
+.animate-pulse-glow {
+  animation: pulse-glow 3s ease-in-out infinite;
+}
+
 .gold-shimmer {
-  background: linear-gradient(90deg, #b38f46 0%, #e8d08d 50%, #99732f 100%);
+  background: linear-gradient(90deg, #c5a059 0%, #fef3c7 35%, #e8d08d 60%, #b38f46 100%);
   background-size: 200% auto;
   color: transparent;
   -webkit-background-clip: text;
   background-clip: text;
+  animation: gold-shine 5s linear infinite;
+}
+
+/* 3D Perspective Card Tilt Effects */
+.card-3d-wrap {
+  perspective: 1000px;
+}
+
+.card-3d-hover {
+  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  transform-style: preserve-3d;
+}
+
+.card-3d-hover:hover {
+  transform: translateY(-7px) rotateX(2deg) rotateY(-1deg);
+  box-shadow: 0 20px 40px -10px rgba(24, 18, 14, 0.15), 0 0 25px rgba(197, 160, 89, 0.15);
+}
+
+/* Royal Indian Color Gradients */
+.royal-emerald-gradient {
+  background: linear-gradient(135deg, #10281e 0%, #1c4233 50%, #2e5e4b 100%);
+}
+
+.royal-burgundy-gradient {
+  background: linear-gradient(135deg, #3d0e1c 0%, #5c182d 50%, #7e2441 100%);
+}
+
+.royal-amber-gradient {
+  background: linear-gradient(135deg, #451a03 0%, #78350f 50%, #b45309 100%);
+}
+
+.royal-glass {
+  background: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(212, 175, 55, 0.35);
+}
+
+.royal-glass-dark {
+  background: rgba(20, 16, 14, 0.78);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(232, 208, 141, 0.25);
+}
+
+/* Interactive 3D Gold Button */
+.btn-3d-gold {
+  background: linear-gradient(135deg, #d4af37 0%, #e6c86e 50%, #c5a059 100%);
+  color: #1a150e;
+  font-weight: 700;
+  box-shadow: 0 4px 14px 0 rgba(212, 175, 55, 0.38), inset 0 1px 0 rgba(255, 255, 255, 0.5);
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.btn-3d-gold:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px 0 rgba(212, 175, 55, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.7);
+}
+
+.btn-3d-gold:active {
+  transform: translateY(1px);
+}
+
+/* Interactive 3D Wine Button */
+.btn-3d-wine {
+  background: linear-gradient(135deg, #4a1525 0%, #681d33 50%, #4a1525 100%);
+  color: #fef3c7;
+  font-weight: 700;
+  box-shadow: 0 4px 14px 0 rgba(74, 21, 37, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.btn-3d-wine:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px 0 rgba(74, 21, 37, 0.48), inset 0 1px 0 rgba(255, 255, 255, 0.3);
+}
+
+.btn-3d-wine:active {
+  transform: translateY(1px);
 }
 
 /* Subtle luxury card elevations */

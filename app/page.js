@@ -1534,30 +1534,31 @@ export default function VowsAndVenuesApp() {
                   {cmsContent.testimonials.map((t, idx) => (
                     <div
                       key={idx}
-                      className="bg-white rounded-3xl p-6 sm:p-8 border border-[#e8e2d5] shadow-sm flex flex-col justify-between"
+                      className="card-3d-wrap group bg-white rounded-3xl p-6 sm:p-8 border border-[#e8e2d5] hover:border-amber-400/80 shadow-[0_4px_20px_rgba(0,0,0,0.04)] hover:shadow-[0_20px_45px_rgba(74,21,37,0.12)] transition-all duration-500 hover:-translate-y-2 flex flex-col justify-between relative overflow-hidden"
                     >
+                      <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-amber-300 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
                       <div>
-                        <div className="flex items-center gap-1 text-[#c5a059] mb-4">
+                        <div className="flex items-center gap-1.5 text-amber-500 mb-4 bg-amber-50/70 w-fit px-2.5 py-1 rounded-full border border-amber-200/50">
                           {[...Array(5)].map((_, i) => (
-                            <Star key={i} className="w-4 h-4 fill-[#c5a059]" />
+                            <Star key={i} className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
                           ))}
                         </div>
-                        <p className="font-serif italic text-sm text-[#2b2723] leading-relaxed mb-6">
+                        <p className="font-serif italic text-sm sm:text-base text-stone-800 leading-relaxed mb-6">
                           &ldquo;{t.quote}&rdquo;
                         </p>
                       </div>
 
-                      <div className="flex items-center gap-3 pt-4 border-t border-[#f5f0eb]">
+                      <div className="flex items-center gap-3 pt-4 border-t border-stone-100">
                         <img
                           src={getOptimizedImageUrl(t.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb', { width: 120, quality: 75 })}
                           alt={t.author}
                           loading="lazy"
                           decoding="async"
-                          className="w-11 h-11 rounded-full object-cover border border-[#c5a059]"
+                          className="w-12 h-12 rounded-full object-cover border-2 border-amber-400/60 shadow-sm group-hover:scale-105 transition-transform"
                         />
                         <div>
-                          <div className="font-serif font-bold text-sm text-[#1c1917]">{t.author}</div>
-                          <div className="text-[11px] text-[#78716c]">{t.event} &bull; {t.city}</div>
+                          <div className="font-serif font-bold text-sm text-[#1c1917] group-hover:text-[#4a1525] transition-colors">{t.author}</div>
+                          <div className="text-[11px] text-stone-500 font-medium">{t.event} &bull; {t.city}</div>
                         </div>
                       </div>
                     </div>
@@ -1599,31 +1600,37 @@ export default function VowsAndVenuesApp() {
 
             {/* VIP CONCIERGE BANNER */}
             <section className="py-12 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
-              <div className="bg-[#4a1525] rounded-3xl p-8 sm:p-12 text-white relative overflow-hidden flex flex-col md:flex-row items-center justify-between gap-8 shadow-xl">
-                <div className="space-y-3 max-w-xl">
-                  <span className="bg-[#c5a059] text-[#1c1917] text-[10px] font-bold uppercase tracking-widest px-3 py-1 rounded-full">
-                    VIP Wedding Concierge
+              <div className="card-3d-wrap relative rounded-3xl p-8 sm:p-12 text-white overflow-hidden flex flex-col md:flex-row items-center justify-between gap-8 shadow-[0_20px_50px_rgba(74,21,37,0.25)] bg-gradient-to-br from-[#3b0d1b] via-[#4a1525] to-[#20050d] border border-amber-400/40">
+                {/* Ambient glow orbs */}
+                <div className="absolute -top-24 -right-24 w-72 h-72 rounded-full bg-amber-400/15 blur-3xl pointer-events-none" />
+                <div className="absolute -bottom-24 -left-24 w-72 h-72 rounded-full bg-emerald-500/15 blur-3xl pointer-events-none" />
+                <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-amber-300 to-transparent" />
+
+                <div className="space-y-3 max-w-xl relative z-10">
+                  <span className="bg-gradient-to-r from-amber-300 to-amber-500 text-stone-950 text-[10px] font-bold uppercase tracking-widest px-3.5 py-1 rounded-full shadow-sm inline-flex items-center gap-1.5">
+                    <Sparkles className="w-3 h-3 text-stone-900" />
+                    <span>VIP Wedding Concierge</span>
                   </span>
-                  <h3 className="font-serif text-2xl sm:text-3xl font-bold text-[#faf8f5]">
+                  <h3 className="font-serif text-2xl sm:text-3xl lg:text-4xl font-bold text-[#faf8f5]">
                     Need Bespoke Assistance for a Destination Celebration?
                   </h3>
-                  <p className="text-xs text-[#f5ebd7]/85 leading-relaxed">
+                  <p className="text-xs sm:text-sm text-[#f5ebd7]/85 leading-relaxed">
                     Our luxury event specialists offer complimentary one-on-one consultation, custom palace sourcing, and consolidated vendor contracts.
                   </p>
                 </div>
-                <div className="flex flex-col sm:flex-row gap-3 shrink-0">
+                <div className="flex flex-col sm:flex-row gap-3 shrink-0 relative z-10 w-full sm:w-auto">
                   <button
                     onClick={() => {
                       setActiveTab('builder')
                       window.scrollTo({ top: 0, behavior: 'smooth' })
                     }}
-                    className="px-6 py-3.5 bg-[#c5a059] hover:bg-[#d4b06a] text-[#1c1917] font-bold text-xs uppercase tracking-wider rounded-xl transition-all shadow-md cursor-pointer"
+                    className="btn-3d-gold px-7 py-3.5 bg-gradient-to-r from-[#e6ca65] via-[#ffd700] to-[#c5a059] hover:brightness-110 text-stone-950 font-bold text-xs uppercase tracking-wider rounded-xl transition-all shadow-xl hover:scale-105 active:scale-95 cursor-pointer text-center"
                   >
                     Start Event Architect
                   </button>
                   <a
                     href="tel:+919876543210"
-                    className="px-6 py-3.5 bg-white/10 hover:bg-white/20 text-white font-bold text-xs uppercase tracking-wider rounded-xl transition-all border border-white/20 text-center cursor-pointer"
+                    className="px-6 py-3.5 bg-white/10 hover:bg-white/20 text-white font-bold text-xs uppercase tracking-wider rounded-xl transition-all border border-amber-300/30 text-center hover:scale-105 active:scale-95 cursor-pointer"
                   >
                     Call Concierge Desk
                   </a>
@@ -1834,8 +1841,11 @@ export default function VowsAndVenuesApp() {
                         <div
                           key={vendor.id}
                           onClick={() => setSelectedVendorModal(vendor)}
-                          className="bg-white rounded-3xl border border-stone-200 overflow-hidden shadow-sm hover:shadow-xl hover:border-emerald-300 transition-all flex flex-col group cursor-pointer"
+                          className="card-3d-wrap group bg-white rounded-3xl border border-[#e8e2d5] overflow-hidden shadow-[0_4px_20px_rgba(0,0,0,0.05)] hover:shadow-[0_20px_45px_rgba(74,21,37,0.15)] hover:border-amber-400/80 transition-all duration-500 hover:-translate-y-2 flex flex-col cursor-pointer relative"
                         >
+                          {/* Top gold accent line */}
+                          <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-amber-300 to-transparent opacity-0 group-hover:opacity-100 transition-opacity z-10" />
+
                           {/* Image Container */}
                           <div className="relative h-48 w-full bg-stone-100 overflow-hidden">
                             <img
@@ -1843,19 +1853,20 @@ export default function VowsAndVenuesApp() {
                               alt={vendor.name}
                               loading="lazy"
                               decoding="async"
-                              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                              className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 ease-out"
                             />
-                            <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
+                            <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/20 to-transparent" />
+                            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/15 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000 ease-out pointer-events-none" />
 
                             {/* Verified & Featured Badges */}
-                            <div className="absolute top-3 left-3 flex flex-col gap-1.5">
+                            <div className="absolute top-3 left-3 flex flex-col gap-1.5 z-10">
                               {vendor.verified && (
-                                <span className="bg-emerald-900/90 backdrop-blur-md text-amber-300 text-[10px] font-bold px-2 py-0.5 rounded-full flex items-center gap-1 shadow-sm border border-amber-400/30">
-                                  <ShieldCheck className="w-3 h-3" /> Verified
+                                <span className="bg-emerald-900/90 backdrop-blur-md text-emerald-200 text-[10px] font-bold px-2.5 py-0.5 rounded-full flex items-center gap-1 shadow-sm border border-emerald-400/30">
+                                  <ShieldCheck className="w-3 h-3 text-emerald-400" /> Verified
                                 </span>
                               )}
                               {vendor.featured && (
-                                <span className="bg-amber-400 text-emerald-950 text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider shadow-sm">
+                                <span className="bg-gradient-to-r from-amber-400 to-amber-500 text-stone-950 text-[10px] font-bold px-2.5 py-0.5 rounded-full uppercase tracking-wider shadow-sm border border-amber-300/40">
                                   Featured
                                 </span>
                               )}
@@ -1865,17 +1876,17 @@ export default function VowsAndVenuesApp() {
                             <button
                               onClick={(e) => handleToggleWishlist(vendor.id, e)}
                               title={isWishlisted ? "Remove from wishlist" : "Save to wishlist"}
-                              className="absolute top-3 right-3 p-2 rounded-full bg-white/90 backdrop-blur-md text-stone-700 hover:text-rose-600 shadow-md hover:scale-110 active:scale-90 transition-all"
+                              className="absolute top-3 right-3 p-2 rounded-full bg-white/95 backdrop-blur-md text-stone-700 hover:text-rose-600 shadow-md hover:scale-110 active:scale-90 transition-all z-10"
                             >
-                              <Heart className={`w-4 h-4 ${isWishlisted ? 'fill-rose-500 text-rose-500' : ''}`} />
+                              <Heart className={`w-4 h-4 transition-transform ${isWishlisted ? 'fill-rose-500 text-rose-500 scale-110' : ''}`} />
                             </button>
 
                             {/* Category Tag & City */}
-                            <div className="absolute bottom-3 left-3 right-3 flex items-center justify-between text-white text-xs">
-                              <span className="bg-black/50 backdrop-blur-md px-2.5 py-0.5 rounded-full text-[11px] font-medium">
+                            <div className="absolute bottom-3 left-3 right-3 flex items-center justify-between text-white text-xs z-10">
+                              <span className="bg-black/60 backdrop-blur-md px-2.5 py-0.5 rounded-full text-[11px] font-bold text-amber-200 border border-amber-300/30">
                                 {vendor.categoryName}
                               </span>
-                              <span className="flex items-center gap-1 text-[11px] font-medium drop-shadow">
+                              <span className="flex items-center gap-1 text-[11px] font-semibold drop-shadow bg-black/60 backdrop-blur-md px-2 py-0.5 rounded-full border border-white/10">
                                 <MapPin className="w-3 h-3 text-amber-300" /> {vendor.city}
                               </span>
                             </div>
@@ -1886,29 +1897,29 @@ export default function VowsAndVenuesApp() {
                             <div>
                               {/* Rating & Reviews */}
                               <div className="flex items-center justify-between text-xs mb-1.5">
-                                <div className="flex items-center gap-1 font-bold text-amber-600 bg-amber-50 px-2 py-0.5 rounded-md">
-                                  <Star className="w-3.5 h-3.5 fill-amber-500 text-amber-500" />
+                                <div className="flex items-center gap-1 font-bold text-amber-900 bg-amber-50 px-2 py-0.5 rounded-md border border-amber-200/50">
+                                  <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-500" />
                                   <span>{vendor.rating}</span>
                                 </div>
-                                <span className="text-stone-400 text-[11px]">
+                                <span className="text-stone-500 text-[11px] font-medium">
                                   {vendor.reviewCount} verified reviews
                                 </span>
                               </div>
 
                               {/* Vendor Title */}
-                              <h3 className="font-serif text-lg font-bold text-emerald-950 leading-snug group-hover:text-emerald-800 transition-colors line-clamp-1 mb-1">
+                              <h3 className="font-serif text-lg font-bold text-stone-900 leading-snug group-hover:text-[#4a1525] transition-colors line-clamp-1 mb-1">
                                 {vendor.name}
                               </h3>
 
                               {/* Short Description */}
-                              <p className="text-xs text-stone-500 line-clamp-2 leading-relaxed mb-3">
+                              <p className="text-xs text-stone-600 line-clamp-2 leading-relaxed mb-3">
                                 {vendor.description}
                               </p>
 
                               {/* Highlights / Tags */}
                               <div className="flex flex-wrap gap-1 mb-4">
                                 {vendor.highlights?.slice(0, 2).map((h, i) => (
-                                  <span key={i} className="text-[10px] bg-stone-100 text-stone-600 px-2 py-0.5 rounded-md">
+                                  <span key={i} className="text-[10px] bg-[#faf8f5] hover:bg-amber-50 text-stone-600 px-2 py-0.5 rounded-md border border-[#e8e2d5] transition-colors">
                                     {h}
                                   </span>
                                 ))}
@@ -1916,10 +1927,10 @@ export default function VowsAndVenuesApp() {
                             </div>
 
                             {/* Price & Action Buttons */}
-                            <div className="pt-3 border-t border-stone-100">
+                            <div className="pt-3 border-t border-[#f2ede4]">
                               <div className="flex items-baseline justify-between mb-3">
                                 <div>
-                                  <div className="text-[10px] uppercase font-bold text-stone-400">Starting from</div>
+                                  <div className="text-[10px] uppercase font-bold text-stone-400 tracking-wider">Starting from</div>
                                   <div className="font-serif text-lg font-bold text-emerald-950">
                                     ₹{vendor.startingPrice?.toLocaleString('en-IN')}
                                     <span className="text-[11px] font-sans font-normal text-stone-500 ml-1">
@@ -1928,8 +1939,8 @@ export default function VowsAndVenuesApp() {
                                   </div>
                                 </div>
                                 {vendor.capacity && (
-                                  <div className="text-[10px] font-medium text-stone-500 flex items-center gap-1">
-                                    <Users className="w-3 h-3 text-stone-400" /> {vendor.capacity} pax
+                                  <div className="text-[10px] font-medium text-stone-600 flex items-center gap-1 bg-[#faf8f5] px-2 py-0.5 rounded-full border border-stone-200">
+                                    <Users className="w-3 h-3 text-[#4a1525]" /> {vendor.capacity} guests
                                   </div>
                                 )}
                               </div>
@@ -1940,13 +1951,13 @@ export default function VowsAndVenuesApp() {
                                     e.stopPropagation()
                                     setSelectedVendorModal(vendor)
                                   }}
-                                  className="py-2 px-3 rounded-xl bg-stone-100 hover:bg-stone-200 text-stone-800 font-semibold text-xs transition-colors text-center"
+                                  className="py-2 px-3 rounded-xl bg-[#f2ede4] hover:bg-[#eae3d7] text-stone-900 font-bold text-xs transition-all text-center border border-[#dfd7c8] hover:shadow-xs"
                                 >
-                                  View Details
+                                  Details
                                 </button>
                                 <button
                                   onClick={(e) => handleAddVendorToEvent(vendor, null, e)}
-                                  className={`py-2 px-3 rounded-xl font-semibold text-xs transition-all flex items-center justify-center gap-1 shadow-sm ${isAddedToEvent ? 'bg-emerald-100 text-emerald-900 border border-emerald-300' : 'bg-emerald-900 hover:bg-emerald-950 text-amber-200'}`}
+                                  className={`btn-3d-wine py-2 px-3 rounded-xl font-bold text-xs transition-all flex items-center justify-center gap-1 shadow-md hover:scale-105 active:scale-95 ${isAddedToEvent ? 'bg-emerald-100 text-emerald-900 border border-emerald-300' : 'bg-gradient-to-r from-[#4a1525] to-[#6b1e34] hover:from-[#3a101d] hover:to-[#561729] text-[#f5ebd7]'}`}
                                 >
                                   {isAddedToEvent ? (
                                     <>
@@ -1954,7 +1965,7 @@ export default function VowsAndVenuesApp() {
                                     </>
                                   ) : (
                                     <>
-                                      <Plus className="w-3.5 h-3.5" /> Add to Event
+                                      <Plus className="w-3.5 h-3.5" /> Add to Plan
                                     </>
                                   )}
                                 </button>
@@ -2069,39 +2080,44 @@ export default function VowsAndVenuesApp() {
               {packages.map((pkg) => (
                 <div
                   key={pkg.id}
-                  className={`bg-white rounded-3xl border overflow-hidden shadow-md hover:shadow-xl transition-all flex flex-col ${pkg.popular ? 'border-emerald-600 ring-2 ring-emerald-600/20' : 'border-stone-200'}`}
+                  className={`card-3d-wrap group bg-white rounded-3xl border overflow-hidden shadow-[0_4px_20px_rgba(0,0,0,0.06)] hover:shadow-[0_20px_45px_rgba(74,21,37,0.16)] transition-all duration-500 hover:-translate-y-2 flex flex-col relative ${pkg.popular ? 'border-amber-400/80 ring-2 ring-amber-400/30' : 'border-[#e8e2d5]'}`}
                 >
-                  <div className="relative h-56 w-full">
+                  {/* Top gold accent line */}
+                  <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-[#4a1525] via-amber-400 to-[#4a1525] opacity-0 group-hover:opacity-100 transition-opacity z-10" />
+
+                  <div className="relative h-56 w-full overflow-hidden">
                     <img
                       src={getOptimizedImageUrl(pkg.bannerImage, { width: 800, quality: 75 })}
                       alt={pkg.title}
                       loading="lazy"
                       decoding="async"
-                      className="w-full h-full object-cover"
+                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 ease-out"
                     />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
-                    <div className="absolute top-4 right-4 bg-amber-400 text-emerald-950 text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider shadow">
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/30 to-transparent" />
+                    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/15 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000 ease-out pointer-events-none" />
+
+                    <div className="absolute top-4 right-4 bg-gradient-to-r from-amber-400 to-amber-500 text-stone-950 text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider shadow-md border border-amber-300/40 z-10">
                       {pkg.badge}
                     </div>
-                    <div className="absolute bottom-4 left-5 right-5 text-white">
-                      <div className="text-xs text-amber-200 font-medium">{pkg.eventType} Tier</div>
-                      <h3 className="font-serif text-2xl font-bold">{pkg.title}</h3>
+                    <div className="absolute bottom-4 left-5 right-5 text-white z-10">
+                      <div className="text-xs text-amber-300 font-bold uppercase tracking-wider mb-0.5">{pkg.eventType} Tier</div>
+                      <h3 className="font-serif text-2xl font-bold text-[#faf8f5]">{pkg.title}</h3>
                     </div>
                   </div>
 
                   <div className="p-6 flex-1 flex flex-col justify-between">
                     <div>
-                      <p className="text-xs text-stone-600 mb-4">{pkg.subtitle}</p>
+                      <p className="text-xs text-stone-600 mb-4 leading-relaxed">{pkg.subtitle}</p>
 
-                      <div className="text-xs font-bold text-stone-800 mb-2">Included Service Tiers:</div>
+                      <div className="text-xs font-bold text-stone-900 mb-2">Included Service Tiers:</div>
                       <div className="space-y-2 mb-6">
                         {pkg.items?.map((item, idx) => (
-                          <div key={idx} className="flex items-start justify-between text-xs bg-stone-50 p-2.5 rounded-xl border border-stone-100">
+                          <div key={idx} className="flex items-start justify-between text-xs bg-[#faf8f5] hover:bg-amber-50/50 p-2.5 rounded-xl border border-stone-200/70 transition-colors">
                             <div>
-                              <div className="font-bold text-emerald-950 capitalize">{item.category}</div>
-                              <div className="text-[11px] text-stone-500">{item.vendorName}</div>
+                              <div className="font-bold text-[#1c1917] capitalize">{item.category}</div>
+                              <div className="text-[11px] text-stone-500 font-medium">{item.vendorName}</div>
                             </div>
-                            <div className="font-serif font-bold text-emerald-900">
+                            <div className="font-serif font-bold text-emerald-950">
                               ₹{item.price?.toLocaleString('en-IN')}
                             </div>
                           </div>
@@ -2109,7 +2125,7 @@ export default function VowsAndVenuesApp() {
                       </div>
                     </div>
 
-                    <div className="pt-4 border-t border-stone-100">
+                    <div className="pt-4 border-t border-[#f2ede4]">
                       <div className="flex items-baseline justify-between mb-4">
                         <div>
                           <span className="text-xs text-stone-400 line-through mr-2">
@@ -2119,7 +2135,7 @@ export default function VowsAndVenuesApp() {
                             ₹{pkg.price?.toLocaleString('en-IN')}
                           </span>
                         </div>
-                        <span className="text-xs font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded">
+                        <span className="text-xs font-bold text-emerald-800 bg-emerald-50 px-2.5 py-1 rounded-full border border-emerald-200 shadow-xs">
                           Save ₹{(pkg.originalPrice - pkg.price)?.toLocaleString('en-IN')}
                         </span>
                       </div>
@@ -2127,7 +2143,7 @@ export default function VowsAndVenuesApp() {
                       <div className="grid grid-cols-2 gap-2">
                         <button
                           onClick={() => handleOpenPackageCustomizer(pkg)}
-                          className="py-3 px-3 rounded-xl bg-stone-100 hover:bg-stone-200 text-stone-800 font-semibold text-xs transition-colors flex items-center justify-center gap-1.5"
+                          className="py-3 px-3 rounded-xl bg-[#f2ede4] hover:bg-[#eae3d7] text-stone-900 font-bold text-xs transition-all flex items-center justify-center gap-1.5 border border-[#dfd7c8] hover:shadow-xs"
                         >
                           <Sliders className="w-3.5 h-3.5" /> Customize
                         </button>
@@ -2136,9 +2152,9 @@ export default function VowsAndVenuesApp() {
                             handleOpenPackageCustomizer(pkg)
                             handleApplyCustomizedPackageToEvent()
                           }}
-                          className="py-3 px-3 rounded-xl bg-emerald-900 hover:bg-emerald-950 text-amber-200 font-bold text-xs shadow-md transition-all flex items-center justify-center gap-1.5"
+                          className="btn-3d-wine py-3 px-3 rounded-xl bg-gradient-to-r from-[#4a1525] to-[#6d1f35] hover:from-[#3a101d] hover:to-[#59182a] text-[#f5ebd7] font-bold text-xs shadow-md transition-all flex items-center justify-center gap-1.5 hover:scale-105 active:scale-95"
                         >
-                          <ShoppingBag className="w-3.5 h-3.5" /> Apply Bundle
+                          <ShoppingBag className="w-3.5 h-3.5 text-amber-300" /> Apply Bundle
                         </button>
                       </div>
                     </div>
