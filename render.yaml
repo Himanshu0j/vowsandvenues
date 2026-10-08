@@ -5,7 +5,7 @@ services:
     plan: starter
     region: oregon
     branch: staging
-    buildCommand: yarn install --production=false --frozen-lockfile && yarn build
+    buildCommand: yarn install --production=false --ignore-engines --frozen-lockfile && yarn build
     startCommand: yarn start
     healthCheckPath: /api/health
     autoDeploy: true
@@ -13,7 +13,7 @@ services:
       - key: NODE_ENV
         value: production
       - key: NODE_VERSION
-        value: 20.18.0
+        value: 22.18.0
       - key: APP_ENV
         value: staging
       - key: USE_LOCAL_DB
