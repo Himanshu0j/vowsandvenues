@@ -1,0 +1,31 @@
+services:
+  - type: web
+    name: vowsandvenues-staging
+    env: node
+    plan: starter
+    region: oregon
+    branch: staging
+    buildCommand: yarn install --frozen-lockfile && yarn build
+    startCommand: yarn start
+    healthCheckPath: /api/health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: USE_LOCAL_DB
+        value: "false"
+      - key: DB_NAME
+        value: vows_and_venues_staging
+      - key: CORS_ORIGINS
+        value: https://vowsandvenues-staging.onrender.com,https://vowsandvenues.in
+      - key: JWT_SECRET
+        generateValue: true
+      - key: ADMIN_SECRET
+        generateValue: true
+      - key: SEED_KEY
+        generateValue: true
+      - key: MONGODB_URI
+        sync: false
+      - key: MONGO_URL
+        fromEnvVar: MONGODB_URI
+      - key: REQUIRE_COMPLETED_BOOKING_FOR_REVIEW
+        value: "false"

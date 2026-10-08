@@ -1,0 +1,78 @@
+name: Staging CI & Automated Verification
+
+on:
+  push:
+    branches: [ staging ]
+  pull_request:
+    branches: [ staging ]
+
+jobs:
+  verify:
+    name: Build & E2E Verification
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js 20.x
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'yarn'
+
+      - name: Install Dependencies
+        run: yarn install --frozen-lockfile
+
+      - name: Security & Secret Scan
+        run: |
+          node -e "
+            const fs = require('fs');
+            const bad = ['ghp_', 'AIzaSy', 'sk-proj-'];
+            function check(f) {
+              if (f.includes('node_modules') || f.includes('.git')) return;
+              const s = fs.statSync(f);
+              if (s.isDirectory()) fs.readdirSync(f).forEach(x => check(f + '/' + x));
+              else if (f.endsWith('.js') || f.endsWith('.jsx') || f.endsWith('.json')) {
+                const c = fs.readFileSync(f, 'utf8');
+                bad.forEach(b => { if (c.includes(b)) throw new Error('Secret found in ' + f); });
+              }
+            }
+            check('.');
+            console.log('Secret audit clean.');
+          "
+
+      - name: Production Build Verification
+        run: yarn build
+        env:
+          NODE_ENV: production
+          USE_LOCAL_DB: 'true'
+          JWT_SECRET: 'ci_temporary_test_jwt_secret_value_minimum_64_characters_entropy_abcdef'
+
+      - name: Run Backend E2E Test Suite
+        run: |
+          yarn start &
+          SERVER_PID=$!
+          echo "Server running on PID $SERVER_PID"
+          sleep 5
+          node -e "
+            const http = require('http');
+            function ping(retries) {
+              http.get('http://localhost:3000/api/health', (res) => {
+                console.log('Health check status:', res.statusCode);
+                if (res.statusCode !== 200) process.exit(1);
+              }).on('error', (e) => {
+                if (retries > 0) { setTimeout(() => ping(retries - 1), 2000); }
+                else { console.error('Failed to reach server:', e.message); process.exit(1); }
+              });
+            }
+            ping(10);
+          "
+          yarn test
+          kill $SERVER_PID
+        env:
+          NODE_ENV: production
+          PORT: 3000
+          USE_LOCAL_DB: 'true'
+          JWT_SECRET: 'ci_temporary_test_jwt_secret_value_minimum_64_characters_entropy_abcdef'

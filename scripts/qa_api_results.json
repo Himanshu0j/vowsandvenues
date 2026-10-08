@@ -1,0 +1,419 @@
+[
+  {
+    "category": "Core",
+    "testName": "GET /api/root health check",
+    "expectedStatus": 200,
+    "actualStatus": 200,
+    "pass": "Vows & Venues - All-in-One Indian Event Marketplace",
+    "details": ""
+  },
+  {
+    "category": "Categories",
+    "testName": "GET /api/categories",
+    "expectedStatus": 200,
+    "actualStatus": 200,
+    "pass": true,
+    "details": "Found 11 categories"
+  },
+  {
+    "category": "Packages",
+    "testName": "GET /api/packages",
+    "expectedStatus": 200,
+    "actualStatus": 200,
+    "pass": true,
+    "details": "Found 3 packages"
+  },
+  {
+    "category": "Vendors",
+    "testName": "GET /api/vendors (All)",
+    "expectedStatus": 200,
+    "actualStatus": 200,
+    "pass": true,
+    "details": "Total vendors: 35"
+  },
+  {
+    "category": "Vendors",
+    "testName": "GET /api/vendors?category=venues",
+    "expectedStatus": 200,
+    "actualStatus": 200,
+    "pass": true,
+    "details": "Venues count: 7"
+  },
+  {
+    "category": "Vendors",
+    "testName": "GET /api/vendors?city=Lucknow",
+    "expectedStatus": 200,
+    "actualStatus": 200,
+    "pass": true,
+    "details": "Lucknow vendors: 13"
+  },
+  {
+    "category": "Vendors",
+    "testName": "GET /api/vendors?minRating=4.8",
+    "expectedStatus": 200,
+    "actualStatus": 200,
+    "pass": true,
+    "details": "Top rated count: 34"
+  },
+  {
+    "category": "Vendors",
+    "testName": "GET /api/vendors?verified=true",
+    "expectedStatus": 200,
+    "actualStatus": 200,
+    "pass": true,
+    "details": "Verified count: 34"
+  },
+  {
+    "category": "Vendors",
+    "testName": "GET /api/vendors?search=Palace",
+    "expectedStatus": 200,
+    "actualStatus": 200,
+    "pass": true,
+    "details": "Matching count: 35"
+  },
+  {
+    "category": "Auth",
+    "testName": "POST /api/auth/signup (Customer)",
+    "expectedStatus": 201,
+    "actualStatus": 201,
+    "pass": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJmMDgyNTVhMy1mOTk3LTQ4NDgtODJkYS1kMzU0NDk4ZTg4YzAiLCJyb2xlIjoiY3VzdG9tZXIiLCJlbWFpbCI6InFhX2N1c3RvbWVyXzE3OTE0OTI3NTk2MDFAdGVzdC5jb20iLCJpYXQiOjE3OTE0OTI3NTksImV4cCI6MTc5MjA5NzU1OX0.njYvn1YX2HE4YJWH0I8lyuLW8Ruv17uamszFGT7Rsh4",
+    "details": "User ID: f08255a3-f997-4848-82da-d354498e88c0"
+  },
+  {
+    "category": "Auth",
+    "testName": "POST /api/auth/login (Customer)",
+    "expectedStatus": 200,
+    "actualStatus": 200,
+    "pass": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJmMDgyNTVhMy1mOTk3LTQ4NDgtODJkYS1kMzU0NDk4ZTg4YzAiLCJyb2xlIjoiY3VzdG9tZXIiLCJlbWFpbCI6InFhX2N1c3RvbWVyXzE3OTE0OTI3NTk2MDFAdGVzdC5jb20iLCJpYXQiOjE3OTE0OTI3NTksImV4cCI6MTc5MjA5NzU1OX0.njYvn1YX2HE4YJWH0I8lyuLW8Ruv17uamszFGT7Rsh4",
+    "details": ""
+  },
+  {
+    "category": "Auth",
+    "testName": "POST /api/auth/signup (Vendor)",
+    "expectedStatus": 201,
+    "actualStatus": 201,
+    "pass": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJlYjI1MDBiZS00YTYxLTQ3YjAtYmU2OC1lNjZjM2ZmOGE4MDciLCJyb2xlIjoidmVuZG9yIiwiZW1haWwiOiJxYV92ZW5kb3JfMTc5MTQ5Mjc1OTYwMUB0ZXN0LmNvbSIsImlhdCI6MTc5MTQ5Mjc1OSwiZXhwIjoxNzkyMDk3NTU5fQ.zsqB7ZeBD5ThzJHxSjDhAT6BjLBG_ohMwhIPyv9-wwU",
+    "details": ""
+  },
+  {
+    "category": "Auth",
+    "testName": "Login seeded Super Admin",
+    "expectedStatus": 200,
+    "actualStatus": 200,
+    "pass": true,
+    "details": "Role: admin"
+  },
+  {
+    "category": "Auth",
+    "testName": "GET /api/auth/me with Bearer token",
+    "expectedStatus": 200,
+    "actualStatus": 200,
+    "pass": true,
+    "details": ""
+  },
+  {
+    "category": "Auth",
+    "testName": "GET /api/auth/me without token",
+    "expectedStatus": 401,
+    "actualStatus": 401,
+    "pass": true,
+    "details": ""
+  },
+  {
+    "category": "Vendor KYC",
+    "testName": "POST /api/vendors (Vendor onboarding registration)",
+    "expectedStatus": 201,
+    "actualStatus": 201,
+    "pass": "v_ede5363c",
+    "details": "Created vendor ID: v_ede5363c"
+  },
+  {
+    "category": "Vendor KYC",
+    "testName": "GET /api/vendors/:id (Check initial verified status)",
+    "expectedStatus": 200,
+    "actualStatus": 200,
+    "pass": true,
+    "details": "Verified: false"
+  },
+  {
+    "category": "Vendor KYC",
+    "testName": "PATCH /api/admin/vendors/:id/verify (Admin approval)",
+    "expectedStatus": 200,
+    "actualStatus": 200,
+    "pass": true,
+    "details": "Updated status: verified=true"
+  },
+  {
+    "category": "RBAC",
+    "testName": "Customer attempting Admin vendor verification (Expected 403)",
+    "expectedStatus": 403,
+    "actualStatus": 403,
+    "pass": true,
+    "details": ""
+  },
+  {
+    "category": "Event Builder",
+    "testName": "POST /api/events (Create 5-service event plan)",
+    "expectedStatus": 201,
+    "actualStatus": 201,
+    "pass": "evt_462c3bd8",
+    "details": "Event ID: evt_462c3bd8"
+  },
+  {
+    "category": "Event Builder",
+    "testName": "GET /api/events (Fetch persisted customer event)",
+    "expectedStatus": 200,
+    "actualStatus": 200,
+    "pass": true,
+    "details": "Services count: 5"
+  },
+  {
+    "category": "Event Builder",
+    "testName": "PUT /api/events/:id (Update event budget/guest count)",
+    "expectedStatus": 200,
+    "actualStatus": 200,
+    "pass": true,
+    "details": ""
+  },
+  {
+    "category": "Coupons",
+    "testName": "Apply ROYAL2026 above minOrder (100k)",
+    "expectedStatus": 200,
+    "actualStatus": 200,
+    "pass": true,
+    "details": "Discount: ₹15000"
+  },
+  {
+    "category": "Coupons",
+    "testName": "Apply ROYAL2026 below minOrder threshold (Expected 400)",
+    "expectedStatus": 400,
+    "actualStatus": 400,
+    "pass": true,
+    "details": "Minimum order value for ROYAL2026 is ₹1,00,000"
+  },
+  {
+    "category": "Coupons",
+    "testName": "Apply SHUBH10 (10% of 60k = 6k)",
+    "expectedStatus": 200,
+    "actualStatus": 200,
+    "pass": true,
+    "details": "Discount: ₹6000"
+  },
+  {
+    "category": "Coupons",
+    "testName": "Apply SHUBH10 with maxDiscount cap (250k subtotal capped at 20k)",
+    "expectedStatus": 200,
+    "actualStatus": 200,
+    "pass": true,
+    "details": "Discount: ₹20000"
+  },
+  {
+    "category": "Coupons",
+    "testName": "Apply invalid non-existent coupon (Expected 404)",
+    "expectedStatus": 404,
+    "actualStatus": 404,
+    "pass": true,
+    "details": "Invalid or expired promotional code"
+  },
+  {
+    "category": "Bookings",
+    "testName": "POST /api/bookings (Create multi-vendor booking)",
+    "expectedStatus": 201,
+    "actualStatus": 201,
+    "pass": "bk_43900409",
+    "details": "Booking ID: bk_43900409, Status: undefined"
+  },
+  {
+    "category": "Bookings",
+    "testName": "GET /api/bookings (Customer retrieves booking)",
+    "expectedStatus": 200,
+    "actualStatus": 200,
+    "pass": true,
+    "details": "Items count: 2"
+  },
+  {
+    "category": "Bookings",
+    "testName": "PUT /api/bookings/:id (Update status to confirmed)",
+    "expectedStatus": 200,
+    "actualStatus": 200,
+    "pass": true,
+    "details": ""
+  },
+  {
+    "category": "RBAC & IDOR",
+    "testName": "Customer attempting to modify another user booking (Expected 403)",
+    "expectedStatus": 403,
+    "actualStatus": 403,
+    "pass": true,
+    "details": ""
+  },
+  {
+    "category": "CMS",
+    "testName": "GET /api/cms (Fetch website content)",
+    "expectedStatus": 200,
+    "actualStatus": 200,
+    "pass": {
+      "headline": "Curated Indian Celebrations & Royal Palaces (QA Verified)",
+      "subheadline": "From royal heritage palaces in Udaipur to authentic Awadhi banquets in Lucknow, discover and book India's most distinguished verified event creators.",
+      "badge": "India's Premier Luxury Wedding & Event Concierge",
+      "heroImage": "https://images.unsplash.com/photo-1519741497674-611481863552",
+      "secondaryHeroImage": "https://images.unsplash.com/photo-1587271407850-8d438ca9fdf2?auto=format&fit=crop&w=1400&q=75",
+      "heroVideo": "",
+      "stats": [
+        {
+          "label": "Verified Venues & Artists",
+          "value": "850+"
+        },
+        {
+          "label": "Celebrations Curated",
+          "value": "14,200+"
+        },
+        {
+          "label": "Client Satisfaction",
+          "value": "4.95 / 5"
+        },
+        {
+          "label": "Direct Pricing Guarantee",
+          "value": "100%"
+        }
+      ]
+    },
+    "details": ""
+  },
+  {
+    "category": "CMS",
+    "testName": "PUT /api/cms via Admin",
+    "expectedStatus": 200,
+    "actualStatus": 200,
+    "pass": true,
+    "details": ""
+  },
+  {
+    "category": "RBAC",
+    "testName": "Customer attempting Admin CMS update (Expected 403)",
+    "expectedStatus": 403,
+    "actualStatus": 403,
+    "pass": true,
+    "details": ""
+  },
+  {
+    "category": "Media Library",
+    "testName": "GET /api/media",
+    "expectedStatus": 200,
+    "actualStatus": 200,
+    "pass": true,
+    "details": "Existing assets: 10"
+  },
+  {
+    "category": "Media Library",
+    "testName": "POST /api/media (Admin uploads image asset)",
+    "expectedStatus": 201,
+    "actualStatus": 201,
+    "pass": "med_510fa1aa",
+    "details": "Media ID: med_510fa1aa"
+  },
+  {
+    "category": "Media Library",
+    "testName": "DELETE /api/media/:id (Admin deletes asset)",
+    "expectedStatus": 200,
+    "actualStatus": 200,
+    "pass": true,
+    "details": ""
+  },
+  {
+    "category": "Settlements",
+    "testName": "GET /api/settlements (Admin ledger access)",
+    "expectedStatus": 200,
+    "actualStatus": 200,
+    "pass": true,
+    "details": ""
+  },
+  {
+    "category": "RBAC",
+    "testName": "Customer attempting Admin settlements access (Expected 403)",
+    "expectedStatus": 403,
+    "actualStatus": 403,
+    "pass": true,
+    "details": ""
+  },
+  {
+    "category": "Disputes",
+    "testName": "POST /api/disputes (Customer logs dispute/issue)",
+    "expectedStatus": 201,
+    "actualStatus": 201,
+    "pass": "disp_c3f90547",
+    "details": "Dispute ID: disp_c3f90547"
+  },
+  {
+    "category": "Disputes",
+    "testName": "PATCH /api/disputes/:id (Admin resolves dispute)",
+    "expectedStatus": 200,
+    "actualStatus": 200,
+    "pass": true,
+    "details": ""
+  },
+  {
+    "category": "Support",
+    "testName": "POST /api/support (Customer creates support ticket)",
+    "expectedStatus": 201,
+    "actualStatus": 201,
+    "pass": "tkt_7fd74b85",
+    "details": "Ticket ID: tkt_7fd74b85"
+  },
+  {
+    "category": "Support",
+    "testName": "PATCH /api/support/:id (Admin replies to ticket)",
+    "expectedStatus": 200,
+    "actualStatus": 200,
+    "pass": true,
+    "details": ""
+  },
+  {
+    "category": "Quotes",
+    "testName": "POST /api/quotes (Customer requests customized quotation)",
+    "expectedStatus": 201,
+    "actualStatus": 201,
+    "pass": "qt_ff81e49e",
+    "details": "Quote ID: qt_ff81e49e"
+  },
+  {
+    "category": "Quotes",
+    "testName": "PATCH /api/quotes/:id (Vendor sends quote offer)",
+    "expectedStatus": 200,
+    "actualStatus": 200,
+    "pass": true,
+    "details": ""
+  },
+  {
+    "category": "Reviews",
+    "testName": "POST /api/reviews",
+    "expectedStatus": 201,
+    "actualStatus": 201,
+    "pass": true,
+    "details": "Review ID: rev_b0351190"
+  },
+  {
+    "category": "Reviews",
+    "testName": "GET /api/reviews?vendorId=v_royal_palace_lko",
+    "expectedStatus": 200,
+    "actualStatus": 200,
+    "pass": true,
+    "details": ""
+  },
+  {
+    "category": "Wishlist",
+    "testName": "POST /api/wishlist/toggle (Add)",
+    "expectedStatus": 200,
+    "actualStatus": 200,
+    "pass": true,
+    "details": ""
+  },
+  {
+    "category": "Wishlist",
+    "testName": "GET /api/wishlist",
+    "expectedStatus": 200,
+    "actualStatus": 200,
+    "pass": true,
+    "details": ""
+  }
+]
