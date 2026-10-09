@@ -272,6 +272,89 @@ function extractBearer(request) {
   return auth.slice(7).trim()
 }
 
+// ==============================================================
+// ROLE DEFINITIONS & GRANULAR RBAC MATRIX (Phase 4 & Phase 18)
+// ==============================================================
+const PLATFORM_ROLES = {
+  SUPER_ADMIN: 'super_admin',
+  ADMIN: 'admin',
+  OPERATIONS_MANAGER: 'operations_manager',
+  VENDOR_MANAGER: 'vendor_manager',
+  BOOKING_MANAGER: 'booking_manager',
+  FINANCE_MANAGER: 'finance_manager',
+  MARKETING_SEO_MANAGER: 'marketing_seo_manager',
+  CONTENT_MANAGER: 'content_manager',
+  SUPPORT_AGENT: 'support_agent',
+  ANALYST: 'analyst',
+  VENDOR: 'vendor',
+  CUSTOMER: 'customer'
+}
+
+const ALL_ADMIN_ROLES = [
+  'super_admin',
+  'admin',
+  'operations_manager',
+  'vendor_manager',
+  'booking_manager',
+  'finance_manager',
+  'marketing_seo_manager',
+  'content_manager',
+  'support_agent',
+  'analyst'
+]
+
+const ROLE_PERMISSIONS = {
+  super_admin: ['*'], // Full unrestricted root permissions
+  admin: [
+    'stats:read', 'vendors:read', 'vendors:write', 'vendors:verify', 'vendors:commission',
+    'bookings:read', 'bookings:write', 'inquiries:read', 'quotes:read', 'quotes:write',
+    'finance:read', 'finance:payout', 'finance:refund', 'settlements:read', 'settlements:write',
+    'cms:read', 'cms:write', 'media:read', 'media:write', 'coupons:read', 'coupons:write',
+    'seo:read', 'seo:write', 'disputes:read', 'disputes:write', 'support:read', 'support:write',
+    'reviews:read', 'reviews:moderate', 'audit:read', 'users:read', 'users:write', 'export:read', 'availability:write'
+  ],
+  operations_manager: [
+    'stats:read', 'vendors:read', 'vendors:write', 'bookings:read', 'bookings:write',
+    'inquiries:read', 'quotes:read', 'disputes:read', 'disputes:write', 'support:read',
+    'support:write', 'availability:write', 'audit:read', 'export:read'
+  ],
+  vendor_manager: [
+    'stats:read', 'vendors:read', 'vendors:write', 'vendors:verify', 'vendors:commission',
+    'inquiries:read', 'availability:write', 'reviews:read', 'export:read'
+  ],
+  booking_manager: [
+    'stats:read', 'bookings:read', 'bookings:write', 'inquiries:read', 'quotes:read',
+    'quotes:write', 'availability:write', 'export:read'
+  ],
+  finance_manager: [
+    'stats:read', 'finance:read', 'finance:payout', 'finance:refund', 'settlements:read',
+    'settlements:write', 'coupons:read', 'coupons:write', 'export:read', 'audit:read'
+  ],
+  marketing_seo_manager: [
+    'stats:read', 'seo:read', 'seo:write', 'cms:read', 'cms:write', 'coupons:read',
+    'coupons:write', 'media:read', 'media:write', 'export:read'
+  ],
+  content_manager: [
+    'cms:read', 'cms:write', 'media:read', 'media:write', 'reviews:read', 'reviews:moderate'
+  ],
+  support_agent: [
+    'support:read', 'support:write', 'disputes:read', 'disputes:write', 'reviews:read',
+    'reviews:moderate', 'bookings:read'
+  ],
+  analyst: [
+    'stats:read', 'finance:read', 'bookings:read', 'vendors:read', 'settlements:read',
+    'export:read', 'audit:read'
+  ]
+}
+
+function hasPermission(role, permission) {
+  if (role === 'super_admin') return true
+  if (role === 'admin' && permission !== 'users:super_admin') return true
+  const perms = ROLE_PERMISSIONS[role] || []
+  if (perms.includes('*')) return true
+  return perms.includes(permission)
+}
+
 // Returns { userId, role, email } from a verified JWT — or null if unauthenticated.
 function getAuthContext(request) {
   const token = extractBearer(request)
@@ -288,16 +371,51 @@ function getAuthContext(request) {
   return null
 }
 
-// Enforce authentication + optional roles. Returns a NextResponse (401/403) on failure, or null on success.
-function requireAuth(request, allowedRoles = null) {
+// Enforce authentication + optional roles or permissions. Returns a NextResponse (401/403) on failure, or null on success.
+function requireAuth(request, allowedRoles = null, requiredPermission = null) {
   const ctx = getAuthContext(request)
   if (!ctx) {
     return NextResponse.json({ error: 'Authentication required' }, { status: 401 })
   }
-  if (allowedRoles && allowedRoles.length > 0 && !allowedRoles.includes(ctx.role)) {
-    return NextResponse.json({ error: 'Forbidden: insufficient role' }, { status: 403 })
+  if (requiredPermission && !hasPermission(ctx.role, requiredPermission)) {
+    return NextResponse.json({
+      error: `Forbidden: permission "${requiredPermission}" required for role "${ctx.role}"`,
+      role: ctx.role
+    }, { status: 403 })
+  }
+  if (allowedRoles && allowedRoles.length > 0) {
+    let isAllowed = allowedRoles.includes(ctx.role)
+    // If route authorizes 'admin', allow super_admin and any operational admin role
+    if (!isAllowed && allowedRoles.includes('admin') && ALL_ADMIN_ROLES.includes(ctx.role)) {
+      isAllowed = true
+    }
+    if (!isAllowed) {
+      return NextResponse.json({ error: 'Forbidden: insufficient role' }, { status: 403 })
+    }
   }
   return null
+}
+
+// Immutable audit logging helper (Phase 4 & Phase 18)
+async function logAuditEvent(db, { actorId, actorEmail, actorRole, action, entityType, entityId, details, ip }) {
+  try {
+    if (!db) return
+    const entry = {
+      id: `aud_${uuidv4().slice(0, 8)}`,
+      actorId: actorId || 'system',
+      actorEmail: actorEmail || 'system@vowsandvenues.in',
+      actorRole: actorRole || 'admin',
+      action,
+      entityType: entityType || 'general',
+      entityId: entityId || '',
+      details: details || {},
+      ip: ip || 'unknown',
+      timestamp: new Date().toISOString()
+    }
+    await db.collection('audit_logs').insertOne(entry)
+  } catch (err) {
+    console.warn('[AUDIT] Failed to record audit log:', err.message)
+  }
 }
 
 // Initial Seed Data for Vows & Venues Marketplace
@@ -2464,7 +2582,41 @@ async function handleRoute(request, { params }) {
       const discount = Number(body.discount) || 0
       const totalAmount = Math.max(0, subtotal + tax + platformFee - discount)
       const advancePaid = body.isAdvanceOnly ? Math.round(totalAmount * 0.25) : totalAmount
-      const remainingAmount = totalAmount - advancePaid
+      const eventDate = body.eventDate || new Date().toISOString().split('T')[0]
+
+      // Availability and Double-Booking Collision Prevention Engine (Phase 13)
+      for (const item of items) {
+        if (item.vendorId) {
+          const vendorDoc = await db.collection('vendors').findOne({ id: item.vendorId })
+          if (vendorDoc) {
+            // Check vendor blackout dates
+            if (Array.isArray(vendorDoc.blackoutDates) && vendorDoc.blackoutDates.includes(eventDate)) {
+              return cors(NextResponse.json({
+                error: `Vendor "${vendorDoc.name}" has marked ${eventDate} as a blackout date. Please choose another date or vendor.`,
+                code: 'DATE_BLACKOUT',
+                vendorId: item.vendorId,
+                conflictDate: eventDate
+              }, { status: 409 }))
+            }
+            // Check double-booking for exclusive vendors (e.g. venues or banquet halls)
+            if (vendorDoc.category === 'venues' || vendorDoc.singleBookingPerDay) {
+              const conflict = await db.collection('bookings').findOne({
+                'items.vendorId': item.vendorId,
+                eventDate: eventDate,
+                bookingStatus: { $in: ['confirmed', 'paid'] }
+              })
+              if (conflict) {
+                return cors(NextResponse.json({
+                  error: `Venue "${vendorDoc.name}" is already reserved for a confirmed celebration on ${eventDate}. Please choose another date or venue.`,
+                  code: 'SCHEDULE_CONFLICT',
+                  vendorId: item.vendorId,
+                  conflictDate: eventDate
+                }, { status: 409 }))
+              }
+            }
+          }
+        }
+      }
 
       const bookingNumber = `VV-${new Date().getFullYear()}-${Math.floor(1000 + Math.random() * 9000)}`
 
@@ -2792,7 +2944,7 @@ async function handleRoute(request, { params }) {
       return cors(NextResponse.json({ success: true }))
     }
 
-    // ADMIN STATS: GET /api/admin/stats  (admin only)
+    // ADMIN STATS: GET /api/admin/stats  (admin only - Phase 5)
     if (route === '/admin/stats' && method === 'GET') {
       const unauth = requireAuth(request, ['admin'])
       if (unauth) return cors(unauth)
@@ -2802,9 +2954,22 @@ async function handleRoute(request, { params }) {
       const bookings = await db.collection('bookings').find({}).toArray()
       
       const grossPlatformVolume = bookings.reduce((sum, b) => sum + (Number(b.totalAmount) || 0), 0)
+      const collectedCash = bookings.reduce((sum, b) => {
+        if (b.paymentStatus === 'paid') return sum + (Number(b.totalAmount) || 0)
+        if (b.paymentStatus === 'advance_paid') return sum + (Number(b.advancePaid) || 0)
+        return sum
+      }, 0)
       const platformCommissionRevenue = Math.round(bookings.reduce((sum, b) => sum + (Number(b.subtotal) * 0.10 || 0), 0) + (totalBookings * 2500))
+      
+      const settlements = await db.collection('settlements').find({}).toArray()
+      const pendingVendorPayable = settlements.filter(s => s.status === 'PENDING').reduce((sum, s) => sum + (Number(s.netPayable) || 0), 0)
+      const paidVendorPayouts = settlements.filter(s => s.status === 'PAID').reduce((sum, s) => sum + (Number(s.netPayable) || 0), 0)
+
       const totalInquiries = await db.collection('inquiries').countDocuments()
       const totalEvents = await db.collection('events').countDocuments()
+      const totalDisputes = await db.collection('disputes').countDocuments().catch(() => 0)
+      const totalSupportTickets = await db.collection('support_tickets').countDocuments().catch(() => 0)
+      const totalAuditLogs = await db.collection('audit_logs').countDocuments().catch(() => 0)
 
       const cityBreakdown = await db.collection('vendors').aggregate([
         { $group: { _id: "$city", count: { $sum: 1 } } }
@@ -2819,12 +2984,258 @@ async function handleRoute(request, { params }) {
         totalVerifiedVendors,
         totalBookings,
         grossPlatformVolume,
+        collectedCash,
         platformCommissionRevenue,
+        pendingVendorPayable,
+        paidVendorPayouts,
         totalInquiries,
         totalEvents,
+        totalDisputes,
+        totalSupportTickets,
+        totalAuditLogs,
         cityBreakdown,
         categoryBreakdown
       }))
+    }
+
+    // ADMIN AUDIT LOGS: GET /api/admin/audit-logs (Phase 4 & Phase 18)
+    if (route === '/admin/audit-logs' && method === 'GET') {
+      const unauth = requireAuth(request, ['admin', 'super_admin', 'operations_manager', 'analyst'])
+      if (unauth) return cors(unauth)
+      const filter = {}
+      if (query.action) filter.action = query.action
+      if (query.entityType) filter.entityType = query.entityType
+      if (query.actorEmail) filter.actorEmail = { $regex: query.actorEmail, $options: 'i' }
+      const limit = Math.min(100, Math.max(1, Number(query.limit) || 50))
+      const skip = Math.max(0, Number(query.skip) || 0)
+
+      const total = await db.collection('audit_logs').countDocuments(filter)
+      const logs = await db.collection('audit_logs')
+        .find(filter)
+        .sort({ timestamp: -1 })
+        .skip(skip)
+        .limit(limit)
+        .toArray()
+
+      return cors(NextResponse.json({
+        total,
+        logs: logs.map(({ _id, ...r }) => r)
+      }))
+    }
+
+    // ADMIN USERS & RBAC TEAM MANAGEMENT (Phase 4 & Phase 12)
+    if (route === '/admin/users' && method === 'GET') {
+      const unauth = requireAuth(request, ['admin', 'super_admin'])
+      if (unauth) return cors(unauth)
+      const staff = await db.collection('users').find({
+        role: { $in: ALL_ADMIN_ROLES }
+      }).toArray()
+      return cors(NextResponse.json({
+        users: staff.map(({ _id, passwordHash, ...rest }) => rest)
+      }))
+    }
+
+    if (route === '/admin/users' && method === 'POST') {
+      const unauth = requireAuth(request, ['admin', 'super_admin'])
+      if (unauth) return cors(unauth)
+      const ctx = getAuthContext(request)
+      const body = await readJson()
+      const { name, email, password, role = 'operations_manager' } = body || {}
+      if (!name || !email || !password) {
+        return cors(NextResponse.json({ error: 'Name, email and password are required' }, { status: 400 }))
+      }
+      if (!ALL_ADMIN_ROLES.includes(role)) {
+        return cors(NextResponse.json({ error: `Invalid role. Allowed roles: ${ALL_ADMIN_ROLES.join(', ')}` }, { status: 400 }))
+      }
+      const existing = await db.collection('users').findOne({ email: email.toLowerCase().trim() })
+      if (existing) {
+        return cors(NextResponse.json({ error: 'User with this email already exists' }, { status: 409 }))
+      }
+      const passwordHash = await hashPassword(password)
+      const newUser = {
+        id: `usr_${uuidv4().slice(0, 8)}`,
+        name: name.trim(),
+        email: email.toLowerCase().trim(),
+        passwordHash,
+        role,
+        status: 'active',
+        createdAt: new Date().toISOString()
+      }
+      await db.collection('users').insertOne(newUser)
+      await logAuditEvent(db, {
+        actorId: ctx.userId,
+        actorEmail: ctx.email,
+        actorRole: ctx.role,
+        action: 'CREATE_STAFF_USER',
+        entityType: 'user',
+        entityId: newUser.id,
+        details: { email: newUser.email, role: newUser.role },
+        ip: clientIP(request)
+      })
+      const { _id, passwordHash: _, ...rest } = newUser
+      return cors(NextResponse.json({ user: rest }, { status: 201 }))
+    }
+
+    if (route.startsWith('/admin/users/') && method === 'PATCH') {
+      const unauth = requireAuth(request, ['admin', 'super_admin'])
+      if (unauth) return cors(unauth)
+      const ctx = getAuthContext(request)
+      const userId = route.split('/')[3]
+      const body = await readJson()
+      const { role, status } = body || {}
+      const targetUser = await db.collection('users').findOne({ id: userId })
+      if (!targetUser) return cors(NextResponse.json({ error: 'User not found' }, { status: 404 }))
+      if (targetUser.email === 'admin@vowsandvenues.in' && (role || status === 'suspended')) {
+        return cors(NextResponse.json({ error: 'Cannot modify primary Super Admin root account' }, { status: 403 }))
+      }
+      const updates = { updatedAt: new Date().toISOString() }
+      if (role && ALL_ADMIN_ROLES.includes(role)) updates.role = role
+      if (status) updates.status = status
+      await db.collection('users').updateOne({ id: userId }, { $set: updates })
+      await logAuditEvent(db, {
+        actorId: ctx.userId,
+        actorEmail: ctx.email,
+        actorRole: ctx.role,
+        action: 'UPDATE_STAFF_USER',
+        entityType: 'user',
+        entityId: userId,
+        details: updates,
+        ip: clientIP(request)
+      })
+      const updated = await db.collection('users').findOne({ id: userId })
+      if (updated) { delete updated._id; delete updated.passwordHash }
+      return cors(NextResponse.json({ user: updated }))
+    }
+
+    // AVAILABILITY & BLACKOUT DATES (Phase 13)
+    if (route === '/availability' && method === 'GET') {
+      const { vendorId, month } = query
+      if (!vendorId) {
+        return cors(NextResponse.json({ error: 'vendorId is required' }, { status: 400 }))
+      }
+      const vendorDoc = await db.collection('vendors').findOne({ id: vendorId })
+      if (!vendorDoc) {
+        return cors(NextResponse.json({ error: 'Vendor not found' }, { status: 404 }))
+      }
+      const blackoutDates = Array.isArray(vendorDoc.blackoutDates) ? vendorDoc.blackoutDates : []
+      const bookingQuery = {
+        'items.vendorId': vendorId,
+        bookingStatus: { $in: ['confirmed', 'paid'] }
+      }
+      if (month) {
+        bookingQuery.eventDate = { $regex: `^${month}` }
+      }
+      const bookings = await db.collection('bookings').find(bookingQuery).toArray()
+      const bookedDates = [...new Set(bookings.map(b => b.eventDate).filter(Boolean))]
+
+      return cors(NextResponse.json({
+        vendorId,
+        vendorName: vendorDoc.name,
+        blackoutDates,
+        bookedDates,
+        category: vendorDoc.category,
+        singleBookingPerDay: Boolean(vendorDoc.singleBookingPerDay || vendorDoc.category === 'venues')
+      }))
+    }
+
+    if (route.match(/^\/vendors\/[^/]+\/blackout$/) && method === 'POST') {
+      const unauth = requireAuth(request, ['vendor', 'admin', 'super_admin', 'vendor_manager', 'operations_manager'])
+      if (unauth) return cors(unauth)
+      const ctx = getAuthContext(request)
+      const vendorId = route.split('/')[2]
+      const vendorDoc = await db.collection('vendors').findOne({ id: vendorId })
+      if (!vendorDoc) return cors(NextResponse.json({ error: 'Vendor not found' }, { status: 404 }))
+      if (ctx.role === 'vendor' && vendorDoc.userId !== ctx.userId) {
+        return cors(NextResponse.json({ error: 'Forbidden: not your vendor' }, { status: 403 }))
+      }
+      const body = await readJson()
+      const { date, dates = [], action = 'toggle' } = body || {}
+      const targetDates = (dates.length ? dates : (date ? [date] : [])).map(d => String(d).trim())
+      if (!targetDates.length) {
+        return cors(NextResponse.json({ error: 'Date or dates array required (YYYY-MM-DD)' }, { status: 400 }))
+      }
+      let currentBlackout = Array.isArray(vendorDoc.blackoutDates) ? [...vendorDoc.blackoutDates] : []
+      for (const d of targetDates) {
+        if (action === 'add') {
+          if (!currentBlackout.includes(d)) currentBlackout.push(d)
+        } else if (action === 'remove') {
+          currentBlackout = currentBlackout.filter(x => x !== d)
+        } else {
+          // toggle
+          if (currentBlackout.includes(d)) {
+            currentBlackout = currentBlackout.filter(x => x !== d)
+          } else {
+            currentBlackout.push(d)
+          }
+        }
+      }
+      await db.collection('vendors').updateOne(
+        { id: vendorId },
+        { $set: { blackoutDates: currentBlackout, updatedAt: new Date().toISOString() } }
+      )
+      await logAuditEvent(db, {
+        actorId: ctx.userId,
+        actorEmail: ctx.email,
+        actorRole: ctx.role,
+        action: 'UPDATE_BLACKOUT_DATES',
+        entityType: 'vendor',
+        entityId: vendorId,
+        details: { blackoutDates: currentBlackout, action },
+        ip: clientIP(request)
+      })
+      return cors(NextResponse.json({
+        success: true,
+        vendorId,
+        blackoutDates: currentBlackout
+      }))
+    }
+
+    // SEO & META ENGINE (Phase 11)
+    if (route === '/seo' && method === 'GET') {
+      const seo = await db.collection('seo_config').findOne({ id: 'main_seo_config' })
+      const defaultSeo = {
+        id: 'main_seo_config',
+        siteName: 'Vows & Venues',
+        titleTemplate: '%s | Vows & Venues Luxury Indian Marketplace',
+        defaultTitle: 'Vows & Venues | All-in-One Indian Event Planning Marketplace',
+        defaultDescription: 'Discover, compare, and book royal palaces, wedding banquets, luxury caterers, celebrity makeup artists, and top photographers across India.',
+        canonicalBase: 'https://vowsandvenues.in',
+        ogImageUrl: 'https://images.unsplash.com/photo-1587271407850-8d438ca9fdf2',
+        keywords: ['Indian wedding', 'banquet halls', 'royal palaces', 'wedding catering', 'bridal makeup', 'wedding decor', 'photographer Lucknow'],
+        robotsStagingDirective: 'noindex, nofollow, noarchive',
+        robotsProductionDirective: 'index, follow',
+        schemaOrgType: 'EventVenue',
+        contactPhone: '+91 98765 43210',
+        contactEmail: 'concierge@vowsandvenues.in'
+      }
+      const result = seo ? { ...seo } : defaultSeo
+      if (result._id) delete result._id
+      return cors(NextResponse.json(result))
+    }
+
+    if (route === '/seo' && (method === 'PUT' || method === 'PATCH')) {
+      const unauth = requireAuth(request, ['admin', 'super_admin', 'marketing_seo_manager'])
+      if (unauth) return cors(unauth)
+      const ctx = getAuthContext(request)
+      const body = await readJson()
+      await db.collection('seo_config').updateOne(
+        { id: 'main_seo_config' },
+        { $set: { ...body, updatedAt: new Date().toISOString() } },
+        { upsert: true }
+      )
+      await logAuditEvent(db, {
+        actorId: ctx.userId,
+        actorEmail: ctx.email,
+        actorRole: ctx.role,
+        action: 'UPDATE_SEO_SETTINGS',
+        entityType: 'seo',
+        entityId: 'main_seo_config',
+        details: body,
+        ip: clientIP(request)
+      })
+      const updated = await db.collection('seo_config').findOne({ id: 'main_seo_config' })
+      if (updated) delete updated._id
+      return cors(NextResponse.json({ seo: updated }))
     }
 
     // VENDOR STATS: GET /api/vendor/stats  (vendor/admin only; vendor sees own)
@@ -3062,8 +3473,9 @@ async function handleRoute(request, { params }) {
     }
 
     if (route.startsWith('/admin/vendors/') && route.endsWith('/verify') && method === 'PATCH') {
-      const unauth = requireAuth(request, ['admin'])
+      const unauth = requireAuth(request, ['admin', 'super_admin', 'vendor_manager'])
       if (unauth) return cors(unauth)
+      const ctx = getAuthContext(request)
       const parts = route.split('/')
       const vendorId = parts[3]
       const body = await request.json().catch(() => ({}))
@@ -3073,20 +3485,41 @@ async function handleRoute(request, { params }) {
         { id: vendorId },
         { $set: { verified, status, verifiedAt: new Date().toISOString() } }
       )
+      await logAuditEvent(db, {
+        actorId: ctx.userId,
+        actorEmail: ctx.email,
+        actorRole: ctx.role,
+        action: 'VERIFY_VENDOR_KYC',
+        entityType: 'vendor',
+        entityId: vendorId,
+        details: { verified, status },
+        ip: clientIP(request)
+      })
       const updated = await db.collection('vendors').findOne({ id: vendorId })
       if (updated) delete updated._id
       return cors(NextResponse.json({ vendor: updated }))
     }
 
     if (route.startsWith('/admin/vendors/') && route.endsWith('/reject') && method === 'PATCH') {
-      const unauth = requireAuth(request, ['admin'])
+      const unauth = requireAuth(request, ['admin', 'super_admin', 'vendor_manager'])
       if (unauth) return cors(unauth)
+      const ctx = getAuthContext(request)
       const parts = route.split('/')
       const vendorId = parts[3]
       await db.collection('vendors').updateOne(
         { id: vendorId },
         { $set: { verified: false, status: 'rejected', rejectedAt: new Date().toISOString() } }
       )
+      await logAuditEvent(db, {
+        actorId: ctx.userId,
+        actorEmail: ctx.email,
+        actorRole: ctx.role,
+        action: 'REJECT_VENDOR_KYC',
+        entityType: 'vendor',
+        entityId: vendorId,
+        details: { status: 'rejected' },
+        ip: clientIP(request)
+      })
       const updated = await db.collection('vendors').findOne({ id: vendorId })
       if (updated) delete updated._id
       return cors(NextResponse.json({ vendor: updated }))
@@ -3206,13 +3639,24 @@ async function handleRoute(request, { params }) {
     }
 
     if (route === '/cms' && (method === 'PUT' || method === 'PATCH')) {
-      const unauth = requireAuth(request, ['admin'])
+      const unauth = requireAuth(request, ['admin', 'super_admin', 'content_manager', 'marketing_seo_manager'])
       if (unauth) return cors(unauth)
+      const ctx = getAuthContext(request)
       const body = await readJson()
       await db.collection('cms_content').updateOne(
         { id: 'main_cms_config' },
         { $set: { ...body, updatedAt: new Date().toISOString() } }
       )
+      await logAuditEvent(db, {
+        actorId: ctx.userId,
+        actorEmail: ctx.email,
+        actorRole: ctx.role,
+        action: 'UPDATE_CMS_CONTENT',
+        entityType: 'cms',
+        entityId: 'main_cms_config',
+        details: { fieldsUpdated: Object.keys(body || {}) },
+        ip: clientIP(request)
+      })
       const updated = await db.collection('cms_content').findOne({ id: 'main_cms_config' })
       if (updated) delete updated._id
       return cors(NextResponse.json({ cms: updated }))
@@ -3231,8 +3675,9 @@ async function handleRoute(request, { params }) {
     }
 
     if (route === '/media' && method === 'POST') {
-      const unauth = requireAuth(request, ['admin'])
+      const unauth = requireAuth(request, ['admin', 'super_admin', 'content_manager', 'marketing_seo_manager'])
       if (unauth) return cors(unauth)
+      const ctx = getAuthContext(request)
       const body = await readJson()
       const { title, url, altText, category = 'general', caption = '' } = body || {}
       if (!url) return cors(NextResponse.json({ error: 'Image URL is required' }, { status: 400 }))
@@ -3247,23 +3692,55 @@ async function handleRoute(request, { params }) {
         createdAt: new Date().toISOString()
       }
       await db.collection('media_library').insertOne(newMedia)
+      await logAuditEvent(db, {
+        actorId: ctx.userId,
+        actorEmail: ctx.email,
+        actorRole: ctx.role,
+        action: 'UPLOAD_MEDIA_ASSET',
+        entityType: 'media',
+        entityId: newMedia.id,
+        details: { title: newMedia.title, category: newMedia.category },
+        ip: clientIP(request)
+      })
       return cors(NextResponse.json({ media: newMedia }, { status: 201 }))
     }
 
     if (route.startsWith('/media/') && method === 'DELETE') {
-      const unauth = requireAuth(request, ['admin'])
+      const unauth = requireAuth(request, ['admin', 'super_admin', 'content_manager'])
       if (unauth) return cors(unauth)
+      const ctx = getAuthContext(request)
       const mediaId = route.split('/')[2]
       await db.collection('media_library').deleteOne({ id: mediaId })
+      await logAuditEvent(db, {
+        actorId: ctx.userId,
+        actorEmail: ctx.email,
+        actorRole: ctx.role,
+        action: 'DELETE_MEDIA_ASSET',
+        entityType: 'media',
+        entityId: mediaId,
+        details: { mediaId },
+        ip: clientIP(request)
+      })
       return cors(NextResponse.json({ success: true, message: 'Media removed' }))
     }
 
     if (route.startsWith('/media/') && method === 'PATCH') {
-      const unauth = requireAuth(request, ['admin'])
+      const unauth = requireAuth(request, ['admin', 'super_admin', 'content_manager'])
       if (unauth) return cors(unauth)
+      const ctx = getAuthContext(request)
       const mediaId = route.split('/')[2]
       const body = await readJson()
       await db.collection('media_library').updateOne({ id: mediaId }, { $set: { ...body, updatedAt: new Date().toISOString() } })
+      await logAuditEvent(db, {
+        actorId: ctx.userId,
+        actorEmail: ctx.email,
+        actorRole: ctx.role,
+        action: 'UPDATE_MEDIA_ASSET',
+        entityType: 'media',
+        entityId: mediaId,
+        details: body,
+        ip: clientIP(request)
+      })
       const updated = await db.collection('media_library').findOne({ id: mediaId })
       if (updated) delete updated._id
       return cors(NextResponse.json({ media: updated }))
@@ -3278,8 +3755,9 @@ async function handleRoute(request, { params }) {
     }
 
     if (route === '/coupons' && method === 'POST') {
-      const unauth = requireAuth(request, ['admin'])
+      const unauth = requireAuth(request, ['admin', 'super_admin', 'marketing_seo_manager', 'finance_manager'])
       if (unauth) return cors(unauth)
+      const ctx = getAuthContext(request)
       const body = await readJson()
       const { code, discountType = 'fixed', discountValue = 0, minOrder = 0, maxDiscount = 15000, description = '' } = body || {}
       if (!code || !discountValue) {
@@ -3297,6 +3775,16 @@ async function handleRoute(request, { params }) {
         createdAt: new Date().toISOString()
       }
       await db.collection('coupons').insertOne(newCoupon)
+      await logAuditEvent(db, {
+        actorId: ctx.userId,
+        actorEmail: ctx.email,
+        actorRole: ctx.role,
+        action: 'CREATE_COUPON',
+        entityType: 'coupon',
+        entityId: newCoupon.id,
+        details: { code: newCoupon.code, discountValue: newCoupon.discountValue, discountType },
+        ip: clientIP(request)
+      })
       return cors(NextResponse.json({ coupon: newCoupon }, { status: 201 }))
     }
 
@@ -3347,18 +3835,118 @@ async function handleRoute(request, { params }) {
     }
 
     if (route.startsWith('/settlements/') && method === 'PATCH') {
-      const unauth = requireAuth(request, ['admin'])
+      const unauth = requireAuth(request, ['admin', 'super_admin', 'finance_manager'])
       if (unauth) return cors(unauth)
+      const ctx = getAuthContext(request)
       const settlementId = route.split('/')[2]
       const body = await readJson()
       const { status, referenceId } = body || {}
+      const idempotencyKey = request.headers.get('x-idempotency-key') || body?.idempotencyKey
+      
+      if (idempotencyKey) {
+        const existingTx = await db.collection('payout_transactions').findOne({ idempotencyKey })
+        if (existingTx) {
+          const settlement = await db.collection('settlements').findOne({ id: settlementId })
+          if (settlement) delete settlement._id
+          return cors(NextResponse.json({ settlement, idempotentReplay: true }))
+        }
+      }
+
       await db.collection('settlements').updateOne(
         { id: settlementId },
         { $set: { status, referenceId: referenceId || '', settledAt: status === 'PAID' ? new Date().toISOString() : null, updatedAt: new Date().toISOString() } }
       )
+
+      if (idempotencyKey) {
+        await db.collection('payout_transactions').insertOne({
+          idempotencyKey,
+          settlementId,
+          status,
+          referenceId: referenceId || '',
+          actorEmail: ctx.email,
+          createdAt: new Date().toISOString()
+        })
+      }
+
+      await logAuditEvent(db, {
+        actorId: ctx.userId,
+        actorEmail: ctx.email,
+        actorRole: ctx.role,
+        action: 'UPDATE_SETTLEMENT_STATUS',
+        entityType: 'settlement',
+        entityId: settlementId,
+        details: { status, referenceId, idempotencyKey },
+        ip: clientIP(request)
+      })
+
       const updated = await db.collection('settlements').findOne({ id: settlementId })
       if (updated) delete updated._id
       return cors(NextResponse.json({ settlement: updated }))
+    }
+
+    if (route.startsWith('/settlements/') && route.endsWith('/payout') && method === 'POST') {
+      const unauth = requireAuth(request, ['admin', 'super_admin', 'finance_manager'])
+      if (unauth) return cors(unauth)
+      const ctx = getAuthContext(request)
+      const settlementId = route.split('/')[2]
+      const body = await readJson()
+      const idempotencyKey = request.headers.get('x-idempotency-key') || body?.idempotencyKey
+
+      if (idempotencyKey) {
+        const existingTx = await db.collection('payout_transactions').findOne({ idempotencyKey })
+        if (existingTx) {
+          return cors(NextResponse.json({
+            message: 'Payout already processed (Idempotent response)',
+            idempotencyKey,
+            transaction: existingTx
+          }, { status: 200 }))
+        }
+      }
+
+      const settlement = await db.collection('settlements').findOne({ id: settlementId })
+      if (!settlement) return cors(NextResponse.json({ error: 'Settlement record not found' }, { status: 404 }))
+
+      const txRef = `TX-PAYOUT-${new Date().getFullYear()}-${Math.floor(100000 + Math.random() * 900000)}`
+      const transactionRecord = {
+        id: `tx_${uuidv4().slice(0, 8)}`,
+        idempotencyKey: idempotencyKey || txRef,
+        settlementId,
+        vendorId: settlement.vendorId,
+        vendorName: settlement.vendorName,
+        netPayable: settlement.netPayable,
+        grossAmount: settlement.grossAmount,
+        commissionAmount: settlement.commissionAmount,
+        referenceId: body?.referenceId || txRef,
+        settledBy: ctx.email,
+        settledAt: new Date().toISOString()
+      }
+
+      await db.collection('payout_transactions').insertOne(transactionRecord)
+      await db.collection('settlements').updateOne(
+        { id: settlementId },
+        { $set: { status: 'PAID', referenceId: transactionRecord.referenceId, settledAt: transactionRecord.settledAt, updatedAt: new Date().toISOString() } }
+      )
+
+      await logAuditEvent(db, {
+        actorId: ctx.userId,
+        actorEmail: ctx.email,
+        actorRole: ctx.role,
+        action: 'EXECUTE_VENDOR_PAYOUT',
+        entityType: 'settlement',
+        entityId: settlementId,
+        details: { vendorId: settlement.vendorId, amount: settlement.netPayable, referenceId: transactionRecord.referenceId },
+        ip: clientIP(request)
+      })
+
+      const updatedSettlement = await db.collection('settlements').findOne({ id: settlementId })
+      if (updatedSettlement) delete updatedSettlement._id
+      delete transactionRecord._id
+
+      return cors(NextResponse.json({
+        success: true,
+        settlement: updatedSettlement,
+        transaction: transactionRecord
+      }))
     }
 
     // ========================================================
@@ -3398,14 +3986,25 @@ async function handleRoute(request, { params }) {
     }
 
     if (route.startsWith('/disputes/') && method === 'PATCH') {
-      const unauth = requireAuth(request, ['admin'])
+      const unauth = requireAuth(request, ['admin', 'super_admin', 'support_agent', 'operations_manager'])
       if (unauth) return cors(unauth)
+      const ctx = getAuthContext(request)
       const disputeId = route.split('/')[2]
       const body = await readJson()
       await db.collection('disputes').updateOne(
         { id: disputeId },
         { $set: { ...body, updatedAt: new Date().toISOString() } }
       )
+      await logAuditEvent(db, {
+        actorId: ctx.userId,
+        actorEmail: ctx.email,
+        actorRole: ctx.role,
+        action: 'UPDATE_DISPUTE_STATUS',
+        entityType: 'dispute',
+        entityId: disputeId,
+        details: body,
+        ip: clientIP(request)
+      })
       const updated = await db.collection('disputes').findOne({ id: disputeId })
       if (updated) delete updated._id
       return cors(NextResponse.json({ dispute: updated }))
@@ -3418,7 +4017,7 @@ async function handleRoute(request, { params }) {
       const unauth = requireAuth(request, ['customer', 'vendor', 'admin'])
       if (unauth) return cors(unauth)
       const ctx = getAuthContext(request)
-      const filter = ctx.role === 'admin' ? {} : { userId: ctx.userId }
+      const filter = (ctx.role === 'admin' || ALL_ADMIN_ROLES.includes(ctx.role)) ? {} : { userId: ctx.userId }
       const list = await db.collection('support_tickets').find(filter).toArray()
       return cors(NextResponse.json(list.map(({ _id, ...rest }) => rest)))
     }
@@ -3448,7 +4047,7 @@ async function handleRoute(request, { params }) {
     }
 
     if (route.startsWith('/support/') && method === 'PATCH') {
-      const unauth = requireAuth(request, ['customer', 'vendor', 'admin'])
+      const unauth = requireAuth(request, ['customer', 'vendor', 'admin', 'super_admin', 'support_agent'])
       if (unauth) return cors(unauth)
       const ctx = getAuthContext(request)
       const ticketId = route.split('/')[2]
@@ -3466,6 +4065,18 @@ async function handleRoute(request, { params }) {
         )
       } else {
         await db.collection('support_tickets').updateOne({ id: ticketId }, { $set: update })
+      }
+      if (ctx.role === 'admin' || ALL_ADMIN_ROLES.includes(ctx.role)) {
+        await logAuditEvent(db, {
+          actorId: ctx.userId,
+          actorEmail: ctx.email,
+          actorRole: ctx.role,
+          action: 'REPLY_SUPPORT_TICKET',
+          entityType: 'support_ticket',
+          entityId: ticketId,
+          details: { status, hasReply: Boolean(replyMessage) },
+          ip: clientIP(request)
+        })
       }
       const updated = await db.collection('support_tickets').findOne({ id: ticketId })
       if (updated) delete updated._id
