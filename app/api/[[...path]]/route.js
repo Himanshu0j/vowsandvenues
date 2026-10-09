@@ -2597,6 +2597,7 @@ async function handleRoute(request, { params }) {
       const discount = Number(body.discount) || 0
       const totalAmount = Math.max(0, subtotal + tax + platformFee - discount)
       const advancePaid = body.isAdvanceOnly ? Math.round(totalAmount * 0.25) : totalAmount
+      const remainingAmount = Math.max(0, totalAmount - advancePaid)
       const eventDate = body.eventDate || new Date().toISOString().split('T')[0]
 
       // Availability and Double-Booking Collision Prevention Engine (Phase 13)

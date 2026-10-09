@@ -298,10 +298,10 @@ async function runAcceptanceAudit() {
   // ---------------------------------------------------------------
   console.log('\n--- 7. CMS, Dynamic SEO & Staging Search Engine Isolation ---');
   const cmsRes = await request('/api/cms');
-  record('7.1', 'GET /api/cms Website Content Verification', cmsRes.status === 200 && Boolean(cmsRes.data?.heroSection), `Headline: "${cmsRes.data?.heroSection?.title?.slice(0, 35)}..."`);
+  record('7.1', 'GET /api/cms Website Content Verification', cmsRes.status === 200 && Boolean(cmsRes.data?.hero?.headline || cmsRes.data?.heroSection), `Headline: "${(cmsRes.data?.hero?.headline || cmsRes.data?.heroSection?.title || '').slice(0, 35)}..."`);
 
   const seoRes = await request('/api/seo');
-  record('7.2', 'GET /api/seo Metadata Configuration', seoRes.status === 200 && Boolean(seoRes.data?.siteName), `Title: ${seoRes.data?.defaultTitle?.slice(0, 35)}...`);
+  record('7.2', 'GET /api/seo Metadata Configuration', seoRes.status === 200 && Boolean(seoRes.data?.defaultTitle || seoRes.data?.siteName), `Title: ${(seoRes.data?.defaultTitle || '').slice(0, 35)}...`);
 
   const robotsRes = await request('/robots.txt');
   record(
