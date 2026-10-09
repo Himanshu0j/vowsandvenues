@@ -58,6 +58,37 @@ function clientIP(request) {
   return cf || xff || rip || 'unknown'
 }
 
+// ==============================================================
+// RENDER HOSTING KEEP-ALIVE (Anti-Cold-Start / Anti-Spin-Down)
+// Keeps Render Free Tier instance warm 24/7 by periodic background self-ping
+// ==============================================================
+if (typeof globalThis !== 'undefined' && !globalThis.__RENDER_KEEP_ALIVE_ACTIVE__) {
+  globalThis.__RENDER_KEEP_ALIVE_ACTIVE__ = true
+  const PING_INTERVAL_MS = 8 * 60 * 1000 // Every 8 minutes (well under Render 15-minute idle cutoff)
+  const isProdOrStaging = process.env.NODE_ENV === 'production' || process.env.APP_ENV === 'staging'
+  
+  if (isProdOrStaging) {
+    const keepAliveTimer = setInterval(async () => {
+      try {
+        const baseUrl = (process.env.RENDER_EXTERNAL_URL || 'https://vowsandvenues-staging.onrender.com').replace(/\/+$/, '')
+        const pingUrl = `${baseUrl}/api/health`
+        const res = await fetch(pingUrl, {
+          method: 'GET',
+          headers: { 'User-Agent': 'VowsAndVenues-KeepAlive/1.0' },
+          cache: 'no-store'
+        })
+        if (res.ok) {
+          console.log(`[KEEP-ALIVE] Pinged ${pingUrl} status ${res.status} at ${new Date().toISOString()}`)
+        }
+      } catch (_) {
+        // Silent catch to avoid uncaught errors
+      }
+    }, PING_INTERVAL_MS)
+
+    if (keepAliveTimer.unref) keepAliveTimer.unref()
+  }
+}
+
 // MongoDB connection (singleton, race-safe with seamless localDb fallback)
 let clientPromise
 let cachedDb

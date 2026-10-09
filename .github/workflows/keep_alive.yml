@@ -1,0 +1,28 @@
+name: Render Staging Keep-Alive (Prevent Cold Start)
+
+# Runs every 10 minutes to prevent Render free-tier instances from spinning down
+on:
+  schedule:
+    # Every 10 minutes, 24/7 (Render free-tier inactivity threshold is 15 minutes)
+    - cron: '*/10 * * * *'
+  workflow_dispatch: # Allows manual trigger from GitHub Actions dashboard
+
+jobs:
+  ping_staging:
+    name: Ping Render Staging Health Endpoint
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - name: Ping Staging Service
+        run: |
+          echo "Sending keep-alive ping to Vows & Venues staging service..."
+          RESPONSE=$(curl -s -w "\nHTTP_STATUS:%{http_code}\nTIME_TOTAL:%{time_total}s\n" \
+            -H "User-Agent: GitHubActions-KeepAlive/1.0" \
+            "https://vowsandvenues-staging.onrender.com/api/health" || true)
+          echo "$RESPONSE"
+          if echo "$RESPONSE" | grep -q "HTTP_STATUS:200"; then
+            echo "✅ Render staging instance is HOT and responsive!"
+          else
+            echo "⚠️ Staging responded with non-200 status or timed out, waking it up."
+          fi

@@ -1,0 +1,538 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Vows & Venues — Client Handover & Demonstration Guide</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;800&family=Playfair+Display:ital,wght@0,600;0,700;1,400&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap');
+
+    @page {
+      size: A4;
+      margin: 18mm 16mm 18mm 16mm;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      color: #1c1917;
+      background: #ffffff;
+      line-height: 1.55;
+      font-size: 10.5pt;
+    }
+
+    .cover-header {
+      background: linear-gradient(135deg, #1b382b 0%, #2a4739 50%, #4a212f 100%);
+      color: #ffffff;
+      padding: 28px 30px;
+      border-radius: 14px;
+      margin-bottom: 24px;
+      border: 1px solid rgba(197, 160, 89, 0.4);
+      position: relative;
+    }
+
+    .brand-badge {
+      display: inline-block;
+      background: #c5a059;
+      color: #1b382b;
+      font-size: 8pt;
+      font-weight: 700;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      padding: 4px 12px;
+      border-radius: 20px;
+      margin-bottom: 12px;
+    }
+
+    .title {
+      font-family: 'Cinzel', serif;
+      font-size: 22pt;
+      font-weight: 700;
+      color: #ffffff;
+      letter-spacing: 0.5px;
+      margin-bottom: 6px;
+    }
+
+    .subtitle {
+      font-family: 'Playfair Display', serif;
+      font-size: 12pt;
+      color: #f3e5c8;
+      font-style: italic;
+      margin-bottom: 14px;
+    }
+
+    .meta-strip {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 18px;
+      border-top: 1px solid rgba(255, 255, 255, 0.2);
+      padding-top: 12px;
+      font-size: 8.5pt;
+      color: #e2e8f0;
+    }
+
+    .meta-item strong {
+      color: #c5a059;
+    }
+
+    h2 {
+      font-family: 'Cinzel', serif;
+      color: #1b382b;
+      font-size: 13pt;
+      border-bottom: 2px solid #c5a059;
+      padding-bottom: 5px;
+      margin-top: 22px;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    h3 {
+      font-family: 'Playfair Display', serif;
+      color: #4a212f;
+      font-size: 11.5pt;
+      margin-top: 14px;
+      margin-bottom: 6px;
+    }
+
+    p {
+      margin-bottom: 9px;
+      color: #332f2c;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 12px 0 16px 0;
+      font-size: 9.5pt;
+      background: #fafaf9;
+      border-radius: 8px;
+      overflow: hidden;
+      border: 1px solid #e7e5e4;
+    }
+
+    th {
+      background: #1b382b;
+      color: #ffffff;
+      font-weight: 600;
+      text-align: left;
+      padding: 9px 12px;
+      font-size: 9pt;
+      letter-spacing: 0.5px;
+    }
+
+    td {
+      padding: 8px 12px;
+      border-bottom: 1px solid #e7e5e4;
+      vertical-align: top;
+    }
+
+    tr:last-child td {
+      border-bottom: none;
+    }
+
+    tr:nth-child(even) td {
+      background: #f5f5f4;
+    }
+
+    .card {
+      background: #ffffff;
+      border: 1px solid #e7e5e4;
+      border-left: 4px solid #c5a059;
+      padding: 12px 14px;
+      border-radius: 8px;
+      margin-bottom: 12px;
+      background: #fdfbf7;
+    }
+
+    .card-admin {
+      border-left-color: #4a212f;
+      background: #faf5f6;
+    }
+
+    .card-vendor {
+      border-left-color: #1b382b;
+      background: #f4f7f5;
+    }
+
+    .card-user {
+      border-left-color: #c5a059;
+      background: #fdfaf2;
+    }
+
+    .cred-box {
+      background: #1c1917;
+      color: #f5f5f4;
+      padding: 10px 14px;
+      border-radius: 6px;
+      font-family: Consolas, monospace;
+      font-size: 9pt;
+      margin: 6px 0 10px 0;
+      display: inline-block;
+      width: 100%;
+    }
+
+    .cred-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 3px 0;
+    }
+
+    .cred-key {
+      color: #c5a059;
+      font-weight: bold;
+    }
+
+    .cred-val {
+      color: #38bdf8;
+    }
+
+    .pill {
+      display: inline-block;
+      background: #e2e8f0;
+      color: #334155;
+      padding: 2px 8px;
+      border-radius: 12px;
+      font-size: 7.5pt;
+      font-weight: bold;
+      text-transform: uppercase;
+    }
+
+    .pill-green {
+      background: #dcfce7;
+      color: #166534;
+    }
+
+    .pill-gold {
+      background: #fef3c7;
+      color: #92400e;
+    }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    .step-badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 20px;
+      height: 20px;
+      background: #1b382b;
+      color: #ffffff;
+      border-radius: 50%;
+      font-size: 8pt;
+      font-weight: bold;
+      margin-right: 6px;
+    }
+
+    .feature-list {
+      list-style: none;
+      padding-left: 0;
+      margin: 6px 0 10px 0;
+    }
+
+    .feature-list li {
+      position: relative;
+      padding-left: 18px;
+      margin-bottom: 5px;
+      font-size: 9.5pt;
+    }
+
+    .feature-list li::before {
+      content: "✔";
+      position: absolute;
+      left: 0;
+      color: #c5a059;
+      font-weight: bold;
+    }
+
+    .alert-box {
+      background: #eff6ff;
+      border: 1px solid #bfdbfe;
+      border-left: 4px solid #3b82f6;
+      padding: 10px 14px;
+      border-radius: 6px;
+      font-size: 9pt;
+      margin: 14px 0;
+      color: #1e40af;
+    }
+
+    .page-break {
+      page-break-before: always;
+    }
+
+    .footer {
+      margin-top: 24px;
+      border-top: 1px solid #e7e5e4;
+      padding-top: 10px;
+      font-size: 8pt;
+      color: #78716c;
+      display: flex;
+      justify-content: space-between;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- COVER HEADER -->
+  <div class="cover-header">
+    <div class="brand-badge">Official Client Handover Guide</div>
+    <div class="title">Vows & Venues</div>
+    <div class="subtitle">Multi-Vendor Luxury Wedding & Event Marketplace</div>
+    <div class="meta-strip">
+      <div class="meta-item"><strong>Environment:</strong> Official Cloud Staging</div>
+      <div class="meta-item"><strong>Host:</strong> Render Web Services</div>
+      <div class="meta-item"><strong>Database:</strong> MongoDB Atlas Cluster</div>
+      <div class="meta-item"><strong>Verification:</strong> 50/50 Tests Passed (100%)</div>
+    </div>
+  </div>
+
+  <!-- SECTION 1 -->
+  <h2>1. Official Staging Access Links</h2>
+  <table>
+    <thead>
+      <tr>
+        <th style="width: 26%;">Portal</th>
+        <th style="width: 48%;">URL</th>
+        <th style="width: 26%;">Purpose</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>Live Marketplace</strong></td>
+        <td><a href="https://vowsandvenues-staging.onrender.com" style="color: #1b382b; font-weight: 600;">https://vowsandvenues-staging.onrender.com</a></td>
+        <td>Main customer & vendor responsive storefront</td>
+      </tr>
+      <tr>
+        <td><strong>Admin Console</strong></td>
+        <td>Via Top Navbar Profile Menu (or click Admin link)</td>
+        <td>Executive dashboard, KYC, CMS & finance</td>
+      </tr>
+      <tr>
+        <td><strong>Vendor Portal</strong></td>
+        <td>Via Top Navbar (or click "List My Services")</td>
+        <td>Storefront wizard, packages & lead inbox</td>
+      </tr>
+      <tr>
+        <td><strong>Cloud Healthcheck</strong></td>
+        <td><a href="https://vowsandvenues-staging.onrender.com/api/health" style="color: #1b382b;">/api/health</a></td>
+        <td>Live Atlas cluster connectivity monitor</td>
+      </tr>
+      <tr>
+        <td><strong>Git Repository</strong></td>
+        <td><a href="https://github.com/Himanshu0j/vowsandvenues/tree/staging" style="color: #1b382b;">Himanshu0j/vowsandvenues (branch: staging)</a></td>
+        <td>Staging automated deployment repository</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <!-- SECTION 2 -->
+  <h2>2. Master Credentials Matrix</h2>
+  <div class="grid-2">
+    <!-- ADMIN -->
+    <div class="card card-admin">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+        <h3 style="margin: 0; color: #4a212f;">Super Admin Account</h3>
+        <span class="pill pill-gold">Full Access</span>
+      </div>
+      <p style="font-size: 8.5pt; color: #57534e; margin-bottom: 6px;">Manages marketplace approvals, CMS content, bookings, and vendor payouts.</p>
+      <div class="cred-box">
+        <div class="cred-row"><span class="cred-key">Email:</span> <span class="cred-val">admin@vowsandvenues.in</span></div>
+        <div class="cred-row"><span class="cred-key">Password:</span> <span class="cred-val">Admin@2026</span></div>
+        <div class="cred-row"><span class="cred-key">Role:</span> <span class="cred-val">admin</span></div>
+      </div>
+      <p style="font-size: 8pt; color: #78716c;">*Tip: Top avatar has a 1-click role switcher to switch between Admin, Vendor, and Customer views seamlessly.</p>
+    </div>
+
+    <!-- VENDOR & CUSTOMER -->
+    <div class="card card-vendor">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+        <h3 style="margin: 0; color: #1b382b;">Vendor & Customer Accounts</h3>
+        <span class="pill pill-green">Ready to Test</span>
+      </div>
+      <p style="font-size: 8.5pt; color: #57534e; margin-bottom: 6px;">Live customer and vendor accounts for immediate testing:</p>
+      <div class="cred-box">
+        <div class="cred-row"><span class="cred-key">Customer:</span> <span class="cred-val">rohit.verma@example.com</span></div>
+        <div class="cred-row"><span class="cred-key">Password:</span> <span class="cred-val">secure123</span></div>
+        <div class="cred-row"><span class="cred-key">Vendor:</span> <span class="cred-val">vendor@example.com</span></div>
+        <div class="cred-row"><span class="cred-key">Password:</span> <span class="cred-val">Vendor@2026</span></div>
+      </div>
+      <p style="font-size: 8pt; color: #78716c;">*Anyone can also register a brand new account via "Sign In" -> "Create Your Account" with 1-click role selection.</p>
+    </div>
+  </div>
+
+  <!-- SECTION 3 -->
+  <h2>3. Complete Role Architecture & Workflow</h2>
+  <div class="card card-user" style="margin-bottom: 14px;">
+    <p style="font-size: 9.5pt; margin-bottom: 0;">
+      Vows & Venues operates as a <strong>multi-sided luxury Indian wedding platform</strong>. Customers build celebrations and add multiple vendors to a single basket; vendors manage their storefronts and price packages; and the administration team monitors quality, handles KYC approvals, and oversees platform commissions.
+    </p>
+  </div>
+
+  <div class="page-break"></div>
+
+  <!-- SECTION 4 -->
+  <h2>4. Super Admin Operations Console (7 Enterprise Modules)</h2>
+  <p style="font-size: 9pt; color: #57534e; margin-bottom: 12px;">Logged in as <code>admin@vowsandvenues.in</code>, open the <strong>Admin Console</strong> to access all 7 operational suites:</p>
+
+  <div class="card card-admin">
+    <h3 style="margin-top: 0;">1. Executive KPI Overview</h3>
+    <ul class="feature-list">
+      <li><strong>Gross Merchandise Value (GMV):</strong> Live calculation of all booked celebrations across India.</li>
+      <li><strong>Platform Revenue:</strong> Automated 10% take-rate earnings ledger.</li>
+      <li><strong>Vendor Health:</strong> Real-time counts of total vendors, verified creators, and pending KYC submissions.</li>
+    </ul>
+  </div>
+
+  <div class="card card-admin">
+    <h3 style="margin-top: 0;">2. Vendor KYC & Verification Suite</h3>
+    <ul class="feature-list">
+      <li><strong>Inspect Profiles:</strong> Review business name, contact, capacity, starting prices, and portfolios.</li>
+      <li><strong>1-Click Approval:</strong> Click <strong>"Verify"</strong> to grant the verified badge and publish the storefront.</li>
+      <li><strong>Rejection Workflow:</strong> Ability to reject or request documentation updates with audit logs.</li>
+    </ul>
+  </div>
+
+  <div class="card card-admin">
+    <h3 style="margin-top: 0;">3. Master Bookings & Invoicing Ledger</h3>
+    <ul class="feature-list">
+      <li><strong>Multi-Vendor Breakdown:</strong> Inspect which venues, caterers, decorators, and photographers are attached to each celebration.</li>
+      <li><strong>Tax & Fee Transparency:</strong> Full financial calculation: Subtotal + 18% GST + Platform Fee - Coupon Discount = Total.</li>
+      <li><strong>Advance Payment Tracking:</strong> Tracks 25% advance collected and 75% remaining balance.</li>
+    </ul>
+  </div>
+
+  <div class="card card-admin">
+    <h3 style="margin-top: 0;">4. Visual CMS Live Content Manager</h3>
+    <ul class="feature-list">
+      <li><strong>No-Code Content Updates:</strong> Edit Hero headline, brand taglines, announcements, and trust metrics.</li>
+      <li><strong>Instant Publishing:</strong> Updates save immediately to MongoDB Atlas without redeploying code.</li>
+    </ul>
+  </div>
+
+  <div class="card card-admin">
+    <h3 style="margin-top: 0;">5. Platform Finance & Vendor Settlement Ledger</h3>
+    <ul class="feature-list">
+      <li><strong>Automated 10% Take-Rate:</strong> System automatically calculates 10% platform fee and 90% vendor payout.</li>
+      <li><strong>Settlement Status:</strong> Track payout states (<code>PENDING</code>, <code>PROCESSING</code>, <code>SETTLED</code>) for each booked vendor.</li>
+    </ul>
+  </div>
+
+  <div class="card card-admin">
+    <h3 style="margin-top: 0;">6. Promo Codes & Coupon Engine</h3>
+    <ul class="feature-list">
+      <li><strong>Active Codes:</strong> <code>ROYAL2026</code> (₹15,000 off on ₹1,00,000+ orders) & <code>SHUBH10</code> (10% off capped at ₹20,000).</li>
+      <li><strong>Rule Builder:</strong> Create new codes with minimum order thresholds, discount caps, and expiry dates.</li>
+    </ul>
+  </div>
+
+  <div class="card card-admin">
+    <h3 style="margin-top: 0;">7. Luxury Media Library</h3>
+    <ul class="feature-list">
+      <li><strong>Media Asset Manager:</strong> Upload, tag, and categorize high-resolution celebration photography.</li>
+      <li><strong>Auto CDN:</strong> Optimized for mobile and desktop screens with instant caching.</li>
+    </ul>
+  </div>
+
+  <div class="page-break"></div>
+
+  <!-- SECTION 5 -->
+  <h2>5. Vendor Storefront & Portal Guide</h2>
+  <div class="card card-vendor">
+    <h3 style="margin-top: 0;">1. 4-Step Onboarding Wizard</h3>
+    <p style="font-size: 9pt;">When a new wedding vendor registers on the platform, they are guided through a streamlined 4-step wizard:</p>
+    <ul class="feature-list">
+      <li><span class="step-badge">1</span> <strong>Business Info:</strong> Name, category (e.g. Venues, Catering, Decor), city, address, phone, and bio.</li>
+      <li><span class="step-badge">2</span> <strong>Photos & Portfolio:</strong> Upload high-definition storefront cover image and celebration gallery.</li>
+      <li><span class="step-badge">3</span> <strong>Categories & Pricing:</strong> Starting price per plate/day, capacity, and standard inclusions.</li>
+      <li><span class="step-badge">4</span> <strong>Review & Publish:</strong> Direct submission for Admin KYC verification.</li>
+    </ul>
+  </div>
+
+  <div class="card card-vendor">
+    <h3 style="margin-top: 0;">2. Tiered Package Creator</h3>
+    <p style="font-size: 9pt;">Vendors can create and customize tiered packages (e.g., <em>Silver Package</em>, <em>Royal Heritage Bundle</em>, <em>Cinematic Drone Add-on</em>) with individual pricing and deliverables.</p>
+  </div>
+
+  <div class="card card-vendor">
+    <h3 style="margin-top: 0;">3. Leads, Quotations & Booking Visibility</h3>
+    <ul class="feature-list">
+      <li><strong>Inquiries:</strong> Receive inquiries from couples with specific event dates and guest counts.</li>
+      <li><strong>Custom Quotes:</strong> Send customized price proposals directly through the portal.</li>
+      <li><strong>Confirmed Bookings:</strong> View upcoming celebration dates and payout schedules.</li>
+    </ul>
+  </div>
+
+  <!-- SECTION 6 -->
+  <h2>6. Customer Experience & Event Builder Guide</h2>
+  <div class="card card-user">
+    <h3 style="margin-top: 0;">1. Editorial Search & Multi-Filter Engine</h3>
+    <ul class="feature-list">
+      <li>Browse across <strong>11 Indian wedding categories</strong> (Banquet Halls, Awadhi Catering, Mandaps, HD Makeup, Lehengas, Candid Cinema, DJ, Return Gifts, Garlands, E-Invites, Planners).</li>
+      <li>Filter by <strong>City</strong> (Lucknow, Delhi NCR, Jaipur, Udaipur, Mumbai, Bengaluru), <strong>Price Range</strong>, <strong>Rating (4.8+)</strong>, and <strong>Verified Only</strong>.</li>
+    </ul>
+  </div>
+
+  <div class="card card-user">
+    <h3 style="margin-top: 0;">2. All-in-One Event Builder Workspace</h3>
+    <ul class="feature-list">
+      <li><strong>Unified Event Plan:</strong> Name the celebration (e.g. <em>"Himanshu & Priya's Grand Wedding"</em>), pick date, city, and guest count.</li>
+      <li><strong>Multi-Vendor Cart:</strong> Add multiple independent vendors into one event (e.g. Royal Nawabi Palace + Shahi Dawat Catering + Gulmohar Luxury Decor + Drishti Wedding Cinema).</li>
+      <li><strong>Live Budget Meter:</strong> Real-time visual tracking of committed budget vs. remaining balance.</li>
+    </ul>
+  </div>
+
+  <div class="card card-user">
+    <h3 style="margin-top: 0;">3. Promotional Checkout & Invoicing</h3>
+    <ul class="feature-list">
+      <li><strong>Coupon Codes:</strong> Enter <code>ROYAL2026</code> or <code>SHUBH10</code> to receive instant server-validated discounts.</li>
+      <li><strong>25% Advance Lock-in:</strong> Pay 25% today to reserve all vendors for the date; balance payable prior to the event.</li>
+      <li><strong>Instant Tax Invoice:</strong> Downloads/displays official confirmation voucher with booking reference (<code>VV-2026-XXXX</code>).</li>
+    </ul>
+  </div>
+
+  <!-- SECTION 7 -->
+  <h2>7. Production Safety & Technical Specifications</h2>
+  <table>
+    <thead>
+      <tr>
+        <th style="width: 30%;">Component</th>
+        <th style="width: 70%;">Specification & Safety Guarantee</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>Database Persistence</strong></td>
+        <td>MongoDB Atlas Cluster with replica sets. Staging uses dedicated <code>vows_and_venues_staging</code> database. Zero ephemeral file loss.</td>
+      </tr>
+      <tr>
+        <td><strong>Production Isolation</strong></td>
+        <td>Production domain (<code>vowsandvenues.in</code>), production database, and customer data are <strong>100% untouched</strong>.</td>
+      </tr>
+      <tr>
+        <td><strong>Payment Mode</strong></td>
+        <td>Strict sandbox test mode (simulated transactions; no live card charges).</td>
+      </tr>
+      <tr>
+        <td><strong>Automated CI/CD</strong></td>
+        <td>Automated pipeline: pushes to GitHub <code>staging</code> branch automatically run full test suite and deploy seamlessly.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="footer">
+    <div>Vows & Venues © 2026 — Official Staging Documentation</div>
+    <div>Confidential — For Client Review</div>
+  </div>
+
+</body>
+</html>

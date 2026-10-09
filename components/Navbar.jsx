@@ -45,37 +45,37 @@ export default function Navbar({
     <header className="sticky top-0 z-50 bg-gradient-to-r from-[#fcf8ef]/95 via-[#fdfaf3]/95 to-[#faf4e9]/95 backdrop-blur-xl border-b-2 border-amber-300/60 shadow-[0_4px_30px_rgba(74,21,37,0.06)] transition-all">
       {/* 1. TOP ANNOUNCEMENT BANNER */}
       {announcement?.enabled && (
-        <div className="bg-gradient-to-r from-[#380e1b] via-[#4a1525] to-[#380e1b] text-[#f5ebd7] text-[11px] sm:text-xs py-2 px-4 text-center font-medium tracking-wide flex items-center justify-center gap-2 border-b border-[#c5a059]/30 relative overflow-hidden">
+        <div className="bg-gradient-to-r from-[#380e1b] via-[#4a1525] to-[#380e1b] text-[#f5ebd7] text-[10px] sm:text-xs py-1.5 sm:py-2 px-3 sm:px-4 text-center font-medium tracking-wide flex items-center justify-center gap-1.5 sm:gap-2 border-b border-[#c5a059]/30 relative overflow-hidden">
           <div className="absolute inset-0 bg-gradient-to-r from-transparent via-amber-200/10 to-transparent -translate-x-full animate-[shimmer-sweep_3.5s_infinite]" />
-          <Sparkles className="w-3.5 h-3.5 text-amber-300 animate-pulse" />
-          <span className="font-serif tracking-wide">{announcement.text}</span>
+          <Sparkles className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-amber-300 animate-pulse shrink-0" />
+          <span className="font-serif tracking-wide truncate max-w-[210px] sm:max-w-none">{announcement.text}</span>
           <button
             onClick={() => setActiveTab('explore')}
-            className="underline underline-offset-2 hover:text-amber-200 font-bold ml-1 cursor-pointer transition-colors"
+            className="underline underline-offset-2 hover:text-amber-200 font-bold ml-1 cursor-pointer transition-colors shrink-0 whitespace-nowrap"
           >
-            Explore Now &rarr;
+            Explore &rarr;
           </button>
         </div>
       )}
 
       {/* 2. MAIN NAVIGATION BAR */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-20">
+      <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
+        <div className="flex items-center justify-between h-16 sm:h-20">
           
           {/* BRAND LOGO */}
           <div
             onClick={() => { setActiveTab('home'); setMobileMenuOpen(false); }}
-            className="flex items-center gap-3 cursor-pointer group select-none"
+            className="flex items-center gap-2 sm:gap-3 cursor-pointer group select-none shrink-0"
           >
-            <div className="w-11 h-11 rounded-2xl bg-gradient-to-br from-[#4a1525] via-[#370e1b] to-[#20050e] text-[#c5a059] flex items-center justify-center border border-[#c5a059]/40 shadow-md group-hover:scale-105 group-hover:rotate-2 transition-all duration-300 ring-2 ring-amber-400/20">
-              <span className="font-serif font-bold text-xl leading-none text-amber-200">V</span>
+            <div className="w-9 h-9 sm:w-11 sm:h-11 rounded-xl sm:rounded-2xl bg-gradient-to-br from-[#4a1525] via-[#370e1b] to-[#20050e] text-[#c5a059] flex items-center justify-center border border-[#c5a059]/40 shadow-md group-hover:scale-105 group-hover:rotate-2 transition-all duration-300 ring-2 ring-amber-400/20 shrink-0">
+              <span className="font-serif font-bold text-lg sm:text-xl leading-none text-amber-200">V</span>
             </div>
             <div>
-              <div className="font-serif text-2xl font-bold tracking-tight text-[#1c1917] flex items-center gap-1.5">
+              <div className="font-serif text-lg sm:text-2xl font-bold tracking-tight text-[#1c1917] flex items-center gap-1 sm:gap-1.5">
                 <span>Vows &amp; Venues</span>
-                <span className="w-2 h-2 rounded-full bg-[#c5a059] inline-block animate-pulse"></span>
+                <span className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-[#c5a059] inline-block animate-pulse"></span>
               </div>
-              <div className="text-[9px] uppercase font-bold tracking-[0.22em] text-[#78716c] -mt-0.5">
+              <div className="hidden sm:block text-[9px] uppercase font-bold tracking-[0.22em] text-[#78716c] -mt-0.5">
                 Luxury Indian Event Marketplace
               </div>
             </div>
@@ -156,12 +156,12 @@ export default function Navbar({
           </nav>
 
           {/* RIGHT ACTION BUTTONS */}
-          <div className="flex items-center gap-2 sm:gap-3">
-            {/* Wishlist Button */}
+          <div className="flex items-center gap-1.5 sm:gap-3 shrink-0">
+            {/* Wishlist Button (Desktop/Tablet - hidden on mobile as it is pinned in bottom nav) */}
             <button
               onClick={() => setActiveTab('wishlist')}
               title="Saved Wishlist"
-              className={`p-2.5 rounded-full border relative transition-all duration-300 hover:scale-110 active:scale-95 ${
+              className={`hidden sm:flex p-2.5 rounded-full border relative transition-all duration-300 hover:scale-110 active:scale-95 ${
                 activeTab === 'wishlist'
                   ? 'bg-rose-50 text-rose-600 border-rose-300 shadow-sm'
                   : 'bg-white/80 hover:bg-[#eae3d7] border-[#dfd7c8] text-[#44403c] shadow-sm'
@@ -175,8 +175,8 @@ export default function Navbar({
               )}
             </button>
 
-            {/* Notifications Bell */}
-            <div className="relative">
+            {/* Notifications Bell (Desktop/Tablet) */}
+            <div className="relative hidden sm:block">
               <button
                 onClick={() => setShowNotifications(!showNotifications)}
                 title="Notifications"
@@ -226,15 +226,15 @@ export default function Navbar({
               <div className="relative">
                 <button
                   onClick={() => setShowProfileMenu(!showProfileMenu)}
-                  className="btn-3d-wine flex items-center gap-2 pl-2 pr-3.5 py-1.5 rounded-full bg-gradient-to-r from-[#4a1525] via-[#5e192f] to-[#4a1525] text-white hover:brightness-110 transition-all border border-[#c5a059]/40 shadow-md hover:scale-105 active:scale-95"
+                  className="btn-3d-wine flex items-center gap-1.5 sm:gap-2 pl-1.5 sm:pl-2 pr-2.5 sm:pr-3.5 py-1 sm:py-1.5 rounded-full bg-gradient-to-r from-[#4a1525] via-[#5e192f] to-[#4a1525] text-white hover:brightness-110 transition-all border border-[#c5a059]/40 shadow-md hover:scale-105 active:scale-95 text-xs"
                 >
-                  <div className="w-7 h-7 rounded-full bg-gradient-to-br from-amber-300 to-amber-500 text-[#1c1917] font-bold text-xs flex items-center justify-center shadow-sm">
+                  <div className="w-6 h-6 sm:w-7 sm:h-7 rounded-full bg-gradient-to-br from-amber-300 to-amber-500 text-[#1c1917] font-bold text-xs flex items-center justify-center shadow-sm shrink-0">
                     {currentUser.name ? currentUser.name[0].toUpperCase() : 'U'}
                   </div>
                   <span className="text-xs font-semibold hidden sm:inline max-w-[100px] truncate text-amber-100">
                     {currentUser.name}
                   </span>
-                  <ChevronDown className="w-3.5 h-3.5 opacity-80 text-amber-300" />
+                  <ChevronDown className="w-3 h-3 sm:w-3.5 sm:h-3.5 opacity-80 text-amber-300 shrink-0" />
                 </button>
 
                 {showProfileMenu && (
@@ -304,9 +304,9 @@ export default function Navbar({
             ) : (
               <button
                 onClick={onOpenAuth}
-                className="btn-3d-wine px-5 py-2 rounded-full bg-gradient-to-r from-[#4a1525] via-[#5c1a2e] to-[#4a1525] hover:brightness-110 text-[#f5ebd7] text-xs font-bold transition-all shadow-md border border-[#c5a059]/40 hover:scale-105 active:scale-95 flex items-center gap-1.5"
+                className="btn-3d-wine px-3 sm:px-5 py-1.5 sm:py-2 rounded-full bg-gradient-to-r from-[#4a1525] via-[#5c1a2e] to-[#4a1525] hover:brightness-110 text-[#f5ebd7] text-xs font-bold transition-all shadow-md border border-[#c5a059]/40 hover:scale-105 active:scale-95 flex items-center gap-1 sm:gap-1.5 shrink-0"
               >
-                <Sparkles className="w-3.5 h-3.5 text-amber-300" />
+                <Sparkles className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-amber-300 shrink-0" />
                 <span>Sign In</span>
               </button>
             )}
@@ -314,7 +314,8 @@ export default function Navbar({
             {/* MOBILE MENU TOGGLE */}
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="md:hidden p-2.5 rounded-full border border-[#dfd7c8] bg-[#f5f2eb] text-[#44403c]"
+              className="md:hidden p-2 rounded-xl border border-amber-300/80 bg-gradient-to-b from-amber-50 to-amber-100/70 hover:bg-amber-200 text-[#4a1525] transition-all shadow-xs flex items-center justify-center shrink-0 active:scale-95"
+              aria-label="Toggle navigation menu"
             >
               {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
             </button>
@@ -323,15 +324,18 @@ export default function Navbar({
         </div>
       </div>
 
-      {/* MOBILE ACCORDION MENU */}
+      {/* MOBILE ACCORDION DRAWER */}
       {mobileMenuOpen && (
-        <div className="md:hidden bg-white border-b border-[#e8e2d5] px-4 py-4 space-y-2 animate-in slide-in-from-top-2">
-          <div className="pb-2 border-b border-stone-100 flex items-center justify-between">
-            <span className="text-xs text-stone-500 font-medium">Selected City:</span>
+        <div className="md:hidden bg-gradient-to-b from-[#fdfbf7] via-[#faf4ea] to-[#f7efe0] border-b-2 border-amber-300/70 px-4 py-4 space-y-3 animate-in slide-in-from-top-2 shadow-2xl">
+          {/* City Selector */}
+          <div className="p-2.5 rounded-xl bg-white/90 border border-amber-200/90 flex items-center justify-between shadow-xs">
+            <span className="text-xs text-stone-600 font-semibold flex items-center gap-1.5">
+              <MapPin className="w-3.5 h-3.5 text-[#4a1525]" /> Location:
+            </span>
             <select
               value={selectedCity}
               onChange={(e) => setSelectedCity(e.target.value)}
-              className="bg-[#f5f2eb] rounded-lg px-2.5 py-1 text-xs font-bold text-stone-800"
+              className="bg-amber-50/80 border border-amber-300 rounded-lg px-2.5 py-1 text-xs font-bold text-stone-900 focus:outline-none cursor-pointer"
             >
               {cities.map(c => (
                 <option key={c} value={c}>{c}</option>
@@ -339,61 +343,122 @@ export default function Navbar({
             </select>
           </div>
 
-          <button
-            onClick={() => { setActiveTab('home'); setMobileMenuOpen(false); }}
-            className={`w-full text-left px-3 py-2.5 rounded-xl text-sm font-semibold ${activeTab === 'home' ? 'bg-[#ebd8de] text-[#4a1525]' : 'text-stone-700 hover:bg-stone-50'}`}
-          >
-            Home
-          </button>
-          <button
-            onClick={() => { setActiveTab('explore'); setMobileMenuOpen(false); }}
-            className={`w-full text-left px-3 py-2.5 rounded-xl text-sm font-semibold ${activeTab === 'explore' ? 'bg-[#ebd8de] text-[#4a1525]' : 'text-stone-700 hover:bg-stone-50'}`}
-          >
-            Explore Vendors
-          </button>
-          <button
-            onClick={() => { setActiveTab('categories'); setMobileMenuOpen(false); }}
-            className={`w-full text-left px-3 py-2.5 rounded-xl text-sm font-semibold ${activeTab === 'categories' ? 'bg-[#ebd8de] text-[#4a1525]' : 'text-stone-700 hover:bg-stone-50'}`}
-          >
-            Categories
-          </button>
-          <button
-            onClick={() => { setActiveTab('packages'); setMobileMenuOpen(false); }}
-            className={`w-full text-left px-3 py-2.5 rounded-xl text-sm font-semibold ${activeTab === 'packages' ? 'bg-[#ebd8de] text-[#4a1525]' : 'text-stone-700 hover:bg-stone-50'}`}
-          >
-            Ready Packages
-          </button>
-          <button
-            onClick={() => { setActiveTab('builder'); setMobileMenuOpen(false); }}
-            className={`w-full text-left px-3 py-2.5 rounded-xl text-sm font-semibold flex items-center justify-between ${activeTab === 'builder' ? 'bg-[#ebd8de] text-[#4a1525]' : 'text-stone-700 hover:bg-stone-50'}`}
-          >
-            <span>Build My Event</span>
-            {budgetCount > 0 && (
-              <span className="bg-[#4a1525] text-white text-[10px] font-bold px-2 py-0.5 rounded-full">
-                {budgetCount} Items
+          {/* Quick Notifications Alert if any */}
+          {unreadCount > 0 && (
+            <div className="p-2.5 rounded-xl bg-amber-100/90 border border-amber-300 text-amber-950 text-xs flex items-center justify-between">
+              <span className="flex items-center gap-1.5 font-bold">
+                <Bell className="w-3.5 h-3.5 text-[#4a1525]" /> {unreadCount} New Notification{unreadCount > 1 ? 's' : ''}
               </span>
-            )}
-          </button>
+              <span className="text-[10px] bg-[#4a1525] text-amber-200 px-2 py-0.5 rounded-full font-bold">Alert</span>
+            </div>
+          )}
 
-          <div className="border-t border-stone-100 pt-2 flex gap-2">
+          {/* Nav Links */}
+          <div className="space-y-1">
+            <button
+              onClick={() => { setActiveTab('home'); setMobileMenuOpen(false); }}
+              className={`w-full text-left px-3.5 py-2.5 rounded-xl text-sm font-semibold transition-all flex items-center justify-between ${
+                activeTab === 'home' ? 'bg-[#4a1525] text-[#f5ebd7] shadow-sm' : 'text-stone-700 hover:bg-white'
+              }`}
+            >
+              <span>Home</span>
+              <Sparkles className="w-4 h-4 opacity-70" />
+            </button>
+            <button
+              onClick={() => { setActiveTab('explore'); setMobileMenuOpen(false); }}
+              className={`w-full text-left px-3.5 py-2.5 rounded-xl text-sm font-semibold transition-all flex items-center justify-between ${
+                activeTab === 'explore' ? 'bg-[#4a1525] text-[#f5ebd7] shadow-sm' : 'text-stone-700 hover:bg-white'
+              }`}
+            >
+              <span>Explore Vendors</span>
+              <Compass className="w-4 h-4 opacity-70" />
+            </button>
+            <button
+              onClick={() => { setActiveTab('categories'); setMobileMenuOpen(false); }}
+              className={`w-full text-left px-3.5 py-2.5 rounded-xl text-sm font-semibold transition-all flex items-center justify-between ${
+                activeTab === 'categories' ? 'bg-[#4a1525] text-[#f5ebd7] shadow-sm' : 'text-stone-700 hover:bg-white'
+              }`}
+            >
+              <span>Celebration Categories</span>
+              <Building2 className="w-4 h-4 opacity-70" />
+            </button>
+            <button
+              onClick={() => { setActiveTab('packages'); setMobileMenuOpen(false); }}
+              className={`w-full text-left px-3.5 py-2.5 rounded-xl text-sm font-semibold transition-all flex items-center justify-between ${
+                activeTab === 'packages' ? 'bg-[#4a1525] text-[#f5ebd7] shadow-sm' : 'text-stone-700 hover:bg-white'
+              }`}
+            >
+              <span>Ready Packages</span>
+              <CalendarDays className="w-4 h-4 opacity-70" />
+            </button>
+            <button
+              onClick={() => { setActiveTab('builder'); setMobileMenuOpen(false); }}
+              className={`w-full text-left px-3.5 py-2.5 rounded-xl text-sm font-semibold transition-all flex items-center justify-between ${
+                activeTab === 'builder' ? 'bg-[#4a1525] text-[#f5ebd7] shadow-sm' : 'text-stone-700 hover:bg-white'
+              }`}
+            >
+              <span>Build My Event</span>
+              {budgetCount > 0 ? (
+                <span className="bg-amber-400 text-stone-950 text-[10px] font-bold px-2 py-0.5 rounded-full">
+                  {budgetCount} Items
+                </span>
+              ) : (
+                <Calendar className="w-4 h-4 opacity-70" />
+              )}
+            </button>
+            <button
+              onClick={() => { setActiveTab('wishlist'); setMobileMenuOpen(false); }}
+              className={`w-full text-left px-3.5 py-2.5 rounded-xl text-sm font-semibold transition-all flex items-center justify-between ${
+                activeTab === 'wishlist' ? 'bg-[#4a1525] text-[#f5ebd7] shadow-sm' : 'text-stone-700 hover:bg-white'
+              }`}
+            >
+              <span>Saved Wishlist</span>
+              {wishlistCount > 0 ? (
+                <span className="bg-rose-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full">
+                  {wishlistCount} Saved
+                </span>
+              ) : (
+                <Heart className="w-4 h-4 opacity-70" />
+              )}
+            </button>
+          </div>
+
+          {/* Role Portals */}
+          <div className="border-t border-amber-200/80 pt-2 flex gap-2">
             <button
               onClick={() => { setUserRole('vendor'); setActiveTab('vendor_portal'); setMobileMenuOpen(false); }}
-              className="flex-1 py-2 text-center text-xs font-semibold rounded-xl bg-stone-100 text-stone-800 hover:bg-stone-200"
+              className="flex-1 py-2 text-center text-xs font-bold rounded-xl bg-white border border-stone-200 text-stone-800 hover:bg-stone-50 shadow-xs"
             >
               Vendor Portal
             </button>
             <button
               onClick={() => { setUserRole('admin'); setActiveTab('admin_portal'); setMobileMenuOpen(false); }}
-              className="flex-1 py-2 text-center text-xs font-semibold rounded-xl bg-[#4a1525] text-[#f5ebd7] hover:bg-[#3d111e]"
+              className="flex-1 py-2 text-center text-xs font-bold rounded-xl bg-gradient-to-r from-[#4a1525] to-[#60192e] text-[#f5ebd7] hover:brightness-110 shadow-xs"
             >
               Admin Console
             </button>
           </div>
+
+          {/* Current User in mobile menu */}
+          {currentUser && (
+            <div className="border-t border-amber-200/80 pt-2 flex items-center justify-between">
+              <div className="text-xs">
+                <div className="font-bold text-stone-900 truncate max-w-[180px]">{currentUser.name}</div>
+                <div className="text-[10px] text-stone-500 capitalize">{userRole} Account</div>
+              </div>
+              <button
+                onClick={() => { setMobileMenuOpen(false); onLogout(); }}
+                className="text-xs font-semibold text-rose-600 hover:text-rose-700 px-2 py-1 rounded-lg hover:bg-rose-50"
+              >
+                Sign Out
+              </button>
+            </div>
+          )}
         </div>
       )}
 
       {/* 3. MOBILE FIXED BOTTOM NAVIGATION BAR */}
-      <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-[#ffffff]/95 backdrop-blur-lg border-t border-[#e8e2d5] px-2 py-1.5 shadow-[0_-4px_20px_rgba(0,0,0,0.08)] flex items-center justify-around">
+      <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-gradient-to-r from-[#fcf8ef]/95 via-[#fdfaf3]/95 to-[#faf4e9]/95 backdrop-blur-xl border-t border-amber-300/60 px-2 py-1.5 shadow-[0_-4px_25px_rgba(74,21,37,0.08)] flex items-center justify-around">
         <button
           onClick={() => { setActiveTab('home'); setMobileMenuOpen(false); }}
           className={`flex flex-col items-center justify-center py-1 px-2.5 rounded-xl transition-colors ${
