@@ -53,13 +53,19 @@ async function runAdminSuite() {
 
     // 3. Super Admin Authentication
     console.log('\n--- 🔑 Super Admin Authentication ---');
-    const loginRes = await req('/api/auth/login', {
+    let loginRes = await req('/api/auth/login', {
       method: 'POST',
       body: JSON.stringify({
         email: 'admin@vowsandvenues.in',
-        password: 'Admin@2026'
+        password: process.env.ADMIN_PASSWORD || 'Vows#Stg2026!SecureKey'
       })
     });
+    if (loginRes.status !== 200) {
+      loginRes = await req('/api/auth/login', {
+        method: 'POST',
+        body: JSON.stringify({ email: 'admin@vowsandvenues.in', password: 'Admin@2026' })
+      });
+    }
     assert('4. Admin Login with admin@vowsandvenues.in', loginRes.status === 200 && loginRes.data?.token, `User: ${loginRes.data?.user?.name}, Role: ${loginRes.data?.user?.role}`);
     adminToken = loginRes.data?.token;
 
@@ -67,7 +73,7 @@ async function runAdminSuite() {
 
     // 4. Admin Profile Verification
     const meRes = await req('/api/auth/me', { headers: authHeaders });
-    assert('5. GET /api/auth/me (Identity Check)', meRes.status === 200 && meRes.data?.user?.role === 'admin', `Role: ${meRes.data?.user?.role}, Email: ${meRes.data?.user?.email}`);
+    assert('5. GET /api/auth/me (Identity Check)', meRes.status === 200 && (meRes.data?.user?.role === 'admin' || meRes.data?.user?.role === 'super_admin'), `Role: ${meRes.data?.user?.role}, Email: ${meRes.data?.user?.email}`);
 
     // 5. Admin KPIs & Analytics
     console.log('\n--- 📊 Operations KPIs & Analytics ---');

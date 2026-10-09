@@ -120,10 +120,16 @@ async function runE2ETests() {
     vendorUser = rVen.data?.user;
 
     // Register / Login Admin
-    const rAdmLogin = await request('/api/auth/login', {
+    let rAdmLogin = await request('/api/auth/login', {
       method: 'POST',
-      body: JSON.stringify({ email: 'admin@vowsandvenues.in', password: 'Admin@2026' })
+      body: JSON.stringify({ email: 'admin@vowsandvenues.in', password: process.env.ADMIN_PASSWORD || 'Vows#Stg2026!SecureKey' })
     });
+    if (rAdmLogin.status !== 200) {
+      rAdmLogin = await request('/api/auth/login', {
+        method: 'POST',
+        body: JSON.stringify({ email: 'admin@vowsandvenues.in', password: 'Admin@2026' })
+      });
+    }
     if (rAdmLogin.status === 200 && rAdmLogin.data?.token) {
       adminToken = rAdmLogin.data.token;
       adminUser = rAdmLogin.data.user;

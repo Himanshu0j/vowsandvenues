@@ -25,7 +25,7 @@ export default function DedicatedAdminPortalPage() {
 
   // Login form state
   const [loginEmail, setLoginEmail] = useState('admin@vowsandvenues.in')
-  const [loginPassword, setLoginPassword] = useState('Admin@2026')
+  const [loginPassword, setLoginPassword] = useState('Vows#Stg2026!SecureKey')
   const [loginBusy, setLoginBusy] = useState(false)
 
   // Admin Data State
@@ -337,7 +337,7 @@ export default function DedicatedAdminPortalPage() {
                 type="button"
                 onClick={() => {
                   setLoginEmail('admin@vowsandvenues.in')
-                  setLoginPassword('Admin@2026')
+                  setLoginPassword('Vows#Stg2026!SecureKey')
                   toast.info('Super Admin credentials prefilled')
                 }}
                 className="text-[#c5a059] hover:underline font-bold"
@@ -346,7 +346,7 @@ export default function DedicatedAdminPortalPage() {
               </button>
             </div>
             <div className="text-[11px] font-mono text-stone-400 truncate">
-              admin@vowsandvenues.in / Admin@2026
+              admin@vowsandvenues.in / Vows#Stg2026!SecureKey
             </div>
           </div>
         </div>

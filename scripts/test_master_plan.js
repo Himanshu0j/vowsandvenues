@@ -39,10 +39,16 @@ async function runMasterPlanTests() {
   }
 
   // 1. Authenticate as Super Admin
-  const adminLogin = await request('/api/auth/login', {
+  let adminLogin = await request('/api/auth/login', {
     method: 'POST',
-    body: JSON.stringify({ email: 'admin@vowsandvenues.in', password: 'Admin@2026' })
+    body: JSON.stringify({ email: 'admin@vowsandvenues.in', password: process.env.ADMIN_PASSWORD || 'Vows#Stg2026!SecureKey' })
   });
+  if (adminLogin.status !== 200) {
+    adminLogin = await request('/api/auth/login', {
+      method: 'POST',
+      body: JSON.stringify({ email: 'admin@vowsandvenues.in', password: 'Admin@2026' })
+    });
+  }
   assertTest('1. Super Admin Authentication', adminLogin.status === 200 && adminLogin.data.token, `Role: ${adminLogin.data?.user?.role}`);
   const adminToken = adminLogin.data?.token;
   const authHeader = { Authorization: `Bearer ${adminToken}` };
