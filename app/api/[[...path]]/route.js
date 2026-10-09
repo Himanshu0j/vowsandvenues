@@ -2714,7 +2714,8 @@ async function handleRoute(request, { params }) {
       const bookingId = route.split('/')[2]
       const existing = await db.collection('bookings').findOne({ id: bookingId })
       if (!existing) return cors(NextResponse.json({ error: 'Booking not found' }, { status: 404 }))
-      if (ctx.role !== 'admin' && existing.userId !== ctx.userId) {
+      const isAdminStaff = ALL_ADMIN_ROLES.includes(ctx.role)
+      if (!isAdminStaff && existing.userId !== ctx.userId) {
         return cors(NextResponse.json({ error: 'Forbidden: not your booking' }, { status: 403 }))
       }
       const body = await request.json()

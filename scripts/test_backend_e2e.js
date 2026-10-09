@@ -332,7 +332,7 @@ async function runE2ETests() {
     const bookingPayload = {
       eventId: createdEventId,
       eventName: 'Himanshu Wedding Celebration',
-      eventDate: '2026-12-15',
+      eventDate: `2027-${String(Math.floor(1 + Math.random() * 9) + 1).padStart(2, '0')}-${String(Math.floor(10 + Math.random() * 18)).padStart(2, '0')}`,
       city: 'Lucknow',
       guestCount: 500,
       venueAddress: 'The Royal Nawabi Palace, Gomti Nagar, Lucknow',
