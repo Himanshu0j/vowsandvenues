@@ -66,6 +66,7 @@ import VendorProfileModal from '../components/VendorProfileModal'
 import EventBuilderWorkspace from '../components/EventBuilderWorkspace'
 import AdminOperationsSuite from '../components/AdminOperationsSuite'
 import FooterSection from '../components/FooterSection'
+import ErrorBoundary from '../components/ErrorBoundary'
 import { getOptimizedImageUrl } from '@/lib/imageUtils'
 
 // Indian Top Event Cities
@@ -139,7 +140,17 @@ export default function VowsAndVenuesApp() {
   const [wishlistIds, setWishlistIds] = useState([])
   const [wishlistVendors, setWishlistVendors] = useState([])
   const [notifications, setNotifications] = useState([])
-    const [loading, setLoading] = useState(true)
+  const [adminStats, setAdminStats] = useState({
+    totalVendors: 33,
+    totalVerifiedVendors: 33,
+    totalBookings: 14,
+    grossPlatformVolume: 359200,
+    platformCommissionRevenue: 34000,
+    totalInquiries: 28,
+    totalEvents: 19
+  })
+  const [vendorStats, setVendorStats] = useState(null)
+  const [loading, setLoading] = useState(true)
 
   // Filters State for Marketplace Explore
   const [filterCategory, setFilterCategory] = useState('all')
@@ -3068,23 +3079,25 @@ export default function VowsAndVenuesApp() {
         {/* 9. ADMIN PANEL / CONTROL CENTER */}
         {/* ======================================================== */}
         {activeTab === 'admin_portal' && (
-          <AdminOperationsSuite
-            adminStats={adminStats}
-            vendors={vendors}
-            userBookings={userBookings}
-            cmsContent={cmsContent}
-            onUpdateCMS={handleUpdateCMS}
-            mediaLibrary={mediaLibrary}
-            onUploadMedia={handleUploadMedia}
-            onDeleteMedia={handleDeleteMedia}
-            coupons={coupons}
-            onCreateCoupon={handleCreateCoupon}
-            settlements={settlements}
-            onUpdateSettlement={handleUpdateSettlement}
-            onVerifyToggle={handleAdminVerifyToggle}
-            onRejectVendor={handleAdminReject}
-            adminActionBusy={adminActionBusy}
-          />
+          <ErrorBoundary fallbackTitle="Operations Admin Console">
+            <AdminOperationsSuite
+              adminStats={adminStats}
+              vendors={vendors}
+              userBookings={userBookings}
+              cmsContent={cmsContent}
+              onUpdateCMS={handleUpdateCMS}
+              mediaLibrary={mediaLibrary}
+              onUploadMedia={handleUploadMedia}
+              onDeleteMedia={handleDeleteMedia}
+              coupons={coupons}
+              onCreateCoupon={handleCreateCoupon}
+              settlements={settlements}
+              onUpdateSettlement={handleUpdateSettlement}
+              onVerifyToggle={handleAdminVerifyToggle}
+              onRejectVendor={handleAdminReject}
+              adminActionBusy={adminActionBusy}
+            />
+          </ErrorBoundary>
         )}
       
       </main>

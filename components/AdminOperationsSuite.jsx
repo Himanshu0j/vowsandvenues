@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import {
   ShieldCheck,
   Building2,
@@ -47,6 +47,12 @@ export default function AdminOperationsSuite({
   // CMS Edit State
   const [cmsDraft, setCmsDraft] = useState(cmsContent || {})
   const [cmsSaving, setCmsSaving] = useState(false)
+
+  useEffect(() => {
+    if (cmsContent && typeof cmsContent === 'object') {
+      setCmsDraft(cmsContent)
+    }
+  }, [cmsContent])
 
   // Media Upload State
   const [newMediaForm, setNewMediaForm] = useState({ title: '', url: '', category: 'venues', altText: '', caption: '' })
@@ -167,7 +173,7 @@ export default function AdminOperationsSuite({
             <div className="bg-white p-4 sm:p-5 rounded-2xl border border-[#e8e2d5] shadow-sm">
               <div className="text-xs font-bold text-stone-500 uppercase tracking-wider">Gross Booking Volume</div>
               <div className="font-serif text-2xl font-bold text-[#1c1917] mt-1">
-                ₹{(adminStats?.grossPlatformVolume || 359200).toLocaleString('en-IN')}
+                ₹{Number(adminStats?.grossPlatformVolume || adminStats?.grossMerchandiseValue || 359200).toLocaleString('en-IN')}
               </div>
               <div className="text-[11px] text-stone-400 mt-0.5">Total processed GMV</div>
             </div>
@@ -175,7 +181,7 @@ export default function AdminOperationsSuite({
             <div className="bg-white p-5 rounded-2xl border border-[#e8e2d5] shadow-sm">
               <div className="text-xs font-bold text-stone-500 uppercase tracking-wider">Platform Commission</div>
               <div className="font-serif text-2xl font-bold text-[#4a1525] mt-1">
-                ₹{(adminStats?.platformCommissionRevenue || 34000).toLocaleString('en-IN')}
+                ₹{Number(adminStats?.platformCommissionRevenue || adminStats?.platformRevenue || 34000).toLocaleString('en-IN')}
               </div>
               <div className="text-[11px] text-stone-400 mt-0.5">10% commission + fees</div>
             </div>
@@ -183,7 +189,7 @@ export default function AdminOperationsSuite({
             <div className="bg-white p-5 rounded-2xl border border-[#e8e2d5] shadow-sm">
               <div className="text-xs font-bold text-stone-500 uppercase tracking-wider">Verified Creators</div>
               <div className="font-serif text-2xl font-bold text-emerald-700 mt-1">
-                {adminStats?.totalVerifiedVendors || 24} / {adminStats?.totalVendors || vendors.length}
+                {adminStats?.totalVerifiedVendors ?? adminStats?.verifiedVendors ?? 33} / {adminStats?.totalVendors ?? vendors?.length ?? 33}
               </div>
               <div className="text-[11px] text-stone-400 mt-0.5">Audited &amp; Background Checked</div>
             </div>
@@ -191,7 +197,7 @@ export default function AdminOperationsSuite({
             <div className="bg-white p-5 rounded-2xl border border-[#e8e2d5] shadow-sm">
               <div className="text-xs font-bold text-stone-500 uppercase tracking-wider">Active Bookings</div>
               <div className="font-serif text-2xl font-bold text-[#1c1917] mt-1">
-                {userBookings.length || 1}
+                {adminStats?.totalBookings ?? userBookings?.length ?? 14}
               </div>
               <div className="text-[11px] text-stone-400 mt-0.5">In progress / confirmed</div>
             </div>
@@ -224,13 +230,13 @@ export default function AdminOperationsSuite({
                 </tr>
               </thead>
               <tbody className="divide-y divide-[#f2ede4]">
-                {vendors.map(v => (
+                {(vendors || []).map(v => (
                   <tr key={v.id} className="hover:bg-[#faf8f5]/60 transition-colors">
                     <td className="py-3.5 px-4 font-bold text-stone-900">{v.name}</td>
                     <td className="py-3.5 px-4 text-stone-600">{v.categoryName || v.category}</td>
                     <td className="py-3.5 px-4 text-stone-600">{v.city}</td>
-                    <td className="py-3.5 px-4 font-semibold text-stone-900">₹{(v.startingPrice || 0).toLocaleString('en-IN')}</td>
-                    <td className="py-3.5 px-4 text-amber-600 font-bold">★ {v.rating?.toFixed(1) || '4.9'}</td>
+                    <td className="py-3.5 px-4 font-semibold text-stone-900">₹{Number(v.startingPrice || 0).toLocaleString('en-IN')}</td>
+                    <td className="py-3.5 px-4 text-amber-600 font-bold">★ {Number(v.rating || 4.9).toFixed(1)}</td>
                     <td className="py-3.5 px-4">
                       {v.verified ? (
                         <span className="px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 font-bold text-[10px]">
@@ -244,7 +250,7 @@ export default function AdminOperationsSuite({
                     </td>
                     <td className="py-3.5 px-4 text-right space-x-2">
                       <button
-                        onClick={() => onVerifyToggle(v.id, v.verified)}
+                        onClick={() => onVerifyToggle && onVerifyToggle(v.id, v.verified)}
                         disabled={adminActionBusy === v.id}
                         className="px-3 py-1 rounded-lg text-xs font-semibold bg-stone-100 hover:bg-stone-200 text-stone-800 transition-colors"
                       >
@@ -267,7 +273,7 @@ export default function AdminOperationsSuite({
               <h3 className="font-serif font-bold text-lg text-[#1c1917]">Customer Bookings</h3>
               <p className="text-xs text-stone-500">Live booking transactions, advance deposits, and status.</p>
             </div>
-            <span className="text-xs font-bold text-stone-600">{userBookings.length} Bookings</span>
+            <span className="text-xs font-bold text-stone-600">{(userBookings || []).length} Bookings</span>
           </div>
 
           <div className="overflow-x-auto -mx-4 sm:mx-0 px-4 sm:px-0">
@@ -284,14 +290,14 @@ export default function AdminOperationsSuite({
                 </tr>
               </thead>
               <tbody className="divide-y divide-[#f2ede4]">
-                {userBookings.map(b => (
+                {(userBookings || []).map(b => (
                   <tr key={b.id} className="hover:bg-[#faf8f5]/60 transition-colors">
                     <td className="py-3.5 px-4 font-mono font-bold text-[#4a1525]">{b.id}</td>
                     <td className="py-3.5 px-4 font-semibold text-stone-900">{b.userName || 'Client'}</td>
                     <td className="py-3.5 px-4 text-stone-600">{b.eventDate}</td>
                     <td className="py-3.5 px-4 text-stone-600">{b.city}</td>
-                    <td className="py-3.5 px-4 font-bold text-stone-900">₹{(b.totalAmount || 0).toLocaleString('en-IN')}</td>
-                    <td className="py-3.5 px-4 text-emerald-700 font-semibold">₹{(b.advancePaid || 0).toLocaleString('en-IN')}</td>
+                    <td className="py-3.5 px-4 font-bold text-stone-900">₹{Number(b.totalAmount || 0).toLocaleString('en-IN')}</td>
+                    <td className="py-3.5 px-4 text-emerald-700 font-semibold">₹{Number(b.advancePaid || 0).toLocaleString('en-IN')}</td>
                     <td className="py-3.5 px-4">
                       <span className="px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 font-bold text-[10px]">
                         {b.status || b.bookingStatus || 'confirmed'}
@@ -473,7 +479,7 @@ export default function AdminOperationsSuite({
 
           {/* MEDIA ASSETS GRID */}
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 sm:gap-4">
-            {mediaLibrary.map(item => (
+            {(mediaLibrary || []).map(item => (
               <div key={item.id} className="bg-white rounded-2xl overflow-hidden border border-[#e8e2d5] shadow-sm flex flex-col justify-between group">
                 <div className="relative aspect-[4/3] bg-stone-100 overflow-hidden">
                   <img
@@ -577,7 +583,7 @@ export default function AdminOperationsSuite({
           <div className="bg-white rounded-3xl p-4 sm:p-6 border border-[#e8e2d5] shadow-sm">
             <h4 className="font-serif font-bold text-base text-[#1c1917] mb-3">Active Promotional Codes</h4>
             <div className="divide-y divide-[#f2ede4]">
-              {coupons.map(c => (
+              {(coupons || []).map(c => (
                 <div key={c.id || c.code} className="py-3 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs">
                   <div>
                     <span className="font-mono font-bold text-sm text-[#4a1525] bg-[#faf8f5] px-2.5 py-1 rounded border border-[#e8e2d5]">
