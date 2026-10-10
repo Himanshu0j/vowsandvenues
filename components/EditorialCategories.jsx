@@ -17,6 +17,7 @@ import {
   Crown
 } from 'lucide-react'
 import { getOptimizedImageUrl } from '@/lib/imageUtils'
+import TiltCard from './TiltCard'
 
 const ICON_MAP = {
   venues: Building2,
@@ -121,56 +122,62 @@ export default function EditorialCategories({ categories = [], onSelectCategory,
           const catImg = getOptimizedImageUrl(rawImg, { width: 600, quality: 85 })
 
           return (
-            <div
+            <TiltCard
               key={cat.id || cat.slug}
-              onClick={() => onSelectCategory(cat.slug)}
-              className="group cursor-pointer rounded-2xl sm:rounded-3xl overflow-hidden bg-white border border-[#e8dfcf] hover:border-champagne shadow-sm hover:shadow-2xl transition-all duration-500 flex flex-col justify-between hover:-translate-y-1.5 relative"
+              maxTilt={7}
+              scale={1.02}
+              className="rounded-2xl sm:rounded-3xl overflow-hidden bg-white border border-[#e8dfcf] hover:border-champagne shadow-sm hover:shadow-2xl transition-all duration-500 cursor-pointer flex flex-col justify-between"
             >
-              {/* Category Portrait Image (Taller 4:5 Aspect Ratio for Rich Drama) */}
-              <div className="relative aspect-[4/5] w-full overflow-hidden bg-stone-900">
-                <img
-                  src={catImg}
-                  alt={cat.name}
-                  loading="eager"
-                  decoding="async"
-                  className="w-full h-full object-cover group-hover:scale-112 transition-transform duration-700 ease-out"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-[#14060b]/90 via-[#14060b]/35 to-transparent" />
-                
-                {/* Floating Top Badge */}
-                <div className="absolute top-2.5 left-2.5 right-2.5 flex items-center justify-between">
-                  <div className="w-7 h-7 rounded-xl bg-black/50 backdrop-blur-md text-amber-300 border border-amber-300/30 flex items-center justify-center shadow-xs">
-                    <IconComponent className="w-3.5 h-3.5" />
+              <div
+                onClick={() => onSelectCategory(cat.slug)}
+                className="group flex flex-col justify-between h-full"
+              >
+                {/* Category Portrait Image (Taller 4:5 Aspect Ratio for Rich Drama) */}
+                <div className="relative aspect-[4/5] w-full overflow-hidden bg-stone-900">
+                  <img
+                    src={catImg}
+                    alt={cat.name}
+                    loading="eager"
+                    decoding="async"
+                    className="w-full h-full object-cover group-hover:scale-112 transition-transform duration-700 ease-out"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-[#14060b]/90 via-[#14060b]/35 to-transparent" />
+                  
+                  {/* Floating Top Badge */}
+                  <div className="absolute top-2.5 left-2.5 right-2.5 flex items-center justify-between">
+                    <div className="w-7 h-7 rounded-xl bg-black/50 backdrop-blur-md text-amber-300 border border-amber-300/30 flex items-center justify-center shadow-xs">
+                      <IconComponent className="w-3.5 h-3.5" />
+                    </div>
+                    <span className="px-2 py-0.5 rounded-full text-[9px] font-bold tracking-wider uppercase backdrop-blur-md bg-stone-950/70 text-amber-200 border border-white/20">
+                      {cat.vendorCount || 4}+ Verified
+                    </span>
                   </div>
-                  <span className="px-2 py-0.5 rounded-full text-[9px] font-bold tracking-wider uppercase backdrop-blur-md bg-stone-950/70 text-amber-200 border border-white/20">
-                    {cat.vendorCount || 4}+ Verified
-                  </span>
+
+                  {/* Bottom Overlay Title & Subtext */}
+                  <div className="absolute bottom-2.5 left-2.5 right-2.5 text-white">
+                    <span className="text-[9px] uppercase font-bold text-champagne tracking-wider block truncate">
+                      {meta.badge}
+                    </span>
+                    <h3 className="font-serif font-bold text-sm sm:text-base text-white truncate group-hover:text-amber-200 transition-colors">
+                      {cat.name}
+                    </h3>
+                  </div>
                 </div>
 
-                {/* Bottom Overlay Title & Subtext */}
-                <div className="absolute bottom-2.5 left-2.5 right-2.5 text-white">
-                  <span className="text-[9px] uppercase font-bold text-champagne tracking-wider block truncate">
-                    {meta.badge}
-                  </span>
-                  <h3 className="font-serif font-bold text-sm sm:text-base text-white truncate group-hover:text-amber-200 transition-colors">
-                    {cat.name}
-                  </h3>
-                </div>
-              </div>
-
-              {/* Card Footer: Starting Price in Warm Ivory Bar */}
-              <div className="p-3 bg-gradient-to-b from-[#fffdfa] to-[#faf6ee] border-t border-[#f0e6d6] flex items-center justify-between">
-                <div>
-                  <span className="text-[9px] text-stone-400 uppercase tracking-wider font-semibold block">Starts at</span>
-                  <span className="font-serif font-bold text-burgundy text-xs sm:text-sm">
-                    ₹{(cat.startingPrice || 1000).toLocaleString('en-IN')}
+                {/* Card Footer: Starting Price in Warm Ivory Bar */}
+                <div className="p-3 bg-gradient-to-b from-[#fffdfa] to-[#faf6ee] border-t border-[#f0e6d6] flex items-center justify-between">
+                  <div>
+                    <span className="text-[9px] text-stone-400 uppercase tracking-wider font-semibold block">Starts at</span>
+                    <span className="font-serif font-bold text-burgundy text-xs sm:text-sm">
+                      ₹{(cat.startingPrice || 1000).toLocaleString('en-IN')}
+                    </span>
+                  </div>
+                  <span className="w-6 h-6 rounded-full bg-amber-100/80 group-hover:bg-burgundy text-burgundy group-hover:text-amber-200 flex items-center justify-center transition-colors text-xs font-bold">
+                    &rarr;
                   </span>
                 </div>
-                <span className="w-6 h-6 rounded-full bg-amber-100/80 group-hover:bg-burgundy text-burgundy group-hover:text-amber-200 flex items-center justify-center transition-colors text-xs font-bold">
-                  &rarr;
-                </span>
               </div>
-            </div>
+            </TiltCard>
           )
         })}
       </div>

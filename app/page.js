@@ -71,6 +71,7 @@ import TopSlidingImageGallery from '../components/TopSlidingImageGallery'
 import SlidingReviewsSection from '../components/SlidingReviewsSection'
 import NegotiationChatDrawer from '../components/NegotiationChatDrawer'
 import FeaturedVenuesEditorial from '../components/FeaturedVenuesEditorial'
+import RoyalVenueRevealSection from '../components/RoyalVenueRevealSection'
 import WeddingInspirationGallery from '../components/WeddingInspirationGallery'
 import CuratedPackagesSection from '../components/CuratedPackagesSection'
 import TrustAndConfidenceSection from '../components/TrustAndConfidenceSection'
@@ -1523,6 +1524,29 @@ export default function VowsAndVenuesApp() {
                 setActiveTab('builder')
               }}
             />
+
+            {/* SCENE II · ROYAL VENUE REVEAL (Interactive 3D Perspective Palace Showcase) */}
+            <div className="animate-luxury-enter">
+              <RoyalVenueRevealSection
+                onCheckAvailability={() => {
+                  setFilterCategory('venues')
+                  setActiveTab('explore')
+                }}
+                onExploreVenues={() => {
+                  setFilterCategory('venues')
+                  setActiveTab('explore')
+                }}
+                onSelectVenue={(v) => {
+                  const found = vendors.find(item => item.id === v?.id || item.name?.toLowerCase().includes('rambagh'))
+                  if (found) {
+                    setSelectedVendorModal(found)
+                  } else {
+                    setFilterCategory('venues')
+                    setActiveTab('explore')
+                  }
+                }}
+              />
+            </div>
 
             {/* TOP 3D SLIDING IMAGE GALLERY (Signature Luxury Showcases) */}
             <div className="animate-luxury-enter stagger-1">

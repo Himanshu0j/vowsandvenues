@@ -22,19 +22,38 @@ async function run() {
   
   console.log('Navigating to', TARGET_URL);
   await page.goto(TARGET_URL, { waitUntil: 'networkidle2', timeout: 60000 });
-  await new Promise(r => setTimeout(r, 4000)); // allow animations and dynamic fetches
+  await new Promise(r => setTimeout(r, 4000));
 
-  // Take Desktop Viewport Screenshot
-  const desktopViewportPath = path.join(ARTIFACT_DIR, 'current_desktop_viewport_1440x900.png');
+  // Take Desktop Viewport Screenshot BEFORE scroll
+  const desktopViewportPath = path.join(ARTIFACT_DIR, 'new_desktop_viewport_1440x900.png');
   await page.screenshot({ path: desktopViewportPath, fullPage: false });
   console.log('Saved:', desktopViewportPath);
 
+  // Smooth scroll down to bottom and back up to trigger any intersection observers
+  await page.evaluate(async () => {
+    await new Promise((resolve) => {
+      let totalHeight = 0;
+      let distance = 500;
+      let timer = setInterval(() => {
+        let scrollHeight = document.body.scrollHeight;
+        window.scrollBy(0, distance);
+        totalHeight += distance;
+        if (totalHeight >= scrollHeight) {
+          clearInterval(timer);
+          window.scrollTo(0, 0);
+          resolve();
+        }
+      }, 100);
+    });
+  });
+  await new Promise(r => setTimeout(r, 4000));
+
   // Take Desktop Full Page Screenshot
-  const desktopFullPath = path.join(ARTIFACT_DIR, 'current_desktop_fullpage.png');
+  const desktopFullPath = path.join(ARTIFACT_DIR, 'new_desktop_fullpage.png');
   await page.screenshot({ path: desktopFullPath, fullPage: true });
   console.log('Saved:', desktopFullPath);
 
-  // Inspect DOM metrics & rendered sections
+  // DOM Inspection
   const domInspection = await page.evaluate(() => {
     const sections = Array.from(document.querySelectorAll('main > div > section, main > div > div')).map(el => {
       const rect = el.getBoundingClientRect();
@@ -47,21 +66,21 @@ async function run() {
       }));
       return {
         className: el.className,
-        height: Math.round(rect.height),
         headings,
         imageCount: images.length,
         brokenImages: images.filter(img => !img.complete || img.naturalWidth === 0).length
       };
     });
 
-    const hero = document.querySelector('section');
-    const heroBg = hero ? window.getComputedStyle(hero.querySelector('div') || hero).backgroundImage : 'none';
+    const allImages = Array.from(document.querySelectorAll('img'));
+    const totalBroken = allImages.filter(img => !img.complete || img.naturalWidth === 0).length;
 
     return {
       title: document.title,
       totalHeight: document.body.scrollHeight,
-      sections,
-      heroBg
+      totalImagesOnPage: allImages.length,
+      totalBrokenImages: totalBroken,
+      sections
     };
   });
   console.log('DOM Inspection:', JSON.stringify(domInspection, null, 2));
@@ -69,14 +88,33 @@ async function run() {
   // 2. Mobile Viewport (390 x 844)
   console.log('Setting viewport 390x844...');
   await page.setViewport({ width: 390, height: 844, deviceScaleFactor: 2, isMobile: true, hasTouch: true });
-  await page.reload({ waitUntil: 'networkidle2', timeout: 60000 });
+  await page.goto(TARGET_URL, { waitUntil: 'networkidle2', timeout: 60000 });
   await new Promise(r => setTimeout(r, 4000));
 
-  const mobileViewportPath = path.join(ARTIFACT_DIR, 'current_mobile_viewport_390x844.png');
+  const mobileViewportPath = path.join(ARTIFACT_DIR, 'new_mobile_viewport_390x844.png');
   await page.screenshot({ path: mobileViewportPath, fullPage: false });
   console.log('Saved:', mobileViewportPath);
 
-  const mobileFullPath = path.join(ARTIFACT_DIR, 'current_mobile_fullpage.png');
+  // Smooth scroll on mobile
+  await page.evaluate(async () => {
+    await new Promise((resolve) => {
+      let totalHeight = 0;
+      let distance = 400;
+      let timer = setInterval(() => {
+        let scrollHeight = document.body.scrollHeight;
+        window.scrollBy(0, distance);
+        totalHeight += distance;
+        if (totalHeight >= scrollHeight) {
+          clearInterval(timer);
+          window.scrollTo(0, 0);
+          resolve();
+        }
+      }, 100);
+    });
+  });
+  await new Promise(r => setTimeout(r, 3000));
+
+  const mobileFullPath = path.join(ARTIFACT_DIR, 'new_mobile_fullpage.png');
   await page.screenshot({ path: mobileFullPath, fullPage: true });
   console.log('Saved:', mobileFullPath);
 

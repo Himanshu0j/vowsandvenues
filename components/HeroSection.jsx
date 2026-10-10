@@ -13,6 +13,12 @@ import {
   Compass
 } from 'lucide-react'
 import { getOptimizedImageUrl } from '@/lib/imageUtils'
+import dynamic from 'next/dynamic'
+
+const ThreeWeddingHeroScene = dynamic(() => import('./ThreeWeddingHeroScene'), {
+  ssr: false,
+  loading: () => null
+})
 
 export default function HeroSection({
   cmsContent,
@@ -58,6 +64,9 @@ export default function HeroSection({
           className="absolute inset-0 bg-cover bg-center transition-all duration-1000 scale-100"
           style={{ backgroundImage: `url('${backdrop4K}')` }}
         />
+
+        {/* Real Interactive 3D WebGL Mandap Canvas with Drifting Petals & Camera Parallax */}
+        <ThreeWeddingHeroScene />
 
         {/* Refined Luxury Editorial Scrim (Preserves Vibrant Palace Lights & Color) */}
         <div className="absolute inset-0 bg-gradient-to-t from-[#14060b] via-[#1a070f]/45 to-black/30" />

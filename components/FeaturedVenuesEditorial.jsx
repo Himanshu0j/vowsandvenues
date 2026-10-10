@@ -15,6 +15,7 @@ import {
   MessageSquare
 } from 'lucide-react'
 import { getOptimizedImageUrl } from '@/lib/imageUtils'
+import TiltCard from './TiltCard'
 
 export default function FeaturedVenuesEditorial({
   vendors = [],
@@ -83,15 +84,17 @@ export default function FeaturedVenuesEditorial({
       {/* EDITORIAL GRID: 1 EXPANSIVE HERO VENUE + 3 COMPLEMENTARY CARDS */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
         
-        {/* ============================================================== */}
-        {/* 1. EXPANSIVE HERO VENUE (Takes 7 of 12 columns on Desktop)      */}
-        {/* ============================================================== */}
-        <div className="lg:col-span-7 flex flex-col justify-between rounded-3xl overflow-hidden bg-espresso text-white border-2 border-champagne/60 shadow-2xl relative group hover:border-champagne transition-all duration-700 min-h-[540px]">
-          {/* 4K Background Photo */}
-          <div 
-            className="absolute inset-0 bg-cover bg-center transition-transform duration-1000 group-hover:scale-105"
-            style={{ backgroundImage: `url('${heroImgUrl}')` }}
-          />
+        <TiltCard
+          maxTilt={5}
+          scale={1.01}
+          className="lg:col-span-7 rounded-3xl overflow-hidden bg-espresso text-white border-2 border-champagne/60 shadow-2xl min-h-[540px]"
+        >
+          <div className="flex flex-col justify-between h-full relative group hover:border-champagne transition-all duration-700 min-h-[540px]">
+            {/* 4K Background Photo */}
+            <div 
+              className="absolute inset-0 bg-cover bg-center transition-transform duration-1000 group-hover:scale-105"
+              style={{ backgroundImage: `url('${heroImgUrl}')` }}
+            />
           
           {/* Multi-tier Editorial Overlay */}
           <div className="absolute inset-0 bg-gradient-to-t from-[#14060b]/95 via-[#14060b]/35 to-transparent" />
@@ -186,7 +189,8 @@ export default function FeaturedVenuesEditorial({
               </div>
             </div>
           </div>
-        </div>
+          </div>
+        </TiltCard>
 
         {/* ============================================================== */}
         {/* 2. COMPLEMENTARY VENUE CARDS (Takes 5 of 12 columns on Desktop)*/}
@@ -197,11 +201,16 @@ export default function FeaturedVenuesEditorial({
             const isFav = wishlistIds.includes(v.id)
 
             return (
-              <div
+              <TiltCard
                 key={v.id}
-                onClick={() => onSelectVendor(v)}
-                className="group cursor-pointer rounded-2xl p-4 bg-gradient-to-br from-[#fffdfa] via-[#faf6ee] to-[#f4ebe1] border border-[#e2d5c3] hover:border-champagne shadow-sm hover:shadow-xl transition-all duration-400 flex flex-col sm:flex-row gap-4 relative overflow-hidden"
+                maxTilt={6}
+                scale={1.01}
+                className="rounded-2xl overflow-hidden bg-gradient-to-br from-[#fffdfa] via-[#faf6ee] to-[#f4ebe1] border border-[#e2d5c3] hover:border-champagne shadow-sm hover:shadow-xl transition-all duration-400"
               >
+                <div
+                  onClick={() => onSelectVendor(v)}
+                  className="group cursor-pointer p-4 flex flex-col sm:flex-row gap-4 relative overflow-hidden h-full"
+                >
                 <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-burgundy via-champagne to-burgundy opacity-0 group-hover:opacity-100 transition-opacity" />
 
                 {/* Thumbnail */}
@@ -281,6 +290,7 @@ export default function FeaturedVenuesEditorial({
                   </div>
                 </div>
               </div>
+            </TiltCard>
             )
           })}
         </div>
