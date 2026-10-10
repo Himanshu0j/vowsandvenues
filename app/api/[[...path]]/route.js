@@ -1998,6 +1998,127 @@ const SEED_NOTIFICATIONS = [
   }
 ]
 
+const SEED_NEGOTIATIONS = [
+  {
+    id: 'neg_seed_01',
+    vendorId: 'v_royal_palace_lko',
+    vendorName: 'The Royal Nawabi Palace & Lawns',
+    vendorCategory: 'venues',
+    originalPrice: 200000,
+    offeredPrice: 160000,
+    currentOfferPrice: 175000,
+    adminOfferPrice: 175000,
+    discountPercent: 12.5,
+    promoCode: 'ROYALDEAL25K',
+    guestCount: 350,
+    eventDate: '2026-12-18',
+    city: 'Lucknow',
+    userId: 'usr_demo_customer',
+    userName: 'Aarav & Priya Sharma',
+    userEmail: 'aarav.sharma@example.com',
+    userPhone: '+91 98765 43210',
+    status: 'OFFER_MADE',
+    messages: [
+      {
+        id: 'msg_01',
+        sender: 'Aarav & Priya Sharma',
+        senderRole: 'customer',
+        text: 'Namaste! We are planning our 350-guest wedding reception at The Royal Nawabi Palace. The listed starting price is ₹2,00,000, but our budget is capped at ₹1,60,000. Can you offer a special royal package?',
+        timestamp: new Date(Date.now() - 3600000 * 5).toISOString()
+      },
+      {
+        id: 'msg_02',
+        sender: 'Royal Concierge (Admin)',
+        senderRole: 'admin',
+        text: 'Greetings Aarav! We spoke directly with the Palace Management. If you confirm your date on 18 Dec 2026, we can approve a special rate of ₹1,75,000 (saving you ₹25,000!) with complimentary bridal dressing suite.',
+        offerPrice: 175000,
+        promoCode: 'ROYALDEAL25K',
+        timestamp: new Date(Date.now() - 3600000 * 2).toISOString()
+      }
+    ],
+    createdAt: new Date(Date.now() - 3600000 * 5).toISOString(),
+    updatedAt: new Date(Date.now() - 3600000 * 2).toISOString()
+  },
+  {
+    id: 'neg_seed_02',
+    vendorId: 'v_utsav_decor_lko',
+    vendorName: 'Gulmohar Luxury Events & Stage Decor',
+    vendorCategory: 'decor',
+    originalPrice: 45000,
+    offeredPrice: 35000,
+    currentOfferPrice: 35000,
+    adminOfferPrice: null,
+    discountPercent: 22,
+    promoCode: null,
+    guestCount: 250,
+    eventDate: '2027-01-12',
+    city: 'Lucknow',
+    userId: 'usr_customer_meera',
+    userName: 'Meera Sen & Kunal Agarwal',
+    userEmail: 'meera.sen@example.com',
+    userPhone: '+91 98111 22334',
+    status: 'OPEN',
+    messages: [
+      {
+        id: 'msg_03',
+        sender: 'Meera Sen & Kunal Agarwal',
+        senderRole: 'customer',
+        text: 'Hello Team, we want the Grand Mogra floral mandap theme. Listed price is ₹45,000. Can you accommodate us at ₹35,000 if we pay 50% advance upfront?',
+        timestamp: new Date(Date.now() - 3600000 * 1).toISOString()
+      }
+    ],
+    createdAt: new Date(Date.now() - 3600000 * 1).toISOString(),
+    updatedAt: new Date(Date.now() - 3600000 * 1).toISOString()
+  },
+  {
+    id: 'neg_seed_03',
+    vendorId: 'v_drishti_cinema_lko',
+    vendorName: 'Drishti Wedding Films & Photography',
+    vendorCategory: 'photography',
+    originalPrice: 55000,
+    offeredPrice: 48000,
+    currentOfferPrice: 48000,
+    adminOfferPrice: 48000,
+    discountPercent: 12.7,
+    promoCode: 'CINEMA48K',
+    guestCount: 200,
+    eventDate: '2026-11-28',
+    city: 'Delhi NCR',
+    userId: 'usr_customer_vikram',
+    userName: 'Vikram & Natasha Singhania',
+    userEmail: 'vikram.singhania@example.com',
+    userPhone: '+91 97777 88899',
+    status: 'ACCEPTED',
+    messages: [
+      {
+        id: 'msg_04',
+        sender: 'Vikram & Natasha Singhania',
+        senderRole: 'customer',
+        text: 'Hi, we require candid photography + drone teaser for our Sangeet. Can you do ₹48,000?',
+        timestamp: new Date(Date.now() - 3600000 * 24).toISOString()
+      },
+      {
+        id: 'msg_05',
+        sender: 'Royal Concierge (Admin)',
+        senderRole: 'admin',
+        text: 'Approved! We have locked ₹48,000 for your Sangeet. Use promo code CINEMA48K to book.',
+        offerPrice: 48000,
+        promoCode: 'CINEMA48K',
+        timestamp: new Date(Date.now() - 3600000 * 20).toISOString()
+      },
+      {
+        id: 'msg_06',
+        sender: 'Vikram & Natasha Singhania',
+        senderRole: 'customer',
+        text: 'Thank you so much! Deal accepted. Booking now.',
+        timestamp: new Date(Date.now() - 3600000 * 18).toISOString()
+      }
+    ],
+    createdAt: new Date(Date.now() - 3600000 * 24).toISOString(),
+    updatedAt: new Date(Date.now() - 3600000 * 18).toISOString()
+  }
+]
+
 // Auto-seed function to ensure DB is initialized
 async function ensureSeeded(db) {
   const count = await db.collection('vendors').countDocuments()
@@ -2133,6 +2254,11 @@ async function ensureSeeded(db) {
   const couponCount = await db.collection('coupons').countDocuments()
   if (couponCount === 0) {
     await db.collection('coupons').insertMany(DEFAULT_COUPONS)
+  }
+
+  const negCount = await db.collection('negotiations').countDocuments()
+  if (negCount === 0) {
+    await db.collection('negotiations').insertMany(SEED_NEGOTIATIONS)
   }
 
   const targetAdminPassword = process.env.ADMIN_INITIAL_PASSWORD || 'Vows#Stg2026!SecureKey'
@@ -4250,6 +4376,192 @@ async function handleRoute(request, { params }) {
       const updated = await db.collection('quotes').findOne({ id: quoteId })
       if (updated) delete updated._id
       return cors(NextResponse.json({ quote: updated }))
+    }
+
+    // ========================================================
+    // LIVE NEGOTIATION & CONCIERGE CHAT APIs (Client Requested)
+    // Allows customers to negotiate prices with Admin in real-time,
+    // and Admin to send counter-offers, approved quotes & coupons.
+    // ========================================================
+    if ((route === '/negotiations' || route === '/api/negotiations') && method === 'GET') {
+      const ctx = getAuthContext(request)
+      const isAdmin = ctx && (ctx.role === 'admin' || ALL_ADMIN_ROLES.includes(ctx.role))
+      let filter = {}
+
+      if (!isAdmin) {
+        const email = query.email || ctx?.email
+        const userId = query.userId || ctx?.userId
+        const sessionId = query.sessionId
+        if (email || userId || sessionId) {
+          const orConditions = []
+          if (email) orConditions.push({ userEmail: email })
+          if (userId) orConditions.push({ userId })
+          if (sessionId) orConditions.push({ sessionId })
+          filter.$or = orConditions
+        } else {
+          return cors(NextResponse.json([]))
+        }
+      } else {
+        if (query.status && query.status !== 'all') {
+          filter.status = query.status
+        }
+        if (query.vendorId) {
+          filter.vendorId = query.vendorId
+        }
+        if (query.search) {
+          const re = { $regex: query.search, $options: 'i' }
+          filter.$or = [
+            { userName: re },
+            { userEmail: re },
+            { vendorName: re },
+            { city: re }
+          ]
+        }
+      }
+
+      const list = await db.collection('negotiations').find(filter).sort({ updatedAt: -1 }).toArray()
+      return cors(NextResponse.json(list.map(({ _id, ...rest }) => rest)))
+    }
+
+    if ((route === '/negotiations' || route === '/api/negotiations') && method === 'POST') {
+      const ctx = getAuthContext(request)
+      const body = await readJson()
+      const {
+        vendorId,
+        vendorName,
+        vendorCategory = 'venues',
+        originalPrice = 0,
+        offeredPrice = 0,
+        guestCount = 200,
+        eventDate = '',
+        city = 'India',
+        userName = 'Guest Customer',
+        userEmail = 'customer@example.com',
+        userPhone = '+91 98765 43210',
+        message = '',
+        sessionId = ''
+      } = body || {}
+
+      if (!vendorId || !offeredPrice) {
+        return cors(NextResponse.json({ error: 'Vendor ID and offered price are required' }, { status: 400 }))
+      }
+
+      const orig = Number(originalPrice || 0)
+      const off = Number(offeredPrice || 0)
+      const discPercent = orig > 0 ? Math.round(((orig - off) / orig) * 100) : 0
+
+      const newNegotiation = {
+        id: `neg_${uuidv4().slice(0, 8)}`,
+        vendorId,
+        vendorName: vendorName || 'Selected Vendor',
+        vendorCategory,
+        originalPrice: orig,
+        offeredPrice: off,
+        currentOfferPrice: off,
+        adminOfferPrice: null,
+        discountPercent: discPercent,
+        promoCode: null,
+        guestCount: Number(guestCount || 200),
+        eventDate: eventDate || '',
+        city,
+        userId: ctx?.userId || `guest_${uuidv4().slice(0, 6)}`,
+        userName: ctx?.name || userName,
+        userEmail: ctx?.email || userEmail,
+        userPhone,
+        sessionId: sessionId || `sess_${uuidv4().slice(0, 8)}`,
+        status: 'OPEN',
+        messages: [
+          {
+            id: `msg_${uuidv4().slice(0, 8)}`,
+            sender: ctx?.name || userName || 'Customer',
+            senderRole: 'customer',
+            text: message || `Namaste! We are interested in ${vendorName}. Listed starting price is ₹${orig.toLocaleString('en-IN')}, but our budget is ₹${off.toLocaleString('en-IN')}. Can you offer a special royal package?`,
+            timestamp: new Date().toISOString()
+          }
+        ],
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
+      }
+
+      await db.collection('negotiations').insertOne(newNegotiation)
+      const { _id, ...rest } = newNegotiation
+      return cors(NextResponse.json({ negotiation: rest }, { status: 201 }))
+    }
+
+    if ((route.startsWith('/negotiations/') || route.startsWith('/api/negotiations/')) && route.endsWith('/messages') && method === 'POST') {
+      const cleanRoute = route.startsWith('/api/') ? route.slice(4) : route
+      const negId = cleanRoute.split('/')[2]
+      const body = await readJson()
+      const {
+        text,
+        sender,
+        senderRole = 'customer',
+        offerPrice,
+        promoCode,
+        status
+      } = body || {}
+
+      const existing = await db.collection('negotiations').findOne({ id: negId })
+      if (!existing) {
+        return cors(NextResponse.json({ error: 'Negotiation thread not found' }, { status: 404 }))
+      }
+
+      const newMsg = {
+        id: `msg_${uuidv4().slice(0, 8)}`,
+        sender: sender || (senderRole === 'admin' ? 'Royal Concierge (Admin)' : 'Customer'),
+        senderRole,
+        text: text || '',
+        offerPrice: offerPrice ? Number(offerPrice) : null,
+        promoCode: promoCode || null,
+        timestamp: new Date().toISOString()
+      }
+
+      const updateSet = { updatedAt: new Date().toISOString() }
+      if (status) updateSet.status = status
+      if (offerPrice) {
+        updateSet.currentOfferPrice = Number(offerPrice)
+        if (senderRole === 'admin') {
+          updateSet.adminOfferPrice = Number(offerPrice)
+          updateSet.status = 'OFFER_MADE'
+        }
+      }
+      if (promoCode) updateSet.promoCode = promoCode
+
+      await db.collection('negotiations').updateOne(
+        { id: negId },
+        {
+          $push: { messages: newMsg },
+          $set: updateSet
+        }
+      )
+
+      const updated = await db.collection('negotiations').findOne({ id: negId })
+      if (updated) delete updated._id
+      return cors(NextResponse.json({ negotiation: updated, message: newMsg }))
+    }
+
+    if ((route.startsWith('/negotiations/') || route.startsWith('/api/negotiations/')) && !route.endsWith('/messages') && method === 'GET') {
+      const cleanRoute = route.startsWith('/api/') ? route.slice(4) : route
+      const negId = cleanRoute.split('/')[2]
+      const item = await db.collection('negotiations').findOne({ id: negId })
+      if (!item) {
+        return cors(NextResponse.json({ error: 'Negotiation not found' }, { status: 404 }))
+      }
+      const { _id, ...rest } = item
+      return cors(NextResponse.json(rest))
+    }
+
+    if ((route.startsWith('/negotiations/') || route.startsWith('/api/negotiations/')) && !route.endsWith('/messages') && method === 'PATCH') {
+      const cleanRoute = route.startsWith('/api/') ? route.slice(4) : route
+      const negId = cleanRoute.split('/')[2]
+      const body = await readJson()
+      await db.collection('negotiations').updateOne(
+        { id: negId },
+        { $set: { ...body, updatedAt: new Date().toISOString() } }
+      )
+      const updated = await db.collection('negotiations').findOne({ id: negId })
+      if (updated) delete updated._id
+      return cors(NextResponse.json({ negotiation: updated }))
     }
 
     // Default 404

@@ -9,7 +9,8 @@ import {
   Users,
   CheckCircle2,
   ArrowRight,
-  Sparkles
+  Sparkles,
+  MessageSquare
 } from 'lucide-react'
 import { getOptimizedImageUrl } from '@/lib/imageUtils'
 
@@ -18,7 +19,8 @@ export default function VendorCard({
   isFavorite = false,
   onToggleFavorite,
   onSelectVendor,
-  onAddToEvent
+  onAddToEvent,
+  onNegotiate
 }) {
   const imageUrl = getOptimizedImageUrl(vendor.heroImage || vendor.image, { width: 600, quality: 75 })
 
@@ -133,16 +135,27 @@ export default function VendorCard({
             </div>
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1.5">
+            <button
+              onClick={(e) => {
+                e.stopPropagation()
+                if (onNegotiate) onNegotiate(vendor)
+              }}
+              className="px-2.5 py-1.5 rounded-full bg-gradient-to-r from-amber-500/15 to-amber-600/25 hover:from-amber-500/30 hover:to-amber-600/40 text-amber-950 text-xs font-bold transition-all border border-amber-400/60 hover:shadow-xs flex items-center gap-1"
+              title="Think the price is high? Negotiate live with Admin"
+            >
+              <MessageSquare className="w-3.5 h-3.5 text-amber-700" />
+              <span>Negotiate</span>
+            </button>
             <button
               onClick={() => onSelectVendor(vendor)}
-              className="px-3.5 py-1.5 rounded-full bg-amber-100/90 hover:bg-amber-200 text-stone-900 text-xs font-bold transition-all border border-amber-300/80 hover:shadow-xs"
+              className="px-3 py-1.5 rounded-full bg-amber-100/90 hover:bg-amber-200 text-stone-900 text-xs font-bold transition-all border border-amber-300/80 hover:shadow-xs"
             >
               Details
             </button>
             <button
               onClick={() => onAddToEvent(vendor)}
-              className="btn-3d-wine px-4 py-1.5 rounded-full bg-gradient-to-r from-[#4a1525] to-[#6d1e35] hover:from-[#3a101d] hover:to-[#581729] text-[#f5ebd7] text-xs font-bold transition-all shadow-md flex items-center gap-1 hover:scale-105 active:scale-95"
+              className="btn-3d-wine px-3.5 py-1.5 rounded-full bg-gradient-to-r from-[#4a1525] to-[#6d1e35] hover:from-[#3a101d] hover:to-[#581729] text-[#f5ebd7] text-xs font-bold transition-all shadow-md flex items-center gap-1 hover:scale-105 active:scale-95"
             >
               <span>Add to Plan</span>
             </button>

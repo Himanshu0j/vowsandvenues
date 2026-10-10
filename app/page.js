@@ -70,6 +70,7 @@ import ErrorBoundary from '../components/ErrorBoundary'
 import TopSlidingImageGallery from '../components/TopSlidingImageGallery'
 import KineticTypographySection from '../components/KineticTypographySection'
 import SlidingReviewsSection from '../components/SlidingReviewsSection'
+import NegotiationChatDrawer from '../components/NegotiationChatDrawer'
 import { getOptimizedImageUrl } from '@/lib/imageUtils'
 
 // Indian Top Event Cities
@@ -220,6 +221,15 @@ export default function VowsAndVenuesApp() {
 
   // Quick Quotation Modal for Event Builder
   const [showQuotationModal, setShowQuotationModal] = useState(false)
+
+  // Live Price Negotiation & Concierge Chat State (Client Requested)
+  const [isNegotiationOpen, setIsNegotiationOpen] = useState(false)
+  const [negotiatingVendor, setNegotiatingVendor] = useState(null)
+
+  const handleOpenNegotiation = (vendor = null) => {
+    setNegotiatingVendor(vendor)
+    setIsNegotiationOpen(true)
+  }
 
   // ============ AUTH STATE ============
   const [currentUser, setCurrentUser] = useState(null) // { id, name, email, role, avatarInitial }
@@ -1584,6 +1594,7 @@ export default function VowsAndVenuesApp() {
                     onToggleFavorite={handleToggleWishlist}
                     onSelectVendor={(v) => setSelectedVendorModal(v)}
                     onAddToEvent={(v) => handleAddVendorToEvent(v)}
+                    onNegotiate={(v) => handleOpenNegotiation(v)}
                   />
                 ))}
               </div>
@@ -1974,19 +1985,30 @@ export default function VowsAndVenuesApp() {
                                 )}
                               </div>
 
-                              <div className="grid grid-cols-2 gap-2">
+                              <div className="grid grid-cols-3 gap-1.5">
+                                <button
+                                  onClick={(e) => {
+                                    e.stopPropagation()
+                                    handleOpenNegotiation(vendor)
+                                  }}
+                                  className="py-2 px-2 rounded-xl bg-gradient-to-r from-amber-500/15 to-amber-600/25 hover:from-amber-500/30 hover:to-amber-600/40 text-amber-950 font-bold text-[11px] transition-all text-center border border-amber-400/60 hover:shadow-xs flex items-center justify-center gap-1"
+                                  title="Think price is high? Negotiate live with Admin"
+                                >
+                                  <MessageSquare className="w-3 h-3 text-amber-700" />
+                                  <span>Negotiate</span>
+                                </button>
                                 <button
                                   onClick={(e) => {
                                     e.stopPropagation()
                                     setSelectedVendorModal(vendor)
                                   }}
-                                  className="py-2 px-3 rounded-xl bg-[#f2ede4] hover:bg-[#eae3d7] text-stone-900 font-bold text-xs transition-all text-center border border-[#dfd7c8] hover:shadow-xs"
+                                  className="py-2 px-2 rounded-xl bg-[#f2ede4] hover:bg-[#eae3d7] text-stone-900 font-bold text-xs transition-all text-center border border-[#dfd7c8] hover:shadow-xs"
                                 >
                                   Details
                                 </button>
                                 <button
                                   onClick={(e) => handleAddVendorToEvent(vendor, null, e)}
-                                  className={`btn-3d-wine py-2 px-3 rounded-xl font-bold text-xs transition-all flex items-center justify-center gap-1 shadow-md hover:scale-105 active:scale-95 ${isAddedToEvent ? 'bg-emerald-100 text-emerald-900 border border-emerald-300' : 'bg-gradient-to-r from-[#4a1525] to-[#6b1e34] hover:from-[#3a101d] hover:to-[#561729] text-[#f5ebd7]'}`}
+                                  className={`btn-3d-wine py-2 px-2 rounded-xl font-bold text-xs transition-all flex items-center justify-center gap-1 shadow-md hover:scale-105 active:scale-95 ${isAddedToEvent ? 'bg-emerald-100 text-emerald-900 border border-emerald-300' : 'bg-gradient-to-r from-[#4a1525] to-[#6b1e34] hover:from-[#3a101d] hover:to-[#561729] text-[#f5ebd7]'}`}
                                 >
                                   {isAddedToEvent ? (
                                     <>
@@ -1994,7 +2016,7 @@ export default function VowsAndVenuesApp() {
                                     </>
                                   ) : (
                                     <>
-                                      <Plus className="w-3.5 h-3.5" /> Add to Plan
+                                      <Plus className="w-3.5 h-3.5" /> Add
                                     </>
                                   )}
                                 </button>
@@ -3098,6 +3120,10 @@ export default function VowsAndVenuesApp() {
             setSelectedVendorModal(null)
             setInquiryModalVendor(vendor)
           }}
+          onNegotiate={(vendor) => {
+            setSelectedVendorModal(null)
+            handleOpenNegotiation(vendor)
+          }}
         />
       )}
 
@@ -4149,6 +4175,53 @@ export default function VowsAndVenuesApp() {
           </div>
         </div>
       )}
+
+      {/* FLOATING NEGOTIATION & CONCIERGE CHAT BUTTON (Client Requested) */}
+      <div className="fixed bottom-6 right-6 z-40 flex flex-col items-end gap-2">
+        <button
+          onClick={() => handleOpenNegotiation(null)}
+          className="group relative flex items-center gap-2.5 px-4 py-3 rounded-full bg-gradient-to-r from-[#2c0e17] via-[#4a1525] to-[#2c0e17] hover:from-[#1f0910] hover:to-[#38101c] text-[#f7efdc] shadow-[0_8px_30px_rgba(74,21,37,0.35)] hover:shadow-[0_12px_40px_rgba(74,21,37,0.5)] border-2 border-[#c5a059] transition-all hover:scale-105 active:scale-95 cursor-pointer"
+          title="Think prices are high? Negotiate live with our Admin Concierge"
+        >
+          <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[#c5a059] to-[#8c6b2d] flex items-center justify-center text-[#1c1917] font-bold shadow-sm shrink-0">
+            <MessageSquare className="w-4 h-4" />
+          </div>
+          <div className="text-left hidden sm:block">
+            <div className="text-xs font-serif font-bold tracking-wide flex items-center gap-1.5">
+              <span>Negotiate Price</span>
+              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+            </div>
+            <div className="text-[10px] text-amber-300 font-sans font-medium">
+              Live Chat with Admin
+            </div>
+          </div>
+          <span className="sm:hidden font-bold text-xs font-serif">Negotiate</span>
+        </button>
+      </div>
+
+      {/* PRICE NEGOTIATION & CONCIERGE CHAT DRAWER */}
+      <NegotiationChatDrawer
+        isOpen={isNegotiationOpen}
+        onClose={() => {
+          setIsNegotiationOpen(false)
+          setNegotiatingVendor(null)
+        }}
+        targetVendor={negotiatingVendor}
+        allVendors={vendors}
+        currentUser={currentUser}
+        onApplyDeal={(deal) => {
+          if (deal.vendor) {
+            handleAddVendorToEvent(deal.vendor)
+          }
+          setBookingDetails(prev => ({
+            ...prev,
+            promoCode: deal.promoCode || 'NEGOTIATED_ROYAL_DEAL',
+            discount: deal.discountAmount || 0
+          }))
+          setIsBookingModalOpen(true)
+          toast.success(`Negotiated deal applied! Proceeding to booking with ₹${(deal.offerPrice || 0).toLocaleString('en-IN')}`)
+        }}
+      />
     </div>
   )
 }

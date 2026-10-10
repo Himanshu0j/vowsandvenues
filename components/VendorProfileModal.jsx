@@ -26,7 +26,8 @@ export default function VendorProfileModal({
   isFavorite,
   onToggleFavorite,
   onBookNow,
-  onRequestQuote
+  onRequestQuote,
+  onNegotiate
 }) {
   const [activeTab, setActiveTab] = useState('overview') // 'overview' | 'packages' | 'gallery' | 'reviews'
   const [selectedGalleryImg, setSelectedGalleryImg] = useState(null)
@@ -94,7 +95,7 @@ export default function VendorProfileModal({
             </div>
 
             {/* Starting Price and Quick CTAs */}
-            <div className="flex items-center gap-3">
+            <div className="flex flex-wrap items-center gap-2.5">
               <button
                 onClick={() => onToggleFavorite(vendor.id)}
                 className={`p-3 rounded-full backdrop-blur-md border ${
@@ -102,6 +103,16 @@ export default function VendorProfileModal({
                 }`}
               >
                 <Heart className={`w-4 h-4 ${isFavorite ? 'fill-current' : ''}`} />
+              </button>
+
+              <button
+                onClick={() => {
+                  if (onNegotiate) onNegotiate(vendor)
+                }}
+                className="px-4 py-2.5 rounded-full bg-gradient-to-r from-amber-500/25 to-amber-600/35 hover:from-amber-500/40 hover:to-amber-600/50 text-amber-200 border border-amber-400/50 font-bold text-xs flex items-center gap-1.5 transition-colors backdrop-blur-md shadow-md"
+              >
+                <MessageSquare className="w-3.5 h-3.5 text-amber-300" />
+                <span>Negotiate Price</span>
               </button>
 
               <button
@@ -215,6 +226,14 @@ export default function VendorProfileModal({
                     ₹{(vendor.startingPrice || 25000).toLocaleString('en-IN')}
                   </div>
                   <div className="text-[11px] text-stone-400">per {vendor.priceUnit || 'event'}</div>
+                  <button
+                    onClick={() => {
+                      if (onNegotiate) onNegotiate(vendor)
+                    }}
+                    className="mt-2 text-[10px] font-bold text-[#4a1525] hover:text-[#6d1e35] underline flex items-center gap-1 cursor-pointer"
+                  >
+                    💬 Negotiate custom price with Admin →
+                  </button>
                 </div>
 
                 <div className="bg-[#faf8f5] p-4 rounded-2xl border border-[#e8e2d5]">
