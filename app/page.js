@@ -69,7 +69,7 @@ import FooterSection from '../components/FooterSection'
 import ErrorBoundary from '../components/ErrorBoundary'
 import TopSlidingImageGallery from '../components/TopSlidingImageGallery'
 import KineticTypographySection from '../components/KineticTypographySection'
-import { InteractiveCornerConcierge } from '../components/CartoonMascots'
+import SlidingReviewsSection from '../components/SlidingReviewsSection'
 import { getOptimizedImageUrl } from '@/lib/imageUtils'
 
 // Indian Top Event Cities
@@ -1589,57 +1589,8 @@ export default function VowsAndVenuesApp() {
               </div>
             </section>
 
-            {/* REAL CELEBRATIONS & EDITORIAL MEMOIRS */}
-            {cmsContent?.testimonials?.length > 0 && (
-              <section className="py-16 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto border-t border-[#e8e2d5]">
-                <div className="text-center max-w-2xl mx-auto mb-12">
-                  <div className="text-[11px] uppercase font-bold tracking-[0.2em] text-[#4a1525] mb-1">
-                    Client Memoirs
-                  </div>
-                  <h2 className="font-serif text-3xl sm:text-4xl font-bold text-[#1c1917]">
-                    Celebrated by India&apos;s Discerning Families
-                  </h2>
-                  <p className="text-xs text-[#78716c] mt-2">
-                    Real experiences from grand multi-day celebrations planned seamlessly through Vows &amp; Venues.
-                  </p>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                  {cmsContent.testimonials.map((t, idx) => (
-                    <div
-                      key={idx}
-                      className="card-3d-wrap group bg-gradient-to-br from-[#fffdfa] via-[#fbf5eb] to-[#f6ede0] rounded-3xl p-6 sm:p-8 border-2 border-amber-300/80 hover:border-amber-500 shadow-[0_4px_20px_rgba(74,21,37,0.06)] hover:shadow-[0_20px_45px_rgba(74,21,37,0.15)] transition-all duration-500 hover:-translate-y-2 flex flex-col justify-between relative overflow-hidden"
-                    >
-                      <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-amber-400 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-                      <div>
-                        <div className="flex items-center gap-1.5 text-amber-500 mb-4 bg-amber-100/80 w-fit px-3 py-1 rounded-full border border-amber-300/70 shadow-xs">
-                          {[...Array(5)].map((_, i) => (
-                            <Star key={i} className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
-                          ))}
-                        </div>
-                        <p className="font-serif italic text-sm sm:text-base text-stone-800 leading-relaxed mb-6 font-medium">
-                          &ldquo;{t.quote}&rdquo;
-                        </p>
-                      </div>
-
-                      <div className="flex items-center gap-3 pt-4 border-t border-amber-200/60">
-                        <img
-                          src={getOptimizedImageUrl(t.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb', { width: 120, quality: 75 })}
-                          alt={t.author}
-                          loading="lazy"
-                          decoding="async"
-                          className="w-12 h-12 rounded-full object-cover border-2 border-amber-400/80 shadow-sm group-hover:scale-105 transition-transform"
-                        />
-                        <div>
-                          <div className="font-serif font-bold text-sm text-[#1c1917] group-hover:text-[#4a1525] transition-colors">{t.author}</div>
-                          <div className="text-[11px] text-stone-600 font-semibold">{t.event} &bull; {t.city}</div>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </section>
-            )}
+            {/* REAL CELEBRATIONS & EDITORIAL MEMOIRS — SLIDING INDIAN REVIEWS */}
+            <SlidingReviewsSection />
 
             {/* FREQUENTLY ASKED QUESTIONS */}
             {cmsContent?.faqs?.length > 0 && (
@@ -1672,12 +1623,16 @@ export default function VowsAndVenuesApp() {
               </section>
             )}
 
-            {/* VIP CONCIERGE BANNER */}
+            {/* VIP CONCIERGE BANNER WITH 4K ROYAL PALACE BACKDROP */}
             <section className="py-12 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
-              <div className="card-3d-wrap relative rounded-3xl p-8 sm:p-12 text-white overflow-hidden flex flex-col md:flex-row items-center justify-between gap-8 shadow-[0_20px_50px_rgba(74,21,37,0.25)] bg-gradient-to-br from-[#3b0d1b] via-[#4a1525] to-[#20050d] border border-amber-400/40">
-                {/* Ambient glow orbs */}
-                <div className="absolute -top-24 -right-24 w-72 h-72 rounded-full bg-amber-400/15 blur-3xl pointer-events-none" />
-                <div className="absolute -bottom-24 -left-24 w-72 h-72 rounded-full bg-emerald-500/15 blur-3xl pointer-events-none" />
+              <div className="card-3d-wrap relative rounded-3xl p-8 sm:p-12 text-white overflow-hidden flex flex-col md:flex-row items-center justify-between gap-8 shadow-[0_20px_50px_rgba(74,21,37,0.25)] border-2 border-amber-400/60">
+                {/* 4K Palace Background Photo */}
+                <div 
+                  className="absolute inset-0 bg-cover bg-center transition-all duration-700"
+                  style={{ backgroundImage: `url('https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=1800&q=80')` }}
+                />
+                {/* Royal Wine & Emerald Gradient Overlay */}
+                <div className="absolute inset-0 bg-gradient-to-r from-[#20050d]/95 via-[#3b0d1b]/85 to-[#0b1611]/80" />
                 <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-amber-300 to-transparent" />
 
                 <div className="space-y-3 max-w-xl relative z-10">
@@ -1688,7 +1643,7 @@ export default function VowsAndVenuesApp() {
                   <h3 className="font-serif text-2xl sm:text-3xl lg:text-4xl font-bold text-[#faf8f5]">
                     Need Bespoke Assistance for a Destination Celebration?
                   </h3>
-                  <p className="text-xs sm:text-sm text-[#f5ebd7]/85 leading-relaxed">
+                  <p className="text-xs sm:text-sm text-[#f5ebd7]/85 leading-relaxed font-light">
                     Our luxury event specialists offer complimentary one-on-one consultation, custom palace sourcing, and consolidated vendor contracts.
                   </p>
                 </div>
@@ -4194,14 +4149,6 @@ export default function VowsAndVenuesApp() {
           </div>
         </div>
       )}
-
-      {/* INTERACTIVE CORNER CONCIERGE CARTOON MASCOT (Requested by Client) */}
-      <InteractiveCornerConcierge
-        onOpenConcierge={() => {
-          setActiveTab('builder')
-          window.scrollTo({ top: 0, behavior: 'smooth' })
-        }}
-      />
     </div>
   )
 }

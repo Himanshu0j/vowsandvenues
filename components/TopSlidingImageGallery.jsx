@@ -75,6 +75,18 @@ const GALLERY_SLIDES = [
     tag: 'Artisanal Florals',
     image: 'https://images.unsplash.com/photo-1511795409834-ef04bbd61622',
     description: 'Handcrafted fragrant mogra cascades, antique brass diya pillars, baby pink hydrangeas, and crystal candle chandeliers.'
+  },
+  {
+    id: 'slide_6',
+    title: 'Grand Rajnigandha & Marigold Royal Mandap Stage',
+    city: 'Delhi NCR & Pan-India',
+    category: '4K Wedding Stage & Backdrops',
+    rating: 4.98,
+    reviews: 135,
+    price: '₹1,50,000 onwards',
+    tag: '4K Royal Stage',
+    image: 'https://images.unsplash.com/photo-1583939003579-730e3918a45a',
+    description: 'Majestic floral amphitheater with thousands of fresh marigold garlands, cascading rajnigandha, traditional copper kalash pillars, and illuminated royal entry aisle.'
   }
 ]
 
@@ -103,7 +115,7 @@ export default function TopSlidingImageGallery({ onExploreCategory, onSelectCity
   }
 
   const currentSlide = GALLERY_SLIDES[currentIndex]
-  const optimizedImg = getOptimizedImageUrl(currentSlide.image, { width: 1200, quality: 80 })
+  const optimizedImg = getOptimizedImageUrl(currentSlide.image, { width: 2000, quality: 85 })
 
   return (
     <div 
@@ -221,7 +233,7 @@ export default function TopSlidingImageGallery({ onExploreCategory, onSelectCity
       </div>
 
       {/* THUMBNAIL STRIP BELOW SHOWCASE */}
-      <div className="grid grid-cols-5 gap-2 sm:gap-3 mt-3">
+      <div className="grid grid-cols-3 sm:grid-cols-6 gap-2 sm:gap-3 mt-3">
         {GALLERY_SLIDES.map((slide, idx) => (
           <button
             key={slide.id}
