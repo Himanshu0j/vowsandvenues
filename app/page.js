@@ -71,6 +71,10 @@ import TopSlidingImageGallery from '../components/TopSlidingImageGallery'
 import KineticTypographySection from '../components/KineticTypographySection'
 import SlidingReviewsSection from '../components/SlidingReviewsSection'
 import NegotiationChatDrawer from '../components/NegotiationChatDrawer'
+import FeaturedVenuesEditorial from '../components/FeaturedVenuesEditorial'
+import WeddingInspirationGallery from '../components/WeddingInspirationGallery'
+import CuratedPackagesSection from '../components/CuratedPackagesSection'
+import TrustAndConfidenceSection from '../components/TrustAndConfidenceSection'
 import { getOptimizedImageUrl } from '@/lib/imageUtils'
 
 // Indian Top Event Cities
@@ -1547,19 +1551,8 @@ export default function VowsAndVenuesApp() {
               />
             </div>
 
-            {/* CURATED PRIVILEGES / OFFERS */}
-            <div className="animate-luxury-enter stagger-3">
-              <CuratedOffers
-                offers={cmsContent?.offers || []}
-                onSelectOffer={(code) => {
-                  setBookingDetails(prev => ({ ...prev, promoCode: code }))
-                  toast.success(`Applied ${code} to your event booking!`)
-                }}
-              />
-            </div>
-
             {/* 11 EDITORIAL CATEGORIES */}
-            <div className="animate-luxury-enter stagger-4">
+            <div className="animate-luxury-enter stagger-3">
               <EditorialCategories
                 categories={categories}
                 cmsContent={cmsContent}
@@ -1570,8 +1563,45 @@ export default function VowsAndVenuesApp() {
               />
             </div>
 
+            {/* EDITORIAL FEATURED PALACES & VENUES (1 Hero Palace + 3 Complementary) */}
+            <div className="animate-luxury-enter stagger-4">
+              <FeaturedVenuesEditorial
+                vendors={vendors}
+                wishlistIds={wishlistIds}
+                onToggleFavorite={handleToggleWishlist}
+                onSelectVendor={(v) => setSelectedVendorModal(v)}
+                onAddToEvent={(v) => handleAddVendorToEvent(v)}
+                onNegotiate={(v) => handleOpenNegotiation(v)}
+                onViewAll={() => {
+                  setFilterCategory('venues')
+                  setActiveTab('explore')
+                }}
+              />
+            </div>
+
+            {/* CURATED PRIVILEGES / OFFERS */}
+            <div className="animate-luxury-enter stagger-5">
+              <CuratedOffers
+                offers={cmsContent?.offers || []}
+                onSelectOffer={(code) => {
+                  setBookingDetails(prev => ({ ...prev, promoCode: code }))
+                  toast.success(`Applied ${code} to your event booking!`)
+                }}
+              />
+            </div>
+
+            {/* CURATED ALL-INCLUSIVE PACKAGES COMPARISON */}
+            <div className="animate-luxury-enter">
+              <CuratedPackagesSection
+                packages={packages}
+                onSelectPackage={(pkg) => handleOpenPackageCustomizer(pkg)}
+                onCustomizePackage={(pkg) => handleOpenPackageCustomizer(pkg)}
+                onBookPackage={(pkg) => handleOpenPackageCustomizer(pkg)}
+              />
+            </div>
+
             {/* FEATURED SIGNATURE CREATORS & VENUES */}
-            <section className="py-16 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto animate-luxury-enter stagger-5">
+            <section className="py-16 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto animate-luxury-enter">
               <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-10">
                 <div>
                   <div className="text-[11px] uppercase font-bold tracking-[0.2em] text-[#4a1525] mb-1">
@@ -1609,6 +1639,28 @@ export default function VowsAndVenuesApp() {
                 ))}
               </div>
             </section>
+
+            {/* WEDDING INSPIRATION EDITORIAL GALLERY */}
+            <div className="animate-luxury-enter">
+              <WeddingInspirationGallery
+                onExploreCategory={(cat) => {
+                  const slugMap = {
+                    'Palaces & Forts': 'venues',
+                    'Mandaps & Florals': 'decor',
+                    'Catering & Feasts': 'catering',
+                    'Couture & Details': 'outfits'
+                  }
+                  const slug = slugMap[cat] || 'all'
+                  setFilterCategory(slug)
+                  setActiveTab('explore')
+                }}
+              />
+            </div>
+
+            {/* TRUST, SAFETY & PLATFORM CONFIDENCE */}
+            <div className="animate-luxury-enter">
+              <TrustAndConfidenceSection />
+            </div>
 
             {/* REAL CELEBRATIONS & EDITORIAL MEMOIRS — SLIDING INDIAN REVIEWS */}
             <SlidingReviewsSection />

@@ -20,6 +20,23 @@ module.exports = {
       },
       extend: {
         colors: {
+          ivory: '#FAF7F0',
+          champagne: {
+            DEFAULT: '#C6A66B',
+            light: '#DFCCA3',
+            dark: '#A68448'
+          },
+          burgundy: {
+            DEFAULT: '#6E2338',
+            light: '#8E334B',
+            dark: '#4F1524'
+          },
+          espresso: {
+            DEFAULT: '#241C1A',
+            light: '#3A2E2C',
+            dark: '#140E0C'
+          },
+          softbeige: '#EAE3D8',
           border: 'hsl(var(--border))',
           input: 'hsl(var(--input))',
           ring: 'hsl(var(--ring))',
