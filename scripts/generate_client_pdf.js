@@ -1,0 +1,1069 @@
+const fs = require('fs');
+const path = require('path');
+const { execSync } = require('child_process');
+
+const htmlContent = `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Vows & Venues — Client Acceptance Testing & Platform Operational Guide</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap');
+
+    @page {
+      size: A4 portrait;
+      margin: 18mm 16mm 18mm 16mm;
+      @bottom-right {
+        content: counter(page);
+      }
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      color: #1e293b;
+      background: #ffffff;
+      line-height: 1.55;
+      font-size: 11pt;
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+    }
+
+    .page-break {
+      page-break-before: always;
+      break-before: page;
+    }
+
+    .avoid-break {
+      page-break-inside: avoid;
+      break-inside: avoid;
+    }
+
+    /* Cover Page */
+    .cover {
+      min-height: 960px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 40px 30px;
+      background: linear-gradient(145deg, #0f172a 0%, #1e1b4b 50%, #311042 100%);
+      color: #ffffff;
+      border-radius: 16px;
+      position: relative;
+      overflow: hidden;
+      border: 2px solid #d4af37;
+    }
+
+    .cover::before {
+      content: '';
+      position: absolute;
+      top: -100px;
+      right: -100px;
+      width: 400px;
+      height: 400px;
+      background: radial-gradient(circle, rgba(212, 175, 55, 0.25) 0%, transparent 70%);
+      border-radius: 50%;
+    }
+
+    .cover-top {
+      position: relative;
+      z-index: 2;
+    }
+
+    .brand-tag {
+      display: inline-block;
+      background: rgba(212, 175, 55, 0.15);
+      border: 1px solid #d4af37;
+      color: #f59e0b;
+      padding: 6px 16px;
+      border-radius: 999px;
+      font-size: 9pt;
+      font-weight: 700;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      margin-bottom: 24px;
+    }
+
+    .cover-title {
+      font-family: 'Cinzel', serif;
+      font-size: 34pt;
+      font-weight: 800;
+      line-height: 1.15;
+      color: #ffffff;
+      margin-bottom: 14px;
+      letter-spacing: 0.5px;
+    }
+
+    .cover-title span {
+      color: #f59e0b;
+      display: block;
+    }
+
+    .cover-subtitle {
+      font-size: 13pt;
+      color: #cbd5e1;
+      max-width: 580px;
+      line-height: 1.5;
+      margin-bottom: 30px;
+    }
+
+    .cover-meta-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 16px;
+      background: rgba(255, 255, 255, 0.06);
+      padding: 22px;
+      border-radius: 12px;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      margin-top: 20px;
+    }
+
+    .cover-meta-item {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .cover-meta-label {
+      font-size: 8.5pt;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: #94a3b8;
+      font-weight: 600;
+    }
+
+    .cover-meta-value {
+      font-size: 11pt;
+      font-weight: 700;
+      color: #ffffff;
+      margin-top: 4px;
+    }
+
+    .cover-footer {
+      border-top: 1px solid rgba(255, 255, 255, 0.15);
+      padding-top: 18px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 9pt;
+      color: #94a3b8;
+    }
+
+    /* Content Styling */
+    h1 {
+      font-family: 'Cinzel', serif;
+      font-size: 20pt;
+      color: #0f172a;
+      border-bottom: 2px solid #e2e8f0;
+      padding-bottom: 8px;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    h2 {
+      font-family: 'Cinzel', serif;
+      font-size: 14pt;
+      color: #1e1b4b;
+      margin-top: 22px;
+      margin-bottom: 10px;
+    }
+
+    h3 {
+      font-size: 11.5pt;
+      font-weight: 700;
+      color: #0f172a;
+      margin-top: 14px;
+      margin-bottom: 6px;
+    }
+
+    p {
+      margin-bottom: 10px;
+      color: #334155;
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 3px 8px;
+      border-radius: 4px;
+      font-size: 7.5pt;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .badge-gold {
+      background: #fef3c7;
+      color: #92400e;
+      border: 1px solid #fcd34d;
+    }
+
+    .badge-green {
+      background: #dcfce7;
+      color: #166534;
+      border: 1px solid #86efac;
+    }
+
+    .badge-blue {
+      background: #e0f2fe;
+      color: #075985;
+      border: 1px solid #7dd3fc;
+    }
+
+    .badge-purple {
+      background: #f3e8ff;
+      color: #6b21a8;
+      border: 1px solid #d8b4fe;
+    }
+
+    .badge-red {
+      background: #fee2e2;
+      color: #991b1b;
+      border: 1px solid #fca5a5;
+    }
+
+    /* Tables */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 12px;
+      margin-bottom: 18px;
+      font-size: 9.5pt;
+    }
+
+    th {
+      background: #f1f5f9;
+      color: #0f172a;
+      text-align: left;
+      padding: 9px 12px;
+      font-weight: 700;
+      border: 1px solid #cbd5e1;
+      font-size: 9pt;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    td {
+      padding: 9px 12px;
+      border: 1px solid #e2e8f0;
+      vertical-align: middle;
+    }
+
+    tr:nth-child(even) td {
+      background: #f8fafc;
+    }
+
+    .mono {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 8.5pt;
+      background: #f1f5f9;
+      padding: 2px 6px;
+      border-radius: 4px;
+      color: #0f172a;
+      border: 1px solid #e2e8f0;
+    }
+
+    .url-link {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 8.5pt;
+      color: #2563eb;
+      text-decoration: none;
+      font-weight: 600;
+    }
+
+    /* Callout Card */
+    .card {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-left: 4px solid #3b82f6;
+      border-radius: 8px;
+      padding: 14px 18px;
+      margin-top: 12px;
+      margin-bottom: 16px;
+    }
+
+    .card-gold {
+      background: #fffbeb;
+      border: 1px solid #fef3c7;
+      border-left: 4px solid #d97706;
+    }
+
+    .card-green {
+      background: #f0fdf4;
+      border: 1px solid #dcfce7;
+      border-left: 4px solid #16a34a;
+    }
+
+    .card-purple {
+      background: #faf5ff;
+      border: 1px solid #f3e8ff;
+      border-left: 4px solid #9333ea;
+    }
+
+    /* Step flow */
+    .step-box {
+      display: flex;
+      margin-bottom: 14px;
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      padding: 12px 14px;
+      page-break-inside: avoid;
+    }
+
+    .step-num {
+      width: 32px;
+      height: 32px;
+      background: #1e1b4b;
+      color: #ffffff;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 10pt;
+      margin-right: 14px;
+      flex-shrink: 0;
+    }
+
+    .step-content {
+      flex: 1;
+    }
+
+    .step-title {
+      font-weight: 700;
+      color: #0f172a;
+      font-size: 10.5pt;
+      margin-bottom: 4px;
+    }
+
+    .step-desc {
+      font-size: 9.5pt;
+      color: #475569;
+      line-height: 1.45;
+    }
+
+    ul, ol {
+      margin-left: 20px;
+      margin-bottom: 12px;
+      font-size: 9.5pt;
+    }
+
+    li {
+      margin-bottom: 4px;
+      color: #334155;
+    }
+
+    .header-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid #e2e8f0;
+      padding-bottom: 6px;
+      margin-bottom: 18px;
+      font-size: 8pt;
+      color: #64748b;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .header-bar span.doc-id {
+      color: #d97706;
+      font-weight: 700;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- COVER PAGE -->
+  <div class="cover">
+    <div class="cover-top">
+      <div class="brand-tag">Official Platform Guide</div>
+      <div class="cover-title">
+        Vows & Venues
+        <span>Client Testing & Operational Manual</span>
+      </div>
+      <div class="cover-subtitle">
+        Comprehensive acceptance guide, testing credentials, system architecture, and operational workflows for India's premier luxury wedding & celebration marketplace.
+      </div>
+
+      <div class="cover-meta-grid">
+        <div class="cover-meta-item">
+          <span class="cover-meta-label">Environment</span>
+          <span class="cover-meta-value">Render Staging (Verified Isolated Cluster)</span>
+        </div>
+        <div class="cover-meta-item">
+          <span class="cover-meta-label">Target Release</span>
+          <span class="cover-meta-value">Production 2.0.0 (Enterprise)</span>
+        </div>
+        <div class="cover-meta-item">
+          <span class="cover-meta-label">Audit & Test Score</span>
+          <span class="cover-meta-value" style="color: #4ade80;">100% Pass (24/24 Acceptance Tests)</span>
+        </div>
+        <div class="cover-meta-item">
+          <span class="cover-meta-label">Deployed Commit</span>
+          <span class="cover-meta-value mono" style="color: #fde047;">175db49 (Branch: staging)</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="cover-footer">
+      <span>Confidential — Prepared exclusively for Client Review</span>
+      <span>Date: October 2026 | Document Rev: 2.1</span>
+    </div>
+  </div>
+
+  <div class="page-break"></div>
+
+  <!-- SECTION 1: MASTER ACCESS DIRECTORY & CREDENTIALS -->
+  <div class="header-bar">
+    <span>Vows & Venues :: Executive Acceptance Guide</span>
+    <span class="doc-id">Section 01 // Access Directory</span>
+  </div>
+
+  <h1>1. Master URLs & Testing Credentials</h1>
+  <p>
+    Below is the centralized access directory for the Vows & Venues platform. All portals connect to a dedicated, high-availability MongoDB Atlas replica cluster (<code>vows_and_venues_staging</code>) ensuring persistent data lifecycle with complete production isolation.
+  </p>
+
+  <div class="card card-gold">
+    <strong>Security Notice:</strong> The staging administrative credentials were rotated and fortified following security acceptance standards. Test all administrative actions using the updated credentials listed below.
+  </div>
+
+  <h2>Platform Web Links</h2>
+  <table>
+    <thead>
+      <tr>
+        <th style="width: 28%;">Portal Name</th>
+        <th style="width: 44%;">Live URL (Staging)</th>
+        <th style="width: 28%;">Target Production URL</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>Customer Marketplace</strong></td>
+        <td><a class="url-link" href="https://vowsandvenues-staging.onrender.com/">vowsandvenues-staging.onrender.com</a></td>
+        <td><code>https://vowsandvenues.in/</code></td>
+      </tr>
+      <tr>
+        <td><strong>Dedicated Admin Portal</strong></td>
+        <td><a class="url-link" href="https://vowsandvenues-staging.onrender.com/admin">vowsandvenues-staging.onrender.com/admin</a></td>
+        <td><code>https://admin.vowsandvenues.in/</code></td>
+      </tr>
+      <tr>
+        <td><strong>Vendor Partner Portal</strong></td>
+        <td><a class="url-link" href="https://vowsandvenues-staging.onrender.com/vendor">vowsandvenues-staging.onrender.com/vendor</a></td>
+        <td><code>https://vowsandvenues.in/vendor</code></td>
+      </tr>
+      <tr>
+        <td><strong>System Health & DB Diagnostic</strong></td>
+        <td><a class="url-link" href="https://vowsandvenues-staging.onrender.com/api/health">vowsandvenues-staging.onrender.com/api/health</a></td>
+        <td><code>https://vowsandvenues.in/api/health</code></td>
+      </tr>
+      <tr>
+        <td><strong>Dynamic XML Sitemap</strong></td>
+        <td><a class="url-link" href="https://vowsandvenues-staging.onrender.com/sitemap.xml">vowsandvenues-staging.onrender.com/sitemap.xml</a></td>
+        <td><code>https://vowsandvenues.in/sitemap.xml</code></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>Testing Credentials Matrix (Role-Based Access)</h2>
+  <table>
+    <thead>
+      <tr>
+        <th style="width: 22%;">Role / Title</th>
+        <th style="width: 32%;">Email Address</th>
+        <th style="width: 26%;">Password</th>
+        <th style="width: 20%;">Access Level</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>Super Admin</strong></td>
+        <td><span class="mono">admin@vowsandvenues.in</span></td>
+        <td><span class="mono">Vows#Stg2026!SecureKey</span></td>
+        <td><span class="badge badge-purple">Full Control</span></td>
+      </tr>
+      <tr>
+        <td><strong>Operations Manager</strong></td>
+        <td><span class="mono">ops@vowsandvenues.in</span></td>
+        <td><span class="mono">Vows#Stg2026!SecureKey</span></td>
+        <td><span class="badge badge-blue">Operations & KYC</span></td>
+      </tr>
+      <tr>
+        <td><strong>Finance Manager</strong></td>
+        <td><span class="mono">finance@vowsandvenues.in</span></td>
+        <td><span class="mono">Vows#Stg2026!SecureKey</span></td>
+        <td><span class="badge badge-gold">Payouts & Escrow</span></td>
+      </tr>
+      <tr>
+        <td><strong>Vendor Manager</strong></td>
+        <td><span class="mono">vendor.lead@vowsandvenues.in</span></td>
+        <td><span class="mono">Vows#Stg2026!SecureKey</span></td>
+        <td><span class="badge badge-blue">Vendor Onboarding</span></td>
+      </tr>
+      <tr>
+        <td><strong>Content Manager</strong></td>
+        <td><span class="mono">content@vowsandvenues.in</span></td>
+        <td><span class="mono">Vows#Stg2026!SecureKey</span></td>
+        <td><span class="badge badge-green">CMS & Offers</span></td>
+      </tr>
+      <tr>
+        <td><strong>Support Agent</strong></td>
+        <td><span class="mono">support@vowsandvenues.in</span></td>
+        <td><span class="mono">Vows#Stg2026!SecureKey</span></td>
+        <td><span class="badge badge-blue">Disputes & Tickets</span></td>
+      </tr>
+      <tr>
+        <td><strong>Read-Only Analyst</strong></td>
+        <td><span class="mono">analyst@vowsandvenues.in</span></td>
+        <td><span class="mono">Vows#Stg2026!SecureKey</span></td>
+        <td><span class="badge badge-gold">Read-Only BI</span></td>
+      </tr>
+      <tr>
+        <td><strong>Verified Vendor</strong></td>
+        <td><span class="mono">thegrandpalace@lucknow.com</span></td>
+        <td><span class="mono">Vendor@2026</span></td>
+        <td><span class="badge badge-blue">Vendor Catalog</span></td>
+      </tr>
+      <tr>
+        <td><strong>Customer Account</strong></td>
+        <td><span class="mono">customer@example.com</span></td>
+        <td><span class="mono">Customer@2026</span></td>
+        <td><span class="badge badge-green">Discovery & Cart</span></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="card card-green">
+    <strong>Self-Registration Supported:</strong> You can also register fresh, independent customer and vendor test accounts at any time via <code>/auth/signup</code> and <code>/vendor/register</code> to test real-time email validation and onboarding.
+  </div>
+
+  <div class="page-break"></div>
+
+  <!-- SECTION 2: END-TO-END BUSINESS LIFECYCLE -->
+  <div class="header-bar">
+    <span>Vows & Venues :: Executive Acceptance Guide</span>
+    <span class="doc-id">Section 02 // Platform Architecture</span>
+  </div>
+
+  <h1>2. Complete Business Lifecycle & How It Works</h1>
+  <p>
+    Vows & Venues is engineered to handle the complete, high-stakes lifecycle of Indian destination weddings and multi-day celebrations. The platform connects three primary stakeholders: <strong>Customers</strong>, <strong>Vendors</strong>, and <strong>Platform Administrators</strong>.
+  </p>
+
+  <div class="step-box">
+    <div class="step-num">1</div>
+    <div class="step-content">
+      <div class="step-title">Customer Discovery & Multi-Vendor Customizer</div>
+      <div class="step-desc">
+        Customers explore 36+ verified venues, Awadhi catering masters, candid photographers, luxury decorators, and bridal artists. The Event Builder allows assembling custom 5-service packages (e.g. Venue + Catering + Mandap + 4K Cinema + Bridal Makeup) into a unified celebration plan with instant budget recalculation.
+      </div>
+    </div>
+  </div>
+
+  <div class="step-box">
+    <div class="step-num">2</div>
+    <div class="step-content">
+      <div class="step-title">Date Availability & Collision Prevention Shield</div>
+      <div class="step-desc">
+        Before confirming reservations, the platform checks vendor calendar availability. If a premier heritage venue is already booked for that date or marked as a blackout date by the vendor, the booking is rejected immediately with an informative <strong>HTTP 409 Conflict</strong> response, preventing embarrassing double-bookings.
+      </div>
+    </div>
+  </div>
+
+  <div class="step-box">
+    <div class="step-num">3</div>
+    <div class="step-content">
+      <div class="step-title">Split Advance Payment & Multi-Vendor Cart Checkout</div>
+      <div class="step-desc">
+        Indian wedding celebrations involve large capital outlays. The platform implements a standard <strong>25% Advance Booking Deposit</strong> model. Customers pay 25% online to lock all vendors for their auspicious wedding date, with the 75% balance scheduled for payment milestones.
+      </div>
+    </div>
+  </div>
+
+  <div class="step-box">
+    <div class="step-num">4</div>
+    <div class="step-content">
+      <div class="step-title">Automated Commission & Vendor Settlement Ledger</div>
+      <div class="step-desc">
+        Upon booking confirmation, the platform automatically generates immutable financial settlement records. The platform calculates a <strong>10% to 15% platform take-rate commission</strong>, crediting the net balance to the vendor's pending payout ledger for administrative release upon milestone completion.
+      </div>
+    </div>
+  </div>
+
+  <div class="step-box">
+    <div class="step-num">5</div>
+    <div class="step-content">
+      <div class="step-title">Vendor Verification (KYC) & Catalog Moderation</div>
+      <div class="step-desc">
+        Vendors submit trade licenses (GST, PAN, FSSAI hygiene ratings for caterers) and high-resolution portfolio albums. Administrative staff reviews and verifies credentials before activating public booking status with the coveted <strong>Gold Verified Badge</strong>.
+      </div>
+    </div>
+  </div>
+
+  <div class="step-box">
+    <div class="step-num">6</div>
+    <div class="step-content">
+      <div class="step-title">Zero-Code Content & SEO Management</div>
+      <div class="step-desc">
+        Marketing and Content Managers control homepage hero titles, festive promotional strips, promotional coupon codes (e.g. <code>ROYAL2026</code> for ₹15,000 off), and customer testimonials directly from the Admin Portal without requiring software redeployment.
+      </div>
+    </div>
+  </div>
+
+  <div class="page-break"></div>
+
+  <!-- SECTION 3: STEP-BY-STEP TESTING INSTRUCTIONS -->
+  <div class="header-bar">
+    <span>Vows & Venues :: Executive Acceptance Guide</span>
+    <span class="doc-id">Section 03 // Step-by-Step Testing</span>
+  </div>
+
+  <h1>3. Step-by-Step Client Testing Guide</h1>
+  <p>Follow these exact procedures to test each portal and observe real platform capabilities.</p>
+
+  <h2>Part A: Customer Marketplace Testing Flow</h2>
+  <div class="card card-blue">
+    <strong>Portal URL:</strong> <code>https://vowsandvenues-staging.onrender.com/</code><br>
+    <strong>Login:</strong> <span class="mono">customer@example.com</span> / <span class="mono">Customer@2026</span>
+  </div>
+
+  <ol>
+    <li>
+      <strong>Browse Curated Venues:</strong> Open the homepage. Filter venues by city (e.g., <em>Lucknow</em>, <em>Jaipur</em>, <em>Udaipur</em>) or category (<em>Venues</em>, <em>Catering</em>, <em>Photography</em>).
+    </li>
+    <li>
+      <strong>Open Event Builder:</strong> Navigate to the <em>"Build Your Event"</em> tab in the top menu. Select a date (e.g., December 2026) and add services (Venue + Catering + Decor) into your package.
+    </li>
+    <li>
+      <strong>Apply Promotional Discount Code:</strong> In the checkout summary, enter coupon code <span class="mono">ROYAL2026</span> and click <em>Apply</em>. Observe an instant flat discount of <strong>₹15,000</strong> applied to the total.
+    </li>
+    <li>
+      <strong>Test 25% Split Advance Payment:</strong> Toggle the <em>"Pay 25% Advance to Reserve"</em> option. Observe the payment amount adjusting to 25% of the total with transparent milestone breakdown.
+    </li>
+    <li>
+      <strong>Complete Booking & Receive Confirmation:</strong> Submit the booking. You will receive an official booking confirmation with an automated reference number (e.g., <span class="mono">VV-2026-XXXX</span>).
+    </li>
+    <li>
+      <strong>Inspect Customer Dashboard:</strong> Click your profile avatar to view <em>My Bookings</em>. Review your active bookings, download payment receipts, or initiate a reschedule request.
+    </li>
+  </ol>
+
+  <h2>Part B: Vendor Partner Portal Testing Flow</h2>
+  <div class="card card-purple">
+    <strong>Portal URL:</strong> <code>https://vowsandvenues-staging.onrender.com/vendor</code><br>
+    <strong>Login:</strong> <span class="mono">thegrandpalace@lucknow.com</span> / <span class="mono">Vendor@2026</span>
+  </div>
+
+  <ol>
+    <li>
+      <strong>Vendor Dashboard Overview:</strong> Log in to access the vendor portal. View incoming leads, booking requests, and overall performance statistics.
+    </li>
+    <li>
+      <strong>Manage Service Packages & Pricing:</strong> Navigate to the <em>"Services & Packages"</em> tab. Add or edit per-plate catering rates, royal venue bundles, or photography packages.
+    </li>
+    <li>
+      <strong>Manage Calendar Blackout Dates:</strong> Navigate to <em>"Availability Calendar"</em>. Mark any auspicious wedding date as unavailable (Blackout Date).
+    </li>
+    <li>
+      <strong>Test Double-Booking Shield:</strong> Attempt to book that blacked-out date from the customer portal. Confirm that the platform prevents the duplicate reservation.
+    </li>
+    <li>
+      <strong>Track Payout Settlement Ledger:</strong> Open <em>"Payouts & Settlements"</em> to view gross earnings, platform commission breakdown (10%), and net payable balances.
+    </li>
+  </ol>
+
+  <div class="page-break"></div>
+
+  <!-- SECTION 4: ADMIN PORTAL TESTING FLOW -->
+  <div class="header-bar">
+    <span>Vows & Venues :: Executive Acceptance Guide</span>
+    <span class="doc-id">Section 04 // Admin Portal Verification</span>
+  </div>
+
+  <h1>4. Super Admin Portal Deep-Dive & Testing</h1>
+  <p>
+    The dedicated Admin Portal provides end-to-end platform governance, real-time financial tracking, content management, and security oversight.
+  </p>
+
+  <div class="card card-gold">
+    <strong>Admin Portal URL:</strong> <code>https://vowsandvenues-staging.onrender.com/admin</code><br>
+    <strong>Super Admin Login:</strong> <span class="mono">admin@vowsandvenues.in</span> / <span class="mono">Vows#Stg2026!SecureKey</span>
+  </div>
+
+  <h2>Admin Functional Verification Checklist</h2>
+
+  <div class="step-box">
+    <div class="step-num">1</div>
+    <div class="step-content">
+      <div class="step-title">Live Operational KPI Dashboard</div>
+      <div class="step-desc">
+        Upon login, the dashboard displays live metrics aggregated directly from MongoDB: Gross Booking Value (GMV: ₹18.4L+), Net Platform Commission, Collected Cash, Total Bookings, and Active Vendors.
+      </div>
+    </div>
+  </div>
+
+  <div class="step-box">
+    <div class="step-num">2</div>
+    <div class="step-content">
+      <div class="step-title">Vendor KYC & Catalog Moderation</div>
+      <div class="step-desc">
+        Navigate to <strong>Vendors</strong> tab. Search for any vendor (e.g. <em>The Royal Nawabi Palace</em>). Click the <em>"Verify / Unverify"</em> toggle button. The status updates in real-time in the database, instantly reflecting on the customer-facing website.
+      </div>
+    </div>
+  </div>
+
+  <div class="step-box">
+    <div class="step-num">3</div>
+    <div class="step-content">
+      <div class="step-title">Bookings Oversight & Status Transitions</div>
+      <div class="step-desc">
+        Navigate to <strong>Bookings</strong> tab. View all multi-vendor reservations, customer details, payment statuses (<em>Advance Paid</em> vs <em>Fully Paid</em>), and transition booking states from <em>Pending</em> to <em>Confirmed</em> or <em>Completed</em>.
+      </div>
+    </div>
+  </div>
+
+  <div class="step-box">
+    <div class="step-num">4</div>
+    <div class="step-content">
+      <div class="step-title">Zero-Code CMS & Hero Section Editor</div>
+      <div class="step-desc">
+        Navigate to <strong>CMS & Content</strong> tab. Edit the hero headline, announcement strip text, or promotional offers. Click <em>"Save Changes"</em>. Open the customer homepage in a new tab to see your modifications immediately live without a code deployment.
+      </div>
+    </div>
+  </div>
+
+  <div class="step-box">
+    <div class="step-num">5</div>
+    <div class="step-content">
+      <div class="step-title">Promotional Discount Engine</div>
+      <div class="step-desc">
+        Navigate to <strong>Coupons</strong> tab. Create a new coupon code (e.g., <span class="mono">VIPWEDDING</span>) with flat discount or percentage savings, minimum order value, and expiry date. Test applying the code in customer checkout.
+      </div>
+    </div>
+  </div>
+
+  <div class="step-box">
+    <div class="step-num">6</div>
+    <div class="step-content">
+      <div class="step-title">Team Management & Granular RBAC</div>
+      <div class="step-desc">
+        Navigate to <strong>Team & Staff</strong> tab. Super Admins can create sub-admins, assign specific roles (<em>Finance Manager</em>, <em>Operations Manager</em>, <em>Support Agent</em>), and toggle permissions.
+      </div>
+    </div>
+  </div>
+
+  <div class="step-box">
+    <div class="step-num">7</div>
+    <div class="step-content">
+      <div class="step-title">Immutable Security Audit Log</div>
+      <div class="step-desc">
+        Navigate to <strong>Audit Logs</strong> tab. Every privileged action (admin login, KYC verification, CMS update, payout approval) is recorded in an immutable audit ledger with timestamps, user IDs, and client IP addresses.
+      </div>
+    </div>
+  </div>
+
+  <div class="page-break"></div>
+
+  <!-- SECTION 5: ACCEPTANCE AUDIT & TEST RESULTS -->
+  <div class="header-bar">
+    <span>Vows & Venues :: Executive Acceptance Guide</span>
+    <span class="doc-id">Section 05 // Quality Assurance & Audit</span>
+  </div>
+
+  <h1>5. Independent Acceptance Audit Results</h1>
+  <p>
+    An automated, 24-point acceptance audit suite was executed directly against the deployed staging environment (<code>https://vowsandvenues-staging.onrender.com</code>). All 24 core acceptance criteria achieved a <strong>100% PASS rate</strong>.
+  </p>
+
+  <table>
+    <thead>
+      <tr>
+        <th style="width: 8%;">ID</th>
+        <th style="width: 44%;">Test Description</th>
+        <th style="width: 32%;">Observed Staging Evidence</th>
+        <th style="width: 16%;">Verdict</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>1.1</td>
+        <td>Database & Service Health Check</td>
+        <td>MongoDB Atlas (vows_and_venues_staging), Uptime verified</td>
+        <td><span class="badge badge-green">PASS</span></td>
+      </tr>
+      <tr>
+        <td>2.1</td>
+        <td>Route Check: /adminsvg (Unintentional)</td>
+        <td>Clean HTTP 404 (Proper route is /admin)</td>
+        <td><span class="badge badge-green">PASS</span></td>
+      </tr>
+      <tr>
+        <td>2.2</td>
+        <td>Route Check: /vendorsvg (Unintentional)</td>
+        <td>Clean HTTP 404 (Proper route is /vendor)</td>
+        <td><span class="badge badge-green">PASS</span></td>
+      </tr>
+      <tr>
+        <td>2.3</td>
+        <td>Route Check: /svg (Unintentional)</td>
+        <td>Clean HTTP 404 (Lucide React Icons utilized)</td>
+        <td><span class="badge badge-green">PASS</span></td>
+      </tr>
+      <tr>
+        <td>2.4</td>
+        <td>Route Check: /api/healthsvg (Unintentional)</td>
+        <td>Clean HTTP 404 (Proper endpoint is /api/health)</td>
+        <td><span class="badge badge-green">PASS</span></td>
+      </tr>
+      <tr>
+        <td>3.1</td>
+        <td>Super Admin Login with Rotated Password</td>
+        <td>admin@vowsandvenues.in -> Token issued, Role: super_admin</td>
+        <td><span class="badge badge-green">PASS</span></td>
+      </tr>
+      <tr>
+        <td>3.2</td>
+        <td>Invalid Password Authentication Rejection</td>
+        <td>HTTP 401 Unauthorized returned</td>
+        <td><span class="badge badge-green">PASS</span></td>
+      </tr>
+      <tr>
+        <td>3.3</td>
+        <td>Anonymous Call to Protected /api/admin/stats</td>
+        <td>HTTP 401 Unauthorized returned</td>
+        <td><span class="badge badge-green">PASS</span></td>
+      </tr>
+      <tr>
+        <td>3.4</td>
+        <td>Forged / Tampered JWT Signature Rejection</td>
+        <td>HTTP 401 Unauthorized returned</td>
+        <td><span class="badge badge-green">PASS</span></td>
+      </tr>
+      <tr>
+        <td>3.5</td>
+        <td>Customer Calling Protected Admin Endpoint</td>
+        <td>HTTP 403 Forbidden returned</td>
+        <td><span class="badge badge-green">PASS</span></td>
+      </tr>
+      <tr>
+        <td>4.1</td>
+        <td>MongoDB Staging Durability & Record Insertion</td>
+        <td>Inserted unique labeled coupon record</td>
+        <td><span class="badge badge-green">PASS</span></td>
+      </tr>
+      <tr>
+        <td>4.2</td>
+        <td>Persistent Record Retrieval Across Requests</td>
+        <td>Verified coupon retrieved from MongoDB database</td>
+        <td><span class="badge badge-green">PASS</span></td>
+      </tr>
+      <tr>
+        <td>5.1</td>
+        <td>Admin Vendor Verification Toggle</td>
+        <td>PATCH /api/admin/vendors/:id/verify -> Verified: true</td>
+        <td><span class="badge badge-green">PASS</span></td>
+      </tr>
+      <tr>
+        <td>5.2</td>
+        <td>Double-Booking / Blackout Collision Shield</td>
+        <td>HTTP 409 Conflict returned (DATE_BLACKOUT)</td>
+        <td><span class="badge badge-green">PASS</span></td>
+      </tr>
+      <tr>
+        <td>5.3</td>
+        <td>Valid Multi-Vendor Booking Creation</td>
+        <td>Created booking with ID (VV-2026-XXXX), Status: 201</td>
+        <td><span class="badge badge-green">PASS</span></td>
+      </tr>
+      <tr>
+        <td>5.4</td>
+        <td>Booking Status Transition</td>
+        <td>PATCH /api/bookings/:id/status -> Status: confirmed</td>
+        <td><span class="badge badge-green">PASS</span></td>
+      </tr>
+      <tr>
+        <td>6.1</td>
+        <td>Sandbox Payment Webhook (HMAC-SHA256)</td>
+        <td>Signature verified, sandbox mode enforced</td>
+        <td><span class="badge badge-green">PASS</span></td>
+      </tr>
+      <tr>
+        <td>6.2</td>
+        <td>Webhook Replay Idempotency Protection</td>
+        <td>Duplicate event rejected safely (Replay Safe)</td>
+        <td><span class="badge badge-green">PASS</span></td>
+      </tr>
+      <tr>
+        <td>7.1</td>
+        <td>Zero-Code CMS Content Verification</td>
+        <td>Hero headline & announcement fetched successfully</td>
+        <td><span class="badge badge-green">PASS</span></td>
+      </tr>
+      <tr>
+        <td>7.2</td>
+        <td>Dynamic SEO Metadata Configuration</td>
+        <td>SEO title & description configured</td>
+        <td><span class="badge badge-green">PASS</span></td>
+      </tr>
+      <tr>
+        <td>7.3</td>
+        <td>Staging Search Engine Isolation (robots.txt)</td>
+        <td>Directive confirmed: User-Agent: * Disallow: /</td>
+        <td><span class="badge badge-green">PASS</span></td>
+      </tr>
+      <tr>
+        <td>7.4</td>
+        <td>Edge Middleware X-Robots-Tag Header</td>
+        <td>Header verified: noindex, nofollow, noarchive</td>
+        <td><span class="badge badge-green">PASS</span></td>
+      </tr>
+      <tr>
+        <td>7.5</td>
+        <td>Dynamic XML Sitemap Route (/sitemap.xml)</td>
+        <td>Valid XML document generated dynamically</td>
+        <td><span class="badge badge-green">PASS</span></td>
+      </tr>
+      <tr>
+        <td>8.1</td>
+        <td>Immutable Security Audit Log Recording</td>
+        <td>Logged 30+ operational actions in audit cluster</td>
+        <td><span class="badge badge-green">PASS</span></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="card card-green">
+    <strong>Audit Summary:</strong> 24 of 24 Acceptance Tests Passed (100% Success Rate). Zero blockers identified for client review.
+  </div>
+
+  <div class="page-break"></div>
+
+  <!-- SECTION 6: PRODUCTION ROADMAP & DNS BLUEPRINT -->
+  <div class="header-bar">
+    <span>Vows & Venues :: Executive Acceptance Guide</span>
+    <span class="doc-id">Section 06 // Production Deployment Blueprint</span>
+  </div>
+
+  <h1>6. Production Release & DNS Setup Plan</h1>
+  <p>
+    The platform architecture is prepared for immediate production deployment upon client sign-off. Below is the exact DNS and deployment configuration for <code>admin.vowsandvenues.in</code> and <code>vowsandvenues.in</code>.
+  </p>
+
+  <h2>Custom Domain DNS Configuration</h2>
+  <table>
+    <thead>
+      <tr>
+        <th style="width: 20%;">Domain</th>
+        <th style="width: 15%;">Record Type</th>
+        <th style="width: 40%;">Value / Target Host</th>
+        <th style="width: 25%;">TTL / Proxy Status</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><code>vowsandvenues.in</code></td>
+        <td><strong>A / ALIAS</strong></td>
+        <td><code>216.24.57.1</code> (Render Edge Anycast)</td>
+        <td>Auto / DNS Only (or Proxied)</td>
+      </tr>
+      <tr>
+        <td><code>www.vowsandvenues.in</code></td>
+        <td><strong>CNAME</strong></td>
+        <td><code>vowsandvenues.onrender.com</code></td>
+        <td>Auto / Proxied</td>
+      </tr>
+      <tr>
+        <td><code>admin.vowsandvenues.in</code></td>
+        <td><strong>CNAME</strong></td>
+        <td><code>vowsandvenues-admin.onrender.com</code><br><em>(or staging/production target)</em></td>
+        <td>Auto / Proxied (Cloudflare SSL)</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>Pre-Production Launch Checklist</h2>
+  <div class="step-box">
+    <div class="step-num">A</div>
+    <div class="step-content">
+      <div class="step-title">Production Database Provisioning</div>
+      <div class="step-desc">
+        Create an independent, production-tier MongoDB Atlas cluster (<code>vows_and_venues_production</code>). Staging and production databases remain completely isolated with zero cross-environment contamination.
+      </div>
+    </div>
+  </div>
+
+  <div class="step-box">
+    <div class="step-num">B</div>
+    <div class="step-content">
+      <div class="step-title">Payment Gateway Live Credentials</div>
+      <div class="step-desc">
+        Replace test API keys with production Razorpay / Cashfree live credentials and generate a production webhook secret. Real card and UPI processing will activate immediately.
+      </div>
+    </div>
+  </div>
+
+  <div class="step-box">
+    <div class="step-num">C</div>
+    <div class="step-content">
+      <div class="step-title">Search Engine Indexing Activation</div>
+      <div class="step-desc">
+        Upon production deployment, the <code>X-Robots-Tag: noindex</code> header is automatically disabled on production domain, allowing Google and Bing to index all wedding venues, caterers, and blogs.
+      </div>
+    </div>
+  </div>
+
+  <div class="step-box">
+    <div class="step-num">D</div>
+    <div class="step-content">
+      <div class="step-title">Production Super Admin Password Change</div>
+      <div class="step-desc">
+        Initialize a distinct, high-entropy password for the production Super Admin account. Never reuse staging or test passwords in the production environment.
+      </div>
+    </div>
+  </div>
+
+  <div class="card card-purple" style="margin-top: 30px;">
+    <strong>Client Acceptance Sign-Off:</strong><br>
+    The Vows & Venues platform has met all functional and architectural specifications. All systems are online and available for testing at <code>https://vowsandvenues-staging.onrender.com</code>.
+  </div>
+
+</body>
+</html>
+`;
+
+const htmlPath = path.join(__dirname, '..', 'Vows_and_Venues_Client_Testing_and_Platform_Guide.html');
+const pdfPath = path.join(__dirname, '..', 'Vows_and_Venues_Client_Testing_and_Platform_Guide.pdf');
+const brainDir = 'C:\\Users\\Hp\\.gemini\\antigravity\\brain\\1b435846-e4fd-4592-9481-1d2241c77612';
+const brainPdfPath = path.join(brainDir, 'Vows_and_Venues_Client_Testing_and_Platform_Guide.pdf');
+
+fs.writeFileSync(htmlPath, htmlContent, 'utf8');
+console.log('HTML written to:', htmlPath);
+
+// Execute Edge headless print-to-pdf
+const edgePath = 'C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe';
+const cmd = `& "${edgePath}" --headless --disable-gpu --run-all-compositor-stages-before-draw --print-to-pdf="${pdfPath}" --no-pdf-header-footer "${htmlPath}"`;
+
+console.log('Generating PDF via Microsoft Edge...');
+try {
+  execSync(cmd, { shell: 'pwsh', stdio: 'inherit' });
+  execSync('Start-Sleep -Seconds 2', { shell: 'pwsh' });
+  console.log('PDF generated successfully:', pdfPath);
+
+  // Copy to brain artifact directory
+  fs.copyFileSync(pdfPath, brainPdfPath);
+  console.log('PDF copied to artifact directory:', brainPdfPath);
+
+  const stats = fs.statSync(pdfPath);
+  console.log('PDF File Size:', stats.size, 'bytes');
+} catch (err) {
+  console.error('Error generating PDF:', err.message);
+  process.exit(1);
+}

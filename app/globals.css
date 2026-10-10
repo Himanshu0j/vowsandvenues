@@ -14,25 +14,25 @@
 
 @layer base {
   :root {
-    --background: 38 25% 97%;      /* #FAF8F5 Warm Alabaster */
-    --foreground: 24 10% 12%;      /* #211E1C Rich Charcoal */
-    --card: 0 0% 100%;
-    --card-foreground: 24 10% 12%;
-    --popover: 0 0% 100%;
-    --popover-foreground: 24 10% 12%;
-    --primary: 345 56% 19%;        /* #4A1525 Heritage Regal Wine */
-    --primary-foreground: 42 55% 94%; /* Champagne cream */
-    --secondary: 40 30% 95%;       /* Soft warm ivory */
-    --secondary-foreground: 24 10% 12%;
-    --muted: 40 18% 92%;
-    --muted-foreground: 24 6% 45%;
-    --accent: 40 48% 56%;          /* #C5A059 Antique Brass Gold */
-    --accent-foreground: 24 10% 12%;
-    --destructive: 0 72% 51%;
-    --destructive-foreground: 0 0% 98%;
-    --border: 38 18% 88%;
-    --input: 38 18% 88%;
-    --ring: 345 56% 19%;
+    --background: 155 30% 3%;      /* #050807 Deep Obsidian Black */
+    --foreground: 0 0% 100%;       /* #ffffff Crisp White */
+    --card: 155 25% 6%;            /* #0b1410 Dark Obsidian Card */
+    --card-foreground: 0 0% 100%;
+    --popover: 155 25% 6%;
+    --popover-foreground: 0 0% 100%;
+    --primary: 153 100% 50%;       /* #00ff88 Electric Neon Green */
+    --primary-foreground: 155 30% 3%;
+    --secondary: 155 20% 12%;      /* #14241d Dark Emerald Surface */
+    --secondary-foreground: 0 0% 100%;
+    --muted: 155 15% 15%;
+    --muted-foreground: 155 10% 65%;
+    --accent: 153 100% 50%;        /* #00ff88 Electric Neon Green */
+    --accent-foreground: 155 30% 3%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 155 30% 18%;         /* #193828 Deep Emerald Border */
+    --input: 155 30% 18%;
+    --ring: 153 100% 50%;
     --radius: 0.875rem;
   }
 }
@@ -40,13 +40,14 @@
 html, body {
   max-width: 100vw;
   overflow-x: hidden;
+  background-color: #050807;
 }
 
 body {
   font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  background: linear-gradient(180deg, #fcf8f2 0%, #f7f1e5 25%, #fbf6ec 50%, #f5eee0 75%, #f8f2e6 100%);
+  background: radial-gradient(circle at 50% 0%, #0d2217 0%, #06120c 45%, #050807 100%);
   background-attachment: fixed;
-  color: #1c1917;
+  color: #ffffff;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
@@ -56,20 +57,21 @@ h1, h2, h3, h4, .font-serif {
   letter-spacing: -0.015em;
 }
 
-/* Custom editorial scrollbar */
+/* Custom Cyber-Luxury Scrollbar */
 ::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+  width: 7px;
+  height: 7px;
 }
 ::-webkit-scrollbar-track {
-  background: #f5f2eb;
+  background: #050807;
 }
 ::-webkit-scrollbar-thumb {
-  background: #d1c7b7;
+  background: #00ff88;
   border-radius: 9999px;
+  box-shadow: 0 0 10px rgba(0, 255, 136, 0.6);
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #a89f8f;
+  background: #05f279;
 }
 
 /* Luxury Antique Gold Shimmer */
@@ -248,4 +250,171 @@ h1, h2, h3, h4, .font-serif {
 }
 .img-zoom-container:hover img {
   transform: scale(1.05);
+}
+
+/* ==============================================================
+   BLACK + NEON GREEN & 3D CYBER-LUXURY ANIMATIONS
+   ============================================================== */
+
+@keyframes marquee-left {
+  0% { transform: translateX(0%); }
+  100% { transform: translateX(-50%); }
+}
+
+@keyframes marquee-right {
+  0% { transform: translateX(-50%); }
+  100% { transform: translateX(0%); }
+}
+
+@keyframes mascot-leg-swing-left {
+  0%, 100% { transform: rotate(-8deg); }
+  50% { transform: rotate(14deg); }
+}
+
+@keyframes mascot-leg-swing-right {
+  0%, 100% { transform: rotate(12deg); }
+  50% { transform: rotate(-10deg); }
+}
+
+@keyframes mascot-hand-wave {
+  0%, 100% { transform: rotate(0deg); }
+  25% { transform: rotate(20deg); }
+  75% { transform: rotate(-12deg); }
+}
+
+@keyframes mascot-float-bob {
+  0%, 100% { transform: translateY(0px) rotate(0deg); }
+  50% { transform: translateY(-7px) rotate(1.5deg); }
+}
+
+@keyframes neon-pulse-glow {
+  0%, 100% {
+    box-shadow: 0 0 15px rgba(0, 255, 136, 0.3), 0 0 30px rgba(0, 255, 136, 0.15);
+  }
+  50% {
+    box-shadow: 0 0 30px rgba(0, 255, 136, 0.7), 0 0 60px rgba(0, 255, 136, 0.35);
+  }
+}
+
+@keyframes text-flip-pop {
+  0% { transform: translateY(20px) scale(0.9); opacity: 0; }
+  60% { transform: translateY(-3px) scale(1.03); opacity: 1; }
+  100% { transform: translateY(0) scale(1); opacity: 1; }
+}
+
+@keyframes cyber-scanline {
+  0% { background-position: 0 0; }
+  100% { background-position: 0 100%; }
+}
+
+/* Neon Green utility classes */
+.neon-glow-text {
+  color: #00ff88;
+  text-shadow: 0 0 10px rgba(0, 255, 136, 0.8), 0 0 25px rgba(0, 255, 136, 0.4);
+}
+
+.neon-glow-box {
+  box-shadow: 0 0 25px rgba(0, 255, 136, 0.35), inset 0 1px 0 rgba(0, 255, 136, 0.2);
+}
+
+.neon-glow-box-strong {
+  box-shadow: 0 0 35px rgba(0, 255, 136, 0.6), 0 0 70px rgba(0, 255, 136, 0.25);
+}
+
+.neon-border {
+  border: 1px solid rgba(0, 255, 136, 0.35);
+}
+
+.neon-border-hover:hover {
+  border-color: #00ff88;
+  box-shadow: 0 0 30px rgba(0, 255, 136, 0.35);
+}
+
+.neon-badge {
+  background: rgba(0, 255, 136, 0.12);
+  border: 1px solid rgba(0, 255, 136, 0.5);
+  color: #00ff88;
+  text-shadow: 0 0 8px rgba(0, 255, 136, 0.5);
+}
+
+.btn-neon-green {
+  background: linear-gradient(135deg, #00ff88 0%, #00df81 50%, #10b981 100%);
+  color: #050807;
+  font-weight: 800;
+  box-shadow: 0 4px 20px rgba(0, 255, 136, 0.45);
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.btn-neon-green:hover {
+  transform: translateY(-2px) scale(1.02);
+  box-shadow: 0 8px 35px rgba(0, 255, 136, 0.7);
+}
+
+.btn-neon-green:active {
+  transform: translateY(1px) scale(0.98);
+}
+
+.btn-neon-outline {
+  background: rgba(5, 8, 7, 0.85);
+  border: 1.5px solid #00ff88;
+  color: #00ff88;
+  font-weight: 700;
+  box-shadow: 0 0 15px rgba(0, 255, 136, 0.2);
+  transition: all 0.3s ease;
+}
+
+.btn-neon-outline:hover {
+  background: rgba(0, 255, 136, 0.15);
+  box-shadow: 0 0 25px rgba(0, 255, 136, 0.4);
+  transform: translateY(-2px);
+}
+
+.animate-marquee-left {
+  animation: marquee-left 32s linear infinite;
+}
+
+.animate-marquee-left-fast {
+  animation: marquee-left 22s linear infinite;
+}
+
+.animate-marquee-right {
+  animation: marquee-right 32s linear infinite;
+}
+
+.animate-mascot-bob {
+  animation: mascot-float-bob 3.2s ease-in-out infinite;
+}
+
+.animate-mascot-leg-left {
+  animation: mascot-leg-swing-left 1.8s ease-in-out infinite;
+  transform-origin: 50% 0%;
+}
+
+.animate-mascot-leg-right {
+  animation: mascot-leg-swing-right 1.8s ease-in-out infinite;
+  transform-origin: 50% 0%;
+}
+
+.animate-mascot-wave {
+  animation: mascot-hand-wave 1.5s ease-in-out infinite;
+  transform-origin: 10% 80%;
+}
+
+.animate-neon-pulse {
+  animation: neon-pulse-glow 2.8s ease-in-out infinite;
+}
+
+.animate-pop-in {
+  animation: text-flip-pop 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.dark-obsidian-card {
+  background: linear-gradient(145deg, #0e1713 0%, #09100d 50%, #050807 100%);
+  border: 1px solid rgba(0, 255, 136, 0.2);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.7);
+}
+
+.dark-obsidian-card:hover {
+  border-color: rgba(0, 255, 136, 0.6);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.8), 0 0 25px rgba(0, 255, 136, 0.25);
 }

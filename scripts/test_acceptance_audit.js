@@ -215,12 +215,12 @@ async function runAcceptanceAudit() {
       body: JSON.stringify({ dates: [collisionDate], action: 'remove' })
     });
 
-    // Create valid booking
+    const validBookingDate = `2027-${String(Math.floor(1 + Math.random() * 9) + 1).padStart(2, '0')}-${String(Math.floor(10 + Math.random() * 18)).padStart(2, '0')}`;
     const validBooking = await request('/api/bookings', {
       method: 'POST',
       headers: adminHeaders,
       body: JSON.stringify({
-        eventDate: '2026-11-29',
+        eventDate: validBookingDate,
         eventName: 'Valid Acceptance Test Booking',
         items: [{
           vendorId: testVendor.id,
