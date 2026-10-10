@@ -1,11 +1,11 @@
 'use client'
 
-import React, { useState } from 'react'
+import React from 'react'
 import { Sparkles, Tag, ArrowRight, Check, Copy } from 'lucide-react'
 import { toast } from 'sonner'
 
 export default function CuratedOffers({ offers = [], onSelectOffer }) {
-  const [copiedCode, setCopiedCode] = useState(null)
+  const [copiedCode, setCopiedCode] = React.useState(null)
 
   const handleCopy = (code) => {
     navigator.clipboard?.writeText(code)
@@ -17,73 +17,78 @@ export default function CuratedOffers({ offers = [], onSelectOffer }) {
   if (!offers || offers.length === 0) return null
 
   return (
-    <section className="py-14 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto select-none">
-      <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-8 gap-3">
+    <section className="py-12 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
+      <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-8">
         <div>
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#00ff88]/10 border border-[#00ff88]/40 text-[#00ff88] text-xs font-black tracking-widest uppercase mb-2 shadow-[0_0_12px_rgba(0,255,136,0.3)]">
-            <Sparkles className="w-3.5 h-3.5 text-[#00ff88]" />
-            <span>Exclusive Privileges</span>
+          <div className="text-[11px] uppercase font-bold tracking-[0.2em] text-[#4a1525] mb-1">
+            Exclusive Privileges
           </div>
-          <h2 className="font-serif text-2xl sm:text-3xl md:text-4xl font-black text-white tracking-tight flex items-center gap-2">
-            <span>Seasonal Celebration Offers</span>
-            <span className="text-[#00ff88]">✦</span>
+          <h2 className="font-serif text-2xl sm:text-3xl font-bold text-[#1c1917]">
+            Seasonal Celebration Offers
           </h2>
         </div>
-        <p className="text-xs sm:text-sm text-stone-300 max-w-md mt-2 sm:mt-0 font-light leading-relaxed">
-          Direct platform incentives for multi-vendor bookings, royal catering, and 4K cinematography.
+        <p className="text-xs text-stone-600 max-w-md mt-2 sm:mt-0">
+          Handcrafted incentives for multi-vendor booking, cinematography, and couture bridal styling.
         </p>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
         {offers.map((offer, idx) => {
+          const cardThemes = [
+            { bg: "bg-gradient-to-br from-[#fef3c7] via-[#fffdf5] to-[#fde68a]", border: "border-amber-400 hover:border-amber-600", badgeBg: "bg-gradient-to-r from-amber-600 to-amber-800 text-white", accentText: "text-amber-900" },
+            { bg: "bg-gradient-to-br from-[#d1fae5] via-[#f7fef9] to-[#a7f3d0]", border: "border-emerald-400 hover:border-emerald-600", badgeBg: "bg-gradient-to-r from-emerald-700 to-teal-800 text-white", accentText: "text-emerald-950" },
+            { bg: "bg-gradient-to-br from-[#ffe4e6] via-[#fff5f6] to-[#fecdd3]", border: "border-rose-400 hover:border-rose-600", badgeBg: "bg-gradient-to-r from-rose-700 to-pink-800 text-white", accentText: "text-rose-950" }
+          ]
+          const theme = cardThemes[idx % 3]
+
           return (
             <div
               key={offer.id || offer.code}
-              className="bg-[#091510] rounded-3xl p-6 border-2 border-[#00ff88]/30 hover:border-[#00ff88] shadow-[0_10px_35px_rgba(0,0,0,0.8)] hover:shadow-[0_15px_45px_rgba(0,255,136,0.3)] transition-all duration-500 hover:-translate-y-2 flex flex-col justify-between relative overflow-hidden group card-3d-hover"
+              className={`${theme.bg} rounded-2xl p-6 border-2 ${theme.border} shadow-sm hover:shadow-2xl transition-all duration-300 flex flex-col justify-between relative overflow-hidden group card-3d-hover`}
             >
-              {/* Top Neon Green Accent Line */}
-              <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-transparent via-[#00ff88] to-transparent opacity-80 group-hover:opacity-100 transition-opacity" />
+              {/* Top gold accent line with shimmer */}
+              <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-[#4a1525] via-amber-400 to-[#4a1525]" />
 
               <div>
-                <div className="flex items-center justify-between mb-4">
-                  <span className="px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider bg-[#00ff88]/20 text-[#00ff88] border border-[#00ff88]/50 shadow-[0_0_10px_rgba(0,255,136,0.3)] flex items-center gap-1.5">
-                    <Sparkles className="w-3 h-3 text-[#00ff88]" />
+                <div className="flex items-center justify-between mb-3.5">
+                  <span className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${theme.badgeBg} shadow-sm flex items-center gap-1`}>
+                    <Sparkles className="w-3 h-3 text-amber-200" />
                     {offer.badge || "Signature Privilege"}
                   </span>
-                  <span className="font-serif font-black text-xl text-[#00ff88] drop-shadow-[0_0_10px_rgba(0,255,136,0.8)]">
+                  <span className={`font-serif font-bold text-xl ${theme.accentText}`}>
                     {offer.discount}
                   </span>
                 </div>
 
-                <h3 className="font-serif font-bold text-lg text-white mb-2 group-hover:text-[#00ff88] transition-colors">
+                <h3 className="font-serif font-bold text-lg text-stone-900 mb-2 group-hover:text-[#4a1525] transition-colors">
                   {offer.title}
                 </h3>
-                <p className="text-xs text-stone-300 leading-relaxed mb-6 font-light">
+                <p className="text-xs text-stone-700 leading-relaxed mb-6 font-medium">
                   {offer.desc || offer.description}
                 </p>
               </div>
 
-              <div className="pt-4 border-t border-[#00ff88]/20 flex items-center justify-between">
+              <div className="pt-4 border-t border-stone-300/60 flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <span className="font-mono text-xs font-black text-white bg-[#0e2219] px-3 py-1.5 rounded-xl border border-[#00ff88]/40 shadow-xs flex items-center gap-1.5">
-                    <Tag className="w-3.5 h-3.5 text-[#00ff88]" />
+                  <span className="font-mono text-xs font-bold text-stone-900 bg-amber-100/90 px-3 py-1.5 rounded-lg border border-amber-400/90 shadow-xs flex items-center gap-1.5">
+                    <Tag className="w-3 h-3 text-amber-700" />
                     {offer.code}
                   </span>
                   <button
                     onClick={() => handleCopy(offer.code)}
                     title="Copy code"
-                    className="p-1.5 rounded-xl bg-[#0e2219] hover:bg-[#00ff88]/20 text-[#00ff88] transition-all shadow-sm active:scale-90 border border-[#00ff88]/30 cursor-pointer"
+                    className="p-1.5 rounded-lg bg-stone-100 hover:bg-amber-100 text-stone-700 hover:text-amber-900 transition-colors shadow-sm active:scale-90"
                   >
-                    {copiedCode === offer.code ? <Check className="w-3.5 h-3.5 text-white" /> : <Copy className="w-3.5 h-3.5" />}
+                    {copiedCode === offer.code ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5" />}
                   </button>
                 </div>
 
                 <button
                   onClick={() => onSelectOffer && onSelectOffer(offer)}
-                  className="btn-neon-green px-4 py-2 rounded-xl text-xs font-black flex items-center gap-1.5 transition-all active:scale-95 cursor-pointer shadow-[0_0_15px_rgba(0,255,136,0.5)]"
+                  className="px-3 py-1.5 rounded-full btn-3d-gold text-stone-900 text-xs font-bold flex items-center gap-1 transition-all active:scale-95"
                 >
                   <span>Apply Code</span>
-                  <ArrowRight className="w-3.5 h-3.5 stroke-[3]" />
+                  <ArrowRight className="w-3 h-3 text-stone-900" />
                 </button>
               </div>
             </div>

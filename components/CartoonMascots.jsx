@@ -222,18 +222,18 @@ export function InteractiveCornerConcierge({ onOpenConcierge }) {
     <div className="fixed bottom-5 right-5 z-40 flex flex-col items-end pointer-events-auto">
       {/* Speech Box */}
       {isOpen && (
-        <div className="mb-3 max-w-[260px] bg-[#0c1813] border-2 border-[#00ff88] rounded-2xl p-3.5 shadow-[0_0_30px_rgba(0,255,136,0.4)] text-white text-xs backdrop-blur-xl animate-pop-in relative">
+        <div className="mb-3 max-w-[260px] bg-gradient-to-br from-[#fffdfa] via-[#fcf8f0] to-[#f8f1e3] border-2 border-amber-400 rounded-2xl p-3.5 shadow-2xl text-stone-900 text-xs backdrop-blur-xl animate-pop-in relative">
           <button 
             onClick={() => setIsOpen(false)}
-            className="absolute top-2 right-2 text-stone-400 hover:text-white"
+            className="absolute top-2 right-2 text-stone-400 hover:text-stone-800"
           >
             <X className="w-3.5 h-3.5" />
           </button>
-          <div className="flex items-center gap-1.5 text-[#00ff88] font-bold text-[11px] mb-1">
-            <Sparkles className="w-3.5 h-3.5" />
+          <div className="flex items-center gap-1.5 text-[#4a1525] font-bold text-[11px] mb-1">
+            <Sparkles className="w-3.5 h-3.5 text-amber-600" />
             <span>Raja Ji's Royal Concierge</span>
           </div>
-          <p className="text-stone-300 text-[11px] leading-relaxed mb-2.5">
+          <p className="text-stone-700 text-[11px] leading-relaxed mb-2.5">
             Looking for authentic Awadhi catering or a heritage palace in Udaipur? I can assist you right now!
           </p>
           <button
@@ -241,9 +241,9 @@ export function InteractiveCornerConcierge({ onOpenConcierge }) {
               setIsOpen(false)
               if (onOpenConcierge) onOpenConcierge()
             }}
-            className="w-full btn-neon-green text-black font-extrabold text-[11px] py-1.5 rounded-lg flex items-center justify-center gap-1.5 shadow-md"
+            className="w-full btn-3d-wine text-amber-100 font-bold text-[11px] py-1.5 rounded-lg flex items-center justify-center gap-1.5 shadow-md hover:brightness-110 cursor-pointer"
           >
-            <MessageCircle className="w-3.5 h-3.5" />
+            <MessageCircle className="w-3.5 h-3.5 text-amber-300" />
             <span>Start Free Consultation</span>
           </button>
         </div>
@@ -252,14 +252,14 @@ export function InteractiveCornerConcierge({ onOpenConcierge }) {
       {/* Floating Mascot Avatar Pill */}
       <div 
         onClick={() => setIsOpen(!isOpen)}
-        className="group flex items-center gap-2.5 bg-[#08120d] hover:bg-[#0c1c14] border-2 border-[#00ff88] px-3.5 py-2 rounded-full cursor-pointer shadow-[0_0_25px_rgba(0,255,136,0.4)] transition-all duration-300 hover:scale-105 active:scale-95"
+        className="group flex items-center gap-2.5 bg-gradient-to-r from-[#4a1525] via-[#5c1a2e] to-[#4a1525] hover:brightness-110 border-2 border-amber-400/90 px-3.5 py-2 rounded-full cursor-pointer shadow-xl transition-all duration-300 hover:scale-105 active:scale-95"
       >
         <span className="relative flex h-3 w-3">
-          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#00ff88] opacity-75"></span>
-          <span className="relative inline-flex rounded-full h-3 w-3 bg-[#00ff88]"></span>
+          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
+          <span className="relative inline-flex rounded-full h-3 w-3 bg-amber-400"></span>
         </span>
         <div className="text-left">
-          <div className="text-[10px] font-bold uppercase tracking-wider text-[#00ff88] flex items-center gap-1">
+          <div className="text-[10px] font-bold uppercase tracking-wider text-amber-300 flex items-center gap-1">
             <span>Ask Raja Ji</span>
             <span className="text-xs">👑</span>
           </div>

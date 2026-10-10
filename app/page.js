@@ -1446,7 +1446,7 @@ export default function VowsAndVenuesApp() {
   }
 
   return (
-    <div className="min-h-screen bg-[#050807] text-white flex flex-col antialiased relative selection:bg-[#00ff88] selection:text-black">
+    <div className="min-h-screen bg-[#fcfbf9] text-stone-900 flex flex-col antialiased">
       {/* EDITORIAL TOP NAVIGATION & ANNOUNCEMENT BAR */}
       <Navbar
         activeTab={activeTab}
@@ -1554,15 +1554,14 @@ export default function VowsAndVenuesApp() {
             <section className="py-16 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
               <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-10">
                 <div>
-                  <div className="text-[11px] uppercase font-bold tracking-[0.2em] text-[#00ff88] mb-1 flex items-center gap-2">
-                    <Sparkles className="w-3.5 h-3.5 text-[#00ff88]" />
-                    <span>Curated Indian Excellence</span>
+                  <div className="text-[11px] uppercase font-bold tracking-[0.2em] text-[#4a1525] mb-1">
+                    Curated Excellence
                   </div>
-                  <h2 className="font-serif text-3xl sm:text-4xl font-bold text-white">
+                  <h2 className="font-serif text-3xl sm:text-4xl font-bold text-[#1c1917]">
                     Featured Event Creators &amp; Venues
                   </h2>
-                  <p className="text-xs text-stone-400 mt-1">
-                    Top-rated verified partners across {selectedCity === 'All Cities' ? 'Pan-India' : selectedCity} with verified reviews &amp; direct date booking.
+                  <p className="text-xs text-[#78716c] mt-1">
+                    Top-rated verified partners across {selectedCity === 'All Cities' ? 'Pan-India' : selectedCity} with verified reviews.
                   </p>
                 </div>
                 <button
@@ -1570,7 +1569,7 @@ export default function VowsAndVenuesApp() {
                     setFilterCategory('all')
                     setActiveTab('explore')
                   }}
-                  className="inline-flex items-center gap-1.5 text-xs font-bold text-[#00ff88] hover:text-[#52ffaa] underline underline-offset-4 cursor-pointer mt-3 sm:mt-0 transition-colors"
+                  className="inline-flex items-center gap-1.5 text-xs font-bold text-[#4a1525] hover:text-[#2d0c16] underline underline-offset-4 cursor-pointer mt-3 sm:mt-0"
                 >
                   View Full Directory ({vendors.length}) &rarr;
                 </button>
@@ -1592,16 +1591,15 @@ export default function VowsAndVenuesApp() {
 
             {/* REAL CELEBRATIONS & EDITORIAL MEMOIRS */}
             {cmsContent?.testimonials?.length > 0 && (
-              <section className="py-16 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto border-t border-[#00ff88]/20">
+              <section className="py-16 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto border-t border-[#e8e2d5]">
                 <div className="text-center max-w-2xl mx-auto mb-12">
-                  <div className="text-[11px] uppercase font-bold tracking-[0.2em] text-[#00ff88] mb-1 flex items-center justify-center gap-2">
-                    <Sparkles className="w-3.5 h-3.5 text-[#00ff88]" />
-                    <span>Client Memoirs</span>
+                  <div className="text-[11px] uppercase font-bold tracking-[0.2em] text-[#4a1525] mb-1">
+                    Client Memoirs
                   </div>
-                  <h2 className="font-serif text-3xl sm:text-4xl font-bold text-white">
+                  <h2 className="font-serif text-3xl sm:text-4xl font-bold text-[#1c1917]">
                     Celebrated by India&apos;s Discerning Families
                   </h2>
-                  <p className="text-xs text-stone-400 mt-2">
+                  <p className="text-xs text-[#78716c] mt-2">
                     Real experiences from grand multi-day celebrations planned seamlessly through Vows &amp; Venues.
                   </p>
                 </div>
@@ -1610,31 +1608,31 @@ export default function VowsAndVenuesApp() {
                   {cmsContent.testimonials.map((t, idx) => (
                     <div
                       key={idx}
-                      className="group bg-gradient-to-br from-[#0c1a14] via-[#07130e] to-[#040806] rounded-3xl p-6 sm:p-8 border border-[#00ff88]/30 hover:border-[#00ff88] shadow-[0_10px_30px_rgba(0,0,0,0.6)] hover:shadow-[0_15px_40px_rgba(0,255,136,0.18)] transition-all duration-500 hover:-translate-y-2 flex flex-col justify-between relative overflow-hidden"
+                      className="card-3d-wrap group bg-gradient-to-br from-[#fffdfa] via-[#fbf5eb] to-[#f6ede0] rounded-3xl p-6 sm:p-8 border-2 border-amber-300/80 hover:border-amber-500 shadow-[0_4px_20px_rgba(74,21,37,0.06)] hover:shadow-[0_20px_45px_rgba(74,21,37,0.15)] transition-all duration-500 hover:-translate-y-2 flex flex-col justify-between relative overflow-hidden"
                     >
-                      <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-[#00ff88] to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+                      <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-amber-400 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
                       <div>
-                        <div className="flex items-center gap-1.5 text-amber-400 mb-4 bg-black/50 w-fit px-3 py-1 rounded-full border border-amber-400/40 shadow-xs">
+                        <div className="flex items-center gap-1.5 text-amber-500 mb-4 bg-amber-100/80 w-fit px-3 py-1 rounded-full border border-amber-300/70 shadow-xs">
                           {[...Array(5)].map((_, i) => (
                             <Star key={i} className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
                           ))}
                         </div>
-                        <p className="font-serif italic text-sm sm:text-base text-stone-200 leading-relaxed mb-6 font-medium">
+                        <p className="font-serif italic text-sm sm:text-base text-stone-800 leading-relaxed mb-6 font-medium">
                           &ldquo;{t.quote}&rdquo;
                         </p>
                       </div>
 
-                      <div className="flex items-center gap-3 pt-4 border-t border-[#00ff88]/20">
+                      <div className="flex items-center gap-3 pt-4 border-t border-amber-200/60">
                         <img
                           src={getOptimizedImageUrl(t.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb', { width: 120, quality: 75 })}
                           alt={t.author}
                           loading="lazy"
                           decoding="async"
-                          className="w-12 h-12 rounded-full object-cover border-2 border-[#00ff88] shadow-sm group-hover:scale-105 transition-transform"
+                          className="w-12 h-12 rounded-full object-cover border-2 border-amber-400/80 shadow-sm group-hover:scale-105 transition-transform"
                         />
                         <div>
-                          <div className="font-serif font-bold text-sm text-white group-hover:text-[#00ff88] transition-colors">{t.author}</div>
-                          <div className="text-[11px] text-stone-400 font-semibold">{t.event} &bull; {t.city}</div>
+                          <div className="font-serif font-bold text-sm text-[#1c1917] group-hover:text-[#4a1525] transition-colors">{t.author}</div>
+                          <div className="text-[11px] text-stone-600 font-semibold">{t.event} &bull; {t.city}</div>
                         </div>
                       </div>
                     </div>
@@ -1645,13 +1643,12 @@ export default function VowsAndVenuesApp() {
 
             {/* FREQUENTLY ASKED QUESTIONS */}
             {cmsContent?.faqs?.length > 0 && (
-              <section className="py-16 px-4 sm:px-6 lg:px-8 max-w-4xl mx-auto border-t border-[#00ff88]/20">
+              <section className="py-16 px-4 sm:px-6 lg:px-8 max-w-4xl mx-auto border-t border-[#e8e2d5]">
                 <div className="text-center mb-10">
-                  <div className="text-[11px] uppercase font-bold tracking-[0.2em] text-[#00ff88] mb-1 flex items-center justify-center gap-2">
-                    <Sparkles className="w-3.5 h-3.5 text-[#00ff88]" />
-                    <span>Questions &amp; Guidance</span>
+                  <div className="text-[11px] uppercase font-bold tracking-[0.2em] text-[#4a1525] mb-1">
+                    Questions &amp; Guidance
                   </div>
-                  <h2 className="font-serif text-3xl font-bold text-white">
+                  <h2 className="font-serif text-3xl font-bold text-[#1c1917]">
                     Frequently Asked Questions
                   </h2>
                 </div>
@@ -1660,13 +1657,13 @@ export default function VowsAndVenuesApp() {
                   {cmsContent.faqs.map((faq, i) => (
                     <details
                       key={i}
-                      className="group bg-gradient-to-br from-[#0c1a14] via-[#07130e] to-[#040806] rounded-2xl border border-[#00ff88]/30 hover:border-[#00ff88] p-5 shadow-xs transition-all [&_summary::-webkit-details-marker]:hidden"
+                      className="group bg-gradient-to-br from-[#fffdfa] via-[#fcf8f0] to-[#f8f1e3] rounded-2xl border-2 border-amber-200/80 hover:border-amber-400 p-5 shadow-xs transition-all [&_summary::-webkit-details-marker]:hidden"
                     >
-                      <summary className="flex items-center justify-between font-serif font-bold text-base text-white cursor-pointer group-hover:text-[#00ff88] transition-colors">
+                      <summary className="flex items-center justify-between font-serif font-bold text-base text-[#1c1917] cursor-pointer">
                         <span>{faq.q}</span>
-                        <ChevronDown className="w-4 h-4 text-stone-400 group-open:rotate-180 transition-transform" />
+                        <ChevronDown className="w-4 h-4 text-[#78716c] group-open:rotate-180 transition-transform" />
                       </summary>
-                      <p className="mt-3 text-xs text-stone-300 leading-relaxed font-medium">
+                      <p className="mt-3 text-xs text-stone-700 leading-relaxed font-medium">
                         {faq.a}
                       </p>
                     </details>
@@ -1677,21 +1674,21 @@ export default function VowsAndVenuesApp() {
 
             {/* VIP CONCIERGE BANNER */}
             <section className="py-12 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
-              <div className="card-3d-wrap relative rounded-3xl p-8 sm:p-12 text-white overflow-hidden flex flex-col md:flex-row items-center justify-between gap-8 shadow-[0_20px_50px_rgba(0,255,136,0.15)] bg-gradient-to-br from-[#05110b] via-[#081e13] to-[#030a07] border border-[#00ff88]/40">
+              <div className="card-3d-wrap relative rounded-3xl p-8 sm:p-12 text-white overflow-hidden flex flex-col md:flex-row items-center justify-between gap-8 shadow-[0_20px_50px_rgba(74,21,37,0.25)] bg-gradient-to-br from-[#3b0d1b] via-[#4a1525] to-[#20050d] border border-amber-400/40">
                 {/* Ambient glow orbs */}
-                <div className="absolute -top-24 -right-24 w-72 h-72 rounded-full bg-[#00ff88]/15 blur-3xl pointer-events-none" />
+                <div className="absolute -top-24 -right-24 w-72 h-72 rounded-full bg-amber-400/15 blur-3xl pointer-events-none" />
                 <div className="absolute -bottom-24 -left-24 w-72 h-72 rounded-full bg-emerald-500/15 blur-3xl pointer-events-none" />
-                <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-[#00ff88] to-transparent" />
+                <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-amber-300 to-transparent" />
 
                 <div className="space-y-3 max-w-xl relative z-10">
-                  <span className="bg-gradient-to-r from-[#00ff88] to-emerald-400 text-black text-[10px] font-black uppercase tracking-widest px-3.5 py-1 rounded-full shadow-sm inline-flex items-center gap-1.5">
-                    <Sparkles className="w-3 h-3 text-black" />
+                  <span className="bg-gradient-to-r from-amber-300 to-amber-500 text-stone-950 text-[10px] font-bold uppercase tracking-widest px-3.5 py-1 rounded-full shadow-sm inline-flex items-center gap-1.5">
+                    <Sparkles className="w-3 h-3 text-stone-900" />
                     <span>VIP Wedding Concierge</span>
                   </span>
-                  <h3 className="font-serif text-2xl sm:text-3xl lg:text-4xl font-bold text-white">
+                  <h3 className="font-serif text-2xl sm:text-3xl lg:text-4xl font-bold text-[#faf8f5]">
                     Need Bespoke Assistance for a Destination Celebration?
                   </h3>
-                  <p className="text-xs sm:text-sm text-stone-300 leading-relaxed">
+                  <p className="text-xs sm:text-sm text-[#f5ebd7]/85 leading-relaxed">
                     Our luxury event specialists offer complimentary one-on-one consultation, custom palace sourcing, and consolidated vendor contracts.
                   </p>
                 </div>
@@ -1701,13 +1698,13 @@ export default function VowsAndVenuesApp() {
                       setActiveTab('builder')
                       window.scrollTo({ top: 0, behavior: 'smooth' })
                     }}
-                    className="btn-neon-green px-7 py-3.5 font-black text-xs uppercase tracking-wider rounded-xl transition-all shadow-xl hover:scale-105 active:scale-95 cursor-pointer text-center"
+                    className="btn-3d-gold px-7 py-3.5 bg-gradient-to-r from-[#e6ca65] via-[#ffd700] to-[#c5a059] hover:brightness-110 text-stone-950 font-bold text-xs uppercase tracking-wider rounded-xl transition-all shadow-xl hover:scale-105 active:scale-95 cursor-pointer text-center"
                   >
                     Start Event Architect
                   </button>
                   <a
                     href="tel:+919876543210"
-                    className="px-6 py-3.5 bg-black/40 hover:bg-black/60 text-white font-bold text-xs uppercase tracking-wider rounded-xl transition-all border border-[#00ff88]/30 hover:border-[#00ff88] text-center hover:scale-105 active:scale-95 cursor-pointer"
+                    className="px-6 py-3.5 bg-white/10 hover:bg-white/20 text-white font-bold text-xs uppercase tracking-wider rounded-xl transition-all border border-amber-300/30 text-center hover:scale-105 active:scale-95 cursor-pointer"
                   >
                     Call Concierge Desk
                   </a>

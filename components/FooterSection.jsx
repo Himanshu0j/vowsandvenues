@@ -9,10 +9,8 @@ import {
   ShieldCheck,
   Award,
   Heart,
-  CalendarDays,
-  ArrowUp
+  CalendarDays
 } from 'lucide-react'
-import { RoyalElephantMascot } from './CartoonMascots'
 
 export default function FooterSection({
   onSelectCategory,
@@ -28,81 +26,70 @@ export default function FooterSection({
     address: "DLF Cyber City, Tower B, Gurugram / Hazratganj, Lucknow"
   }
 
-  const scrollToTop = () => {
-    window.scrollTo({ top: 0, behavior: 'smooth' })
-  }
-
   return (
-    <footer className="bg-[#030605] text-white pt-16 pb-12 border-t border-[#00ff88]/30 relative select-none">
-      {/* Decorative top Neon Green hairline */}
-      <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-[#00ff88] to-transparent opacity-80 animate-pulse" />
+    <footer className="bg-gradient-to-b from-[#1c1917] via-[#161413] to-[#0f0e0d] text-white pt-16 pb-12 border-t border-amber-900/30 relative">
+      {/* Decorative top gold hairline */}
+      <div className="absolute top-0 left-0 right-0 h-0.5 bg-gradient-to-r from-transparent via-[#c5a059] to-transparent opacity-60" />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
         
         {/* 1. TOP BRAND STORY & CONCIERGE CALLOUT */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 pb-12 border-b border-[#00ff88]/20">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 pb-12 border-b border-stone-800/80">
           <div className="space-y-4">
             <div className="flex items-center gap-3">
-              <div className="w-11 h-11 rounded-2xl bg-gradient-to-br from-[#0c2217] via-[#081710] to-[#040b07] text-[#00ff88] flex items-center justify-center border-2 border-[#00ff88]/60 font-serif font-black text-xl shadow-[0_0_15px_rgba(0,255,136,0.4)]">
+              <div className="w-11 h-11 rounded-2xl bg-gradient-to-br from-[#4a1525] via-[#350c18] to-[#20050d] text-[#c5a059] flex items-center justify-center border border-[#c5a059]/50 font-serif font-bold text-xl shadow-lg ring-2 ring-amber-400/20">
                 V
               </div>
               <div>
-                <span className="font-serif text-2xl font-black tracking-tight text-white flex items-center gap-1.5">
+                <span className="font-serif text-2xl font-bold tracking-tight text-white flex items-center gap-1.5">
                   <span>Vows &amp; Venues</span>
-                  <span className="w-2 h-2 rounded-full bg-[#00ff88] shadow-[0_0_8px_#00ff88]"></span>
+                  <span className="w-1.5 h-1.5 rounded-full bg-[#c5a059]"></span>
                 </span>
-                <div className="text-[9px] uppercase tracking-[0.25em] text-[#00ff88] font-black">
-                  India's Premier Royal Wedding Atelier
+                <div className="text-[9px] uppercase tracking-[0.22em] text-[#c5a059] font-bold">
+                  India's Premier Wedding Atelier
                 </div>
               </div>
             </div>
-            <p className="text-xs text-stone-300 leading-relaxed max-w-sm font-light">
-              An all-in-one unified marketplace designed to connect discerning families with India's most extraordinary heritage venues, royal Awadhi banquets, floral mandaps, and celebrity stylists.
+            <p className="text-xs text-stone-400 leading-relaxed max-w-sm">
+              An all-in-one unified marketplace designed to connect discerning families with India's most extraordinary venues, royal banquet feasts, artisanal decors, and celebrity stylists.
             </p>
-
-            <div className="pt-2">
-              <RoyalElephantMascot scale={0.9} />
-            </div>
           </div>
 
           <div className="space-y-3">
-            <h4 className="font-serif font-bold text-base text-[#00ff88] flex items-center gap-2">
-              <Sparkles className="w-4 h-4 text-[#00ff88]" />
-              <span>Royal Concierge &amp; Desk</span>
+            <h4 className="font-serif font-bold text-base text-[#e8d08d]">
+              Concierge Desk &amp; Inquiries
             </h4>
-            <div className="space-y-2.5 text-xs text-stone-300">
+            <div className="space-y-2 text-xs text-stone-300">
               <div className="flex items-center gap-2">
-                <Phone className="w-4 h-4 text-[#00ff88]" />
-                <span className="font-bold text-white">{contact.phone}</span>
+                <Phone className="w-4 h-4 text-[#c5a059]" />
+                <span className="font-semibold">{contact.phone}</span>
               </div>
               <div className="flex items-center gap-2">
-                <Mail className="w-4 h-4 text-[#00ff88]" />
+                <Mail className="w-4 h-4 text-[#c5a059]" />
                 <span>{contact.email}</span>
               </div>
-              <div className="text-stone-400 text-[11px] pt-1 leading-relaxed">
-                {contact.hours}<br />
-                {contact.address}
+              <div className="text-stone-400 text-[11px] pt-1">
+                {contact.hours}
               </div>
             </div>
           </div>
 
           <div className="space-y-3">
-            <h4 className="font-serif font-bold text-base text-[#00ff88] flex items-center gap-2">
-              <ShieldCheck className="w-4 h-4 text-[#00ff88]" />
-              <span>The Vows &amp; Venues Guarantee</span>
+            <h4 className="font-serif font-bold text-base text-[#e8d08d]">
+              The Vows &amp; Venues Guarantee
             </h4>
-            <div className="space-y-2 text-xs text-stone-300 font-light">
+            <div className="space-y-2 text-xs text-stone-400">
               <div className="flex items-start gap-2">
-                <ShieldCheck className="w-4 h-4 text-[#00ff88] shrink-0 mt-0.5" />
-                <span>100% Verified Vendor Audits with physical venue inspections</span>
+                <ShieldCheck className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
+                <span>100% Verified Vendor Audits with physical site checks</span>
               </div>
               <div className="flex items-start gap-2">
-                <Award className="w-4 h-4 text-[#00ff88] shrink-0 mt-0.5" />
-                <span>Zero Double-Booking Shield with instant date lock</span>
+                <Award className="w-4 h-4 text-[#c5a059] shrink-0 mt-0.5" />
+                <span>Zero Hidden Commissions &amp; Direct Price Match</span>
               </div>
               <div className="flex items-start gap-2">
-                <CalendarDays className="w-4 h-4 text-[#00ff88] shrink-0 mt-0.5" />
-                <span>Transparent 25% Advance split booking across all services</span>
+                <CalendarDays className="w-4 h-4 text-[#c5a059] shrink-0 mt-0.5" />
+                <span>Secure 25% Advance split booking with date hold</span>
               </div>
             </div>
           </div>
@@ -111,13 +98,13 @@ export default function FooterSection({
         {/* 2. CITIES & CATEGORIES DIRECTORY */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-xs">
           <div>
-            <h5 className="font-serif font-bold text-sm text-[#00ff88] mb-3">Celebration Destinations</h5>
-            <ul className="space-y-2 text-stone-300">
+            <h5 className="font-serif font-bold text-sm text-[#e8d08d] mb-3">Celebration Destinations</h5>
+            <ul className="space-y-2 text-stone-400">
               {cities.filter(c => c !== 'All Cities').map(c => (
                 <li key={c}>
                   <button
                     onClick={() => onSelectCity && onSelectCity(c)}
-                    className="hover:text-[#00ff88] transition-colors cursor-pointer text-left"
+                    className="hover:text-white transition-colors cursor-pointer text-left"
                   >
                     Weddings in {c}
                   </button>
@@ -127,15 +114,15 @@ export default function FooterSection({
           </div>
 
           <div>
-            <h5 className="font-serif font-bold text-sm text-[#00ff88] mb-3">Top Services</h5>
-            <ul className="space-y-2 text-stone-300">
-              {categories.slice(0, 6).map(cat => (
-                <li key={cat.slug}>
+            <h5 className="font-serif font-bold text-sm text-[#e8d08d] mb-3">Service Specializations</h5>
+            <ul className="space-y-2 text-stone-400">
+              {categories.slice(0, 6).map(c => (
+                <li key={c.slug}>
                   <button
-                    onClick={() => onSelectCategory && onSelectCategory(cat.slug)}
-                    className="hover:text-[#00ff88] transition-colors cursor-pointer text-left capitalize"
+                    onClick={() => onSelectCategory && onSelectCategory(c.slug)}
+                    className="hover:text-white transition-colors cursor-pointer text-left"
                   >
-                    {cat.name}
+                    {c.name}
                   </button>
                 </li>
               ))}
@@ -143,55 +130,43 @@ export default function FooterSection({
           </div>
 
           <div>
-            <h5 className="font-serif font-bold text-sm text-[#00ff88] mb-3">More Specializations</h5>
-            <ul className="space-y-2 text-stone-300">
-              {categories.slice(6, 11).map(cat => (
-                <li key={cat.slug}>
+            <h5 className="font-serif font-bold text-sm text-[#e8d08d] mb-3">More Specializations</h5>
+            <ul className="space-y-2 text-stone-400">
+              {categories.slice(6).map(c => (
+                <li key={c.slug}>
                   <button
-                    onClick={() => onSelectCategory && onSelectCategory(cat.slug)}
-                    className="hover:text-[#00ff88] transition-colors cursor-pointer text-left capitalize"
+                    onClick={() => onSelectCategory && onSelectCategory(c.slug)}
+                    className="hover:text-white transition-colors cursor-pointer text-left"
                   >
-                    {cat.name}
+                    {c.name}
                   </button>
                 </li>
               ))}
             </ul>
           </div>
 
-          <div className="space-y-3">
-            <h5 className="font-serif font-bold text-sm text-[#00ff88] mb-3">Platform Governance</h5>
-            <div className="text-xs text-stone-300 space-y-2">
-              <a href="/admin" className="block text-[#00ff88] hover:underline font-bold">
-                Admin Management Portal &rarr;
-              </a>
-              <a href="/vendor" className="block text-stone-300 hover:text-[#00ff88]">
-                Vendor Partner Login &rarr;
-              </a>
-              <a href="/api/health" className="block text-stone-400 hover:text-stone-200">
-                System Diagnostics &amp; Health &rarr;
-              </a>
-              <a href="/sitemap.xml" className="block text-stone-400 hover:text-stone-200">
-                Dynamic XML Sitemap &rarr;
-              </a>
-            </div>
+          <div>
+            <h5 className="font-serif font-bold text-sm text-[#e8d08d] mb-3">Atelier Portals</h5>
+            <ul className="space-y-2 text-stone-400">
+              <li><span className="hover:text-white cursor-pointer">About Our Story</span></li>
+              <li><span className="hover:text-white cursor-pointer">For Vendor Partners</span></li>
+              <li><span className="hover:text-white cursor-pointer">Wedding Concierge Advisory</span></li>
+              <li><span className="hover:text-white cursor-pointer">Cancellation &amp; Refund Policy</span></li>
+              <li><span className="hover:text-white cursor-pointer">Privacy &amp; Data Security</span></li>
+              <li><span className="hover:text-white cursor-pointer">Terms of Service</span></li>
+            </ul>
           </div>
         </div>
 
-        {/* 3. BOTTOM COPYRIGHT & BACK TO TOP */}
-        <div className="pt-8 border-t border-[#00ff88]/20 flex flex-col sm:flex-row items-center justify-between text-xs text-stone-400 gap-4">
-          <div className="flex items-center gap-2">
-            <span>&copy; {new Date().getFullYear()} Vows &amp; Venues Technologies Pvt. Ltd.</span>
-            <span className="text-stone-600">•</span>
-            <span className="text-[#00ff88] font-bold">Crafted for Luxury Indian Celebrations</span>
+        {/* 3. COPYRIGHT BOTTOM BAR */}
+        <div className="pt-8 border-t border-stone-800 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-stone-500">
+          <div>
+            © 2026 Vows &amp; Venues (vowsandvenues.in). All rights reserved. Handcrafted for Indian celebrations.
           </div>
-
-          <button
-            onClick={scrollToTop}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[#091510] border border-[#00ff88]/40 text-[#00ff88] hover:border-[#00ff88] hover:bg-[#00ff88]/10 transition-all cursor-pointer shadow-xs active:scale-95"
-          >
-            <span>Back to Top</span>
-            <ArrowUp className="w-3.5 h-3.5" />
-          </button>
+          <div className="flex items-center gap-6">
+            <span>Security Protected · 256-bit SSL</span>
+            <span>Made with devotion for Indian weddings</span>
+          </div>
         </div>
 
       </div>

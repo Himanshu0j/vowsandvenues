@@ -111,37 +111,37 @@ export default function TopSlidingImageGallery({ onExploreCategory, onSelectCity
       onMouseEnter={() => setIsAutoPlaying(false)}
       onMouseLeave={() => setIsAutoPlaying(true)}
     >
-      {/* SECTION HEADER WITH NEON BADGE & CARTOON AVATAR */}
+      {/* SECTION HEADER WITH ROYAL BADGE & CARTOON AVATAR */}
       <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-5 gap-3">
         <div>
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#00ff88]/10 border border-[#00ff88]/40 text-[#00ff88] text-xs font-black tracking-widest uppercase mb-2 shadow-[0_0_15px_rgba(0,255,136,0.3)]">
-            <Sparkles className="w-3.5 h-3.5 text-[#00ff88] animate-spin" style={{ animationDuration: '6s' }} />
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-gradient-to-r from-amber-100 to-amber-200 border border-amber-300 text-[#4a1525] text-xs font-bold tracking-widest uppercase mb-2 shadow-sm">
+            <Sparkles className="w-3.5 h-3.5 text-amber-700 animate-spin" style={{ animationDuration: '6s' }} />
             <span>3D Interactive Venue Gallery</span>
-            <span className="w-1.5 h-1.5 rounded-full bg-[#00ff88] animate-ping" />
+            <span className="w-1.5 h-1.5 rounded-full bg-amber-600 animate-ping" />
           </div>
-          <h2 className="font-serif text-2xl sm:text-3xl md:text-4xl font-black text-white tracking-tight flex items-center gap-2">
+          <h2 className="font-serif text-2xl sm:text-3xl md:text-4xl font-bold text-[#1c1917] tracking-tight flex items-center gap-2">
             <span>Signature Luxury Showcases</span>
-            <span className="text-[#00ff88] drop-shadow-[0_0_12px_rgba(0,255,136,0.8)] font-sans text-xl">✦</span>
+            <span className="text-amber-500 font-sans text-xl">✦</span>
           </h2>
         </div>
 
         {/* Carousel controls & Slide Counter */}
         <div className="flex items-center gap-3">
-          <div className="text-xs font-mono font-bold text-stone-400">
-            <span className="text-[#00ff88] text-sm">{String(currentIndex + 1).padStart(2, '0')}</span> / {String(GALLERY_SLIDES.length).padStart(2, '0')}
+          <div className="text-xs font-mono font-bold text-stone-500">
+            <span className="text-[#4a1525] text-sm">{String(currentIndex + 1).padStart(2, '0')}</span> / {String(GALLERY_SLIDES.length).padStart(2, '0')}
           </div>
           <div className="flex items-center gap-2">
             <button
               onClick={handlePrev}
               aria-label="Previous Slide"
-              className="w-10 h-10 rounded-xl bg-[#0e1713] border border-[#00ff88]/40 hover:border-[#00ff88] text-white hover:text-[#00ff88] flex items-center justify-center transition-all duration-300 shadow-[0_0_15px_rgba(0,0,0,0.6)] hover:shadow-[0_0_20px_rgba(0,255,136,0.4)] hover:scale-105 active:scale-95 cursor-pointer"
+              className="w-10 h-10 rounded-xl bg-white border border-amber-300 hover:border-amber-500 text-[#4a1525] hover:bg-amber-50 flex items-center justify-center transition-all duration-300 shadow-sm hover:scale-105 active:scale-95 cursor-pointer"
             >
               <ChevronLeft className="w-5 h-5" />
             </button>
             <button
               onClick={handleNext}
               aria-label="Next Slide"
-              className="w-10 h-10 rounded-xl bg-[#0e1713] border border-[#00ff88]/40 hover:border-[#00ff88] text-white hover:text-[#00ff88] flex items-center justify-center transition-all duration-300 shadow-[0_0_15px_rgba(0,0,0,0.6)] hover:shadow-[0_0_20px_rgba(0,255,136,0.4)] hover:scale-105 active:scale-95 cursor-pointer"
+              className="w-10 h-10 rounded-xl bg-white border border-amber-300 hover:border-amber-500 text-[#4a1525] hover:bg-amber-50 flex items-center justify-center transition-all duration-300 shadow-sm hover:scale-105 active:scale-95 cursor-pointer"
             >
               <ChevronRight className="w-5 h-5" />
             </button>
@@ -150,7 +150,7 @@ export default function TopSlidingImageGallery({ onExploreCategory, onSelectCity
       </div>
 
       {/* MAIN 3D SHOWCASE CARD */}
-      <div className="relative rounded-3xl overflow-hidden border-2 border-[#00ff88]/40 hover:border-[#00ff88] bg-[#070e0a] shadow-[0_0_40px_rgba(0,255,136,0.25)] transition-all duration-700 min-h-[420px] sm:min-h-[480px] lg:min-h-[520px] flex flex-col justify-end">
+      <div className="relative rounded-3xl overflow-hidden border-2 border-amber-400/80 hover:border-amber-500 bg-[#1c0d12] shadow-[0_20px_50px_rgba(74,21,37,0.22)] transition-all duration-700 min-h-[420px] sm:min-h-[480px] lg:min-h-[520px] flex flex-col justify-end">
         {/* Background Photo with smooth fade & scale */}
         <div 
           key={currentSlide.id}
@@ -158,38 +158,38 @@ export default function TopSlidingImageGallery({ onExploreCategory, onSelectCity
           style={{ backgroundImage: `url('${optimizedImg}')` }}
         />
 
-        {/* Multi-tier Cyber Obsidian Gradients */}
-        <div className="absolute inset-0 bg-gradient-to-t from-[#050807] via-[#050807]/75 to-transparent" />
-        <div className="absolute inset-0 bg-gradient-to-r from-[#050807]/90 via-[#050807]/40 to-transparent" />
+        {/* Multi-tier Royal Wine Gradients */}
+        <div className="absolute inset-0 bg-gradient-to-t from-[#1b050d] via-[#2d0916]/80 to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-r from-[#1b050d]/90 via-[#1b050d]/40 to-transparent" />
 
-        {/* Neon Green Scanline Sheen */}
-        <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-[#00ff88] to-transparent opacity-80 animate-pulse" />
+        {/* Gold Accent Sheen */}
+        <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-transparent via-amber-400 to-transparent opacity-90" />
 
         {/* TOP FLOATING PILLS */}
         <div className="absolute top-4 left-4 right-4 flex items-center justify-between z-10 pointer-events-none">
           <div className="flex items-center gap-2">
-            <span className="px-3 py-1 rounded-full text-xs font-black uppercase tracking-wider bg-[#00ff88] text-[#050807] shadow-[0_0_15px_rgba(0,255,136,0.8)] border border-white/40">
+            <span className="px-3.5 py-1 rounded-full text-xs font-bold uppercase tracking-wider bg-gradient-to-r from-amber-400 to-amber-500 text-stone-950 shadow-md border border-amber-300/40">
               {currentSlide.tag}
             </span>
-            <span className="hidden sm:inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-semibold bg-[#050807]/80 backdrop-blur-md text-white border border-[#00ff88]/30">
-              <ShieldCheck className="w-3.5 h-3.5 text-[#00ff88]" />
+            <span className="hidden sm:inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-semibold bg-black/60 backdrop-blur-md text-amber-200 border border-amber-300/30">
+              <ShieldCheck className="w-3.5 h-3.5 text-amber-400" />
               <span>Government Verified</span>
             </span>
           </div>
 
-          <div className="flex items-center gap-1.5 bg-[#050807]/90 backdrop-blur-md px-3 py-1 rounded-full text-xs font-bold text-white border border-amber-400/40 shadow-md">
-            <Star className="w-3.5 h-3.5 fill-amber-300 text-amber-300" />
+          <div className="flex items-center gap-1.5 bg-black/70 backdrop-blur-md px-3.5 py-1 rounded-full text-xs font-bold text-white border border-amber-400/50 shadow-md">
+            <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
             <span>{currentSlide.rating}</span>
-            <span className="text-stone-400 font-normal">({currentSlide.reviews})</span>
+            <span className="text-stone-300 font-normal">({currentSlide.reviews})</span>
           </div>
         </div>
 
         {/* BOTTOM CONTENT OVERLAY */}
         <div className="relative z-10 p-6 sm:p-8 md:p-10 max-w-3xl">
-          <div className="flex items-center gap-2 text-xs font-bold text-[#00ff88] uppercase tracking-widest mb-2">
-            <MapPin className="w-3.5 h-3.5 text-[#00ff88]" />
+          <div className="flex items-center gap-2 text-xs font-bold text-amber-300 uppercase tracking-widest mb-2">
+            <MapPin className="w-3.5 h-3.5 text-amber-400" />
             <span>{currentSlide.city}</span>
-            <span className="text-stone-500">•</span>
+            <span className="text-amber-200/60">•</span>
             <span>{currentSlide.category}</span>
           </div>
 
@@ -197,24 +197,24 @@ export default function TopSlidingImageGallery({ onExploreCategory, onSelectCity
             {currentSlide.title}
           </h3>
 
-          <p className="text-xs sm:text-sm text-stone-300 leading-relaxed line-clamp-2 sm:line-clamp-none mb-5 font-light">
+          <p className="text-xs sm:text-sm text-stone-200 leading-relaxed line-clamp-2 sm:line-clamp-none mb-5 font-light">
             {currentSlide.description}
           </p>
 
           <div className="flex flex-wrap items-center gap-4">
-            <div className="bg-[#0e1713]/90 border border-[#00ff88]/30 px-4 py-2 rounded-xl backdrop-blur-md">
-              <div className="text-[10px] uppercase font-bold text-stone-400">Indicative Pricing</div>
-              <div className="text-sm sm:text-base font-black text-[#00ff88]">{currentSlide.price}</div>
+            <div className="bg-black/60 border border-amber-400/40 px-4 py-2 rounded-xl backdrop-blur-md">
+              <div className="text-[10px] uppercase font-bold text-stone-300">Indicative Pricing</div>
+              <div className="text-sm sm:text-base font-bold text-amber-300">{currentSlide.price}</div>
             </div>
 
             <button
               onClick={() => {
                 if (onExploreCategory) onExploreCategory('venues')
               }}
-              className="btn-neon-green px-5 py-2.5 rounded-xl text-xs sm:text-sm font-black flex items-center gap-2 cursor-pointer shadow-[0_0_20px_rgba(0,255,136,0.6)]"
+              className="btn-3d-wine px-5 py-2.5 rounded-xl text-xs sm:text-sm font-bold text-amber-100 flex items-center gap-2 cursor-pointer shadow-lg hover:brightness-110 active:scale-95"
             >
               <span>Reserve Celebration Date</span>
-              <ArrowRight className="w-4 h-4" />
+              <ArrowRight className="w-4 h-4 text-amber-300" />
             </button>
           </div>
         </div>
@@ -228,8 +228,8 @@ export default function TopSlidingImageGallery({ onExploreCategory, onSelectCity
             onClick={() => setCurrentIndex(idx)}
             className={`relative rounded-xl overflow-hidden h-14 sm:h-20 border-2 transition-all duration-300 cursor-pointer ${
               currentIndex === idx 
-                ? 'border-[#00ff88] shadow-[0_0_20px_rgba(0,255,136,0.7)] scale-[1.03]' 
-                : 'border-[#1a2d24] opacity-50 hover:opacity-100 hover:border-[#00ff88]/60'
+                ? 'border-amber-500 shadow-md scale-[1.03]' 
+                : 'border-amber-200/80 opacity-60 hover:opacity-100 hover:border-amber-400'
             }`}
           >
             <img 
@@ -242,7 +242,7 @@ export default function TopSlidingImageGallery({ onExploreCategory, onSelectCity
               {slide.city.split(',')[0]}
             </div>
             {currentIndex === idx && (
-              <div className="absolute top-1 right-1 w-2 h-2 rounded-full bg-[#00ff88] shadow-[0_0_8px_#00ff88]" />
+              <div className="absolute top-1 right-1 w-2 h-2 rounded-full bg-amber-400 shadow-xs" />
             )}
           </button>
         ))}

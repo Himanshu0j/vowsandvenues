@@ -42,16 +42,16 @@ export default function Navbar({
   const unreadCount = notifications.filter(n => !n.read).length
 
   return (
-    <header className="sticky top-0 z-50 bg-[#060c09]/95 backdrop-blur-xl border-b border-[#00ff88]/30 shadow-[0_4px_30px_rgba(0,255,136,0.12)] transition-all">
+    <header className="sticky top-0 z-50 bg-gradient-to-r from-[#fcf8ef]/95 via-[#fdfaf3]/95 to-[#faf4e9]/95 backdrop-blur-xl border-b-2 border-amber-300/60 shadow-[0_4px_30px_rgba(74,21,37,0.06)] transition-all">
       {/* 1. TOP ANNOUNCEMENT BANNER */}
       {announcement?.enabled && (
-        <div className="bg-gradient-to-r from-[#03140c] via-[#062618] to-[#03140c] text-[#00ff88] text-[10px] sm:text-xs py-1.5 sm:py-2 px-3 sm:px-4 text-center font-medium tracking-wide flex items-center justify-center gap-1.5 sm:gap-2 border-b border-[#00ff88]/30 relative overflow-hidden">
-          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-[#00ff88]/15 to-transparent -translate-x-full animate-[shimmer-sweep_3.5s_infinite]" />
-          <Sparkles className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-[#00ff88] animate-pulse shrink-0" />
-          <span className="font-serif tracking-wide truncate max-w-[210px] sm:max-w-none font-bold text-white">{announcement.text}</span>
+        <div className="bg-gradient-to-r from-[#380e1b] via-[#4a1525] to-[#380e1b] text-[#f5ebd7] text-[10px] sm:text-xs py-1.5 sm:py-2 px-3 sm:px-4 text-center font-medium tracking-wide flex items-center justify-center gap-1.5 sm:gap-2 border-b border-[#c5a059]/30 relative overflow-hidden">
+          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-amber-200/10 to-transparent -translate-x-full animate-[shimmer-sweep_3.5s_infinite]" />
+          <Sparkles className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-amber-300 animate-pulse shrink-0" />
+          <span className="font-serif tracking-wide truncate max-w-[210px] sm:max-w-none">{announcement.text}</span>
           <button
             onClick={() => setActiveTab('explore')}
-            className="underline underline-offset-2 hover:text-[#05f279] font-black text-[#00ff88] ml-1 cursor-pointer transition-colors shrink-0 whitespace-nowrap"
+            className="underline underline-offset-2 hover:text-amber-200 font-bold ml-1 cursor-pointer transition-colors shrink-0 whitespace-nowrap"
           >
             Explore &rarr;
           </button>
@@ -67,43 +67,43 @@ export default function Navbar({
             onClick={() => { setActiveTab('home'); setMobileMenuOpen(false); }}
             className="flex items-center gap-2 sm:gap-3 cursor-pointer group select-none shrink-0"
           >
-            <div className="w-9 h-9 sm:w-11 sm:h-11 rounded-xl sm:rounded-2xl bg-gradient-to-br from-[#0c1f16] via-[#081710] to-[#040a07] text-[#00ff88] flex items-center justify-center border-2 border-[#00ff88]/60 shadow-[0_0_15px_rgba(0,255,136,0.35)] group-hover:scale-105 group-hover:rotate-2 transition-all duration-300 ring-2 ring-[#00ff88]/20 shrink-0">
-              <span className="font-serif font-black text-lg sm:text-2xl leading-none text-[#00ff88] drop-shadow-[0_0_8px_rgba(0,255,136,0.8)]">V</span>
+            <div className="w-9 h-9 sm:w-11 sm:h-11 rounded-xl sm:rounded-2xl bg-gradient-to-br from-[#4a1525] via-[#370e1b] to-[#20050e] text-[#c5a059] flex items-center justify-center border border-[#c5a059]/40 shadow-md group-hover:scale-105 group-hover:rotate-2 transition-all duration-300 ring-2 ring-amber-400/20 shrink-0">
+              <span className="font-serif font-bold text-lg sm:text-xl leading-none text-amber-200">V</span>
             </div>
             <div>
-              <div className="font-serif text-lg sm:text-2xl font-black tracking-tight text-white flex items-center gap-1 sm:gap-1.5">
+              <div className="font-serif text-lg sm:text-2xl font-bold tracking-tight text-[#1c1917] flex items-center gap-1 sm:gap-1.5">
                 <span>Vows &amp; Venues</span>
-                <span className="w-2 h-2 rounded-full bg-[#00ff88] inline-block shadow-[0_0_8px_#00ff88] animate-pulse"></span>
+                <span className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-[#c5a059] inline-block animate-pulse"></span>
               </div>
-              <div className="hidden sm:block text-[9px] uppercase font-black tracking-[0.25em] text-[#00ff88] -mt-0.5">
+              <div className="hidden sm:block text-[9px] uppercase font-bold tracking-[0.22em] text-[#78716c] -mt-0.5">
                 Luxury Indian Event Marketplace
               </div>
             </div>
           </div>
 
           {/* CITY SELECTOR PILL */}
-          <div className="hidden xl:flex items-center bg-[#0a1611] hover:bg-[#0e2019] transition-all rounded-full px-4 py-1.5 border border-[#00ff88]/40 shadow-xs text-xs font-medium text-stone-300 hover:scale-105">
-            <MapPin className="w-3.5 h-3.5 text-[#00ff88] mr-1.5" />
-            <span className="text-[#00ff88] font-bold mr-1">City:</span>
+          <div className="hidden xl:flex items-center bg-amber-100/70 hover:bg-amber-200/80 transition-all rounded-full px-4 py-1.5 border border-amber-300/80 shadow-xs text-xs font-medium text-[#44403c] hover:scale-105">
+            <MapPin className="w-3.5 h-3.5 text-[#4a1525] mr-1.5" />
+            <span className="text-amber-900 font-semibold mr-1">Location:</span>
             <select
               value={selectedCity}
               onChange={(e) => setSelectedCity(e.target.value)}
-              className="bg-transparent text-white font-bold focus:outline-none cursor-pointer pr-1"
+              className="bg-transparent text-[#1c1917] font-bold focus:outline-none cursor-pointer pr-1"
             >
               {cities.map(c => (
-                <option key={c} value={c} className="bg-[#050807] text-white">{c}</option>
+                <option key={c} value={c}>{c}</option>
               ))}
             </select>
           </div>
 
           {/* DESKTOP NAV LINKS */}
-          <nav className="hidden md:flex items-center gap-1 lg:gap-1.5 text-[13px] font-semibold text-stone-300">
+          <nav className="hidden md:flex items-center gap-1 lg:gap-1.5 text-[13px] font-medium text-[#44403c]">
             <button
               onClick={() => setActiveTab('home')}
               className={`px-3.5 py-2 rounded-full transition-all duration-300 hover:-translate-y-0.5 ${
                 activeTab === 'home'
-                  ? 'text-[#050807] bg-[#00ff88] font-black border border-white/40 shadow-[0_0_15px_rgba(0,255,136,0.6)]'
-                  : 'hover:text-[#00ff88] hover:bg-[#0e1d16]'
+                  ? 'text-[#4a1525] bg-gradient-to-r from-amber-100/70 via-rose-100/60 to-amber-100/70 font-bold border border-amber-300/80 shadow-sm'
+                  : 'hover:text-[#1c1917] hover:bg-[#f2ede4]'
               }`}
             >
               Home
@@ -112,8 +112,8 @@ export default function Navbar({
               onClick={() => setActiveTab('explore')}
               className={`px-3.5 py-2 rounded-full transition-all duration-300 hover:-translate-y-0.5 ${
                 activeTab === 'explore'
-                  ? 'text-[#050807] bg-[#00ff88] font-black border border-white/40 shadow-[0_0_15px_rgba(0,255,136,0.6)]'
-                  : 'hover:text-[#00ff88] hover:bg-[#0e1d16]'
+                  ? 'text-[#4a1525] bg-gradient-to-r from-amber-100/70 via-rose-100/60 to-amber-100/70 font-bold border border-amber-300/80 shadow-sm'
+                  : 'hover:text-[#1c1917] hover:bg-[#f2ede4]'
               }`}
             >
               Explore Vendors
@@ -122,8 +122,8 @@ export default function Navbar({
               onClick={() => setActiveTab('categories')}
               className={`px-3.5 py-2 rounded-full transition-all duration-300 hover:-translate-y-0.5 ${
                 activeTab === 'categories'
-                  ? 'text-[#050807] bg-[#00ff88] font-black border border-white/40 shadow-[0_0_15px_rgba(0,255,136,0.6)]'
-                  : 'hover:text-[#00ff88] hover:bg-[#0e1d16]'
+                  ? 'text-[#4a1525] bg-gradient-to-r from-amber-100/70 via-rose-100/60 to-amber-100/70 font-bold border border-amber-300/80 shadow-sm'
+                  : 'hover:text-[#1c1917] hover:bg-[#f2ede4]'
               }`}
             >
               Categories
@@ -132,8 +132,8 @@ export default function Navbar({
               onClick={() => setActiveTab('packages')}
               className={`px-3.5 py-2 rounded-full transition-all duration-300 hover:-translate-y-0.5 ${
                 activeTab === 'packages'
-                  ? 'text-[#050807] bg-[#00ff88] font-black border border-white/40 shadow-[0_0_15px_rgba(0,255,136,0.6)]'
-                  : 'hover:text-[#00ff88] hover:bg-[#0e1d16]'
+                  ? 'text-[#4a1525] bg-gradient-to-r from-amber-100/70 via-rose-100/60 to-amber-100/70 font-bold border border-amber-300/80 shadow-sm'
+                  : 'hover:text-[#1c1917] hover:bg-[#f2ede4]'
               }`}
             >
               Ready Packages
@@ -142,13 +142,13 @@ export default function Navbar({
               onClick={() => setActiveTab('builder')}
               className={`px-3.5 py-2 rounded-full relative transition-all duration-300 hover:-translate-y-0.5 flex items-center gap-1.5 ${
                 activeTab === 'builder'
-                  ? 'text-[#050807] bg-[#00ff88] font-black border border-white/40 shadow-[0_0_15px_rgba(0,255,136,0.6)]'
-                  : 'hover:text-[#00ff88] hover:bg-[#0e1d16]'
+                  ? 'text-[#4a1525] bg-gradient-to-r from-amber-100/70 via-rose-100/60 to-amber-100/70 font-bold border border-amber-300/80 shadow-sm'
+                  : 'hover:text-[#1c1917] hover:bg-[#f2ede4]'
               }`}
             >
               <span>Build My Event</span>
               {budgetCount > 0 && (
-                <span className="bg-[#00ff88] text-black text-[10px] font-black px-2 py-0.5 rounded-full shadow-sm animate-pulse">
+                <span className="bg-gradient-to-r from-[#4a1525] to-[#781f37] text-amber-200 text-[10px] font-bold px-2 py-0.5 rounded-full shadow-sm animate-pulse">
                   {budgetCount}
                 </span>
               )}
@@ -157,19 +157,19 @@ export default function Navbar({
 
           {/* RIGHT ACTION BUTTONS */}
           <div className="flex items-center gap-1.5 sm:gap-3 shrink-0">
-            {/* Wishlist Button */}
+            {/* Wishlist Button (Desktop/Tablet - hidden on mobile as it is pinned in bottom nav) */}
             <button
               onClick={() => setActiveTab('wishlist')}
               title="Saved Wishlist"
               className={`hidden sm:flex p-2.5 rounded-full border relative transition-all duration-300 hover:scale-110 active:scale-95 ${
                 activeTab === 'wishlist'
-                  ? 'bg-[#00ff88]/20 text-[#00ff88] border-[#00ff88] shadow-[0_0_15px_rgba(0,255,136,0.4)]'
-                  : 'bg-[#091510] hover:bg-[#0e2018] border-[#00ff88]/30 text-stone-300'
+                  ? 'bg-rose-50 text-rose-600 border-rose-300 shadow-sm'
+                  : 'bg-white/80 hover:bg-[#eae3d7] border-[#dfd7c8] text-[#44403c] shadow-sm'
               }`}
             >
-              <Heart className={`w-4 h-4 ${wishlistCount > 0 ? 'fill-[#00ff88] text-[#00ff88]' : ''}`} />
+              <Heart className={`w-4 h-4 ${wishlistCount > 0 ? 'fill-rose-500 text-rose-500' : ''}`} />
               {wishlistCount > 0 && (
-                <span className="absolute -top-1 -right-1 bg-[#00ff88] text-black text-[10px] font-black w-4 h-4 rounded-full flex items-center justify-center shadow-sm">
+                <span className="absolute -top-1 -right-1 bg-rose-600 text-white text-[10px] font-bold w-4 h-4 rounded-full flex items-center justify-center shadow-sm">
                   {wishlistCount}
                 </span>
               )}
@@ -226,74 +226,74 @@ export default function Navbar({
               <div className="relative">
                 <button
                   onClick={() => setShowProfileMenu(!showProfileMenu)}
-                  className="btn-neon-green flex items-center gap-1.5 sm:gap-2 pl-1.5 sm:pl-2 pr-2.5 sm:pr-3.5 py-1 sm:py-1.5 rounded-full text-[#050807] transition-all border border-white/40 shadow-[0_0_20px_rgba(0,255,136,0.5)] hover:scale-105 active:scale-95 text-xs font-black cursor-pointer"
+                  className="btn-3d-wine flex items-center gap-1.5 sm:gap-2 pl-1.5 sm:pl-2 pr-2.5 sm:pr-3.5 py-1 sm:py-1.5 rounded-full bg-gradient-to-r from-[#4a1525] via-[#5e192f] to-[#4a1525] text-white hover:brightness-110 transition-all border border-[#c5a059]/40 shadow-md hover:scale-105 active:scale-95 text-xs"
                 >
-                  <div className="w-6 h-6 sm:w-7 sm:h-7 rounded-full bg-[#050807] text-[#00ff88] font-black text-xs flex items-center justify-center shadow-sm shrink-0 border border-[#00ff88]">
+                  <div className="w-6 h-6 sm:w-7 sm:h-7 rounded-full bg-gradient-to-br from-amber-300 to-amber-500 text-[#1c1917] font-bold text-xs flex items-center justify-center shadow-sm shrink-0">
                     {currentUser.name ? currentUser.name[0].toUpperCase() : 'U'}
                   </div>
-                  <span className="text-xs font-black hidden sm:inline max-w-[100px] truncate text-[#050807]">
+                  <span className="text-xs font-semibold hidden sm:inline max-w-[100px] truncate text-amber-100">
                     {currentUser.name}
                   </span>
-                  <ChevronDown className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-[#050807] shrink-0 stroke-[3]" />
+                  <ChevronDown className="w-3 h-3 sm:w-3.5 sm:h-3.5 opacity-80 text-amber-300 shrink-0" />
                 </button>
 
                 {showProfileMenu && (
-                  <div className="absolute right-0 mt-3 w-64 bg-[#0a1510]/95 backdrop-blur-xl rounded-2xl shadow-[0_15px_40px_rgba(0,0,0,0.9)] border border-[#00ff88]/40 p-2 z-50 animate-in fade-in slide-in-from-top-2 text-xs">
-                    <div className="p-3 border-b border-[#00ff88]/20 bg-[#07100b] rounded-xl mb-1 border border-[#00ff88]/20">
-                      <div className="font-bold text-white truncate">{currentUser.name}</div>
-                      <div className="text-[11px] text-[#00ff88] truncate">{currentUser.email}</div>
-                      <div className="inline-block mt-1.5 px-2.5 py-0.5 bg-[#00ff88]/20 text-[#00ff88] rounded-full text-[10px] font-black uppercase tracking-wider border border-[#00ff88]/40">
+                  <div className="absolute right-0 mt-3 w-64 bg-white/95 backdrop-blur-xl rounded-2xl shadow-2xl border border-amber-200/70 p-2 z-50 animate-in fade-in slide-in-from-top-2 text-xs">
+                    <div className="p-3 border-b border-stone-100 bg-gradient-to-br from-amber-50/60 to-rose-50/40 rounded-xl mb-1 border border-amber-100/60">
+                      <div className="font-bold text-stone-900 truncate">{currentUser.name}</div>
+                      <div className="text-[11px] text-stone-500 truncate">{currentUser.email}</div>
+                      <div className="inline-block mt-1.5 px-2.5 py-0.5 bg-[#ebd8de] text-[#4a1525] rounded-full text-[10px] font-bold uppercase tracking-wider border border-[#4a1525]/20">
                         Role: {userRole}
                       </div>
                     </div>
 
                     <button
                       onClick={() => { setShowProfileMenu(false); setActiveTab('bookings'); }}
-                      className="w-full text-left px-3 py-2 hover:bg-[#0f2119] rounded-lg font-medium text-stone-200 hover:text-[#00ff88] flex items-center gap-2 cursor-pointer"
+                      className="w-full text-left px-3 py-2 hover:bg-[#faf8f5] rounded-lg font-medium text-stone-800 flex items-center gap-2"
                     >
-                      <ShoppingBag className="w-4 h-4 text-[#00ff88]" /> My Bookings
+                      <ShoppingBag className="w-4 h-4 text-stone-500" /> My Bookings
                     </button>
                     <button
                       onClick={() => { setShowProfileMenu(false); setActiveTab('builder'); }}
-                      className="w-full text-left px-3 py-2 hover:bg-[#0f2119] rounded-lg font-medium text-stone-200 hover:text-[#00ff88] flex items-center gap-2 cursor-pointer"
+                      className="w-full text-left px-3 py-2 hover:bg-[#faf8f5] rounded-lg font-medium text-stone-800 flex items-center gap-2"
                     >
-                      <CalendarDays className="w-4 h-4 text-[#00ff88]" /> My Event Plan
+                      <CalendarDays className="w-4 h-4 text-stone-500" /> My Event Plan
                     </button>
                     <button
                       onClick={() => { setShowProfileMenu(false); setActiveTab('wishlist'); }}
-                      className="w-full text-left px-3 py-2 hover:bg-[#0f2119] rounded-lg font-medium text-stone-200 hover:text-[#00ff88] flex items-center gap-2 cursor-pointer"
+                      className="w-full text-left px-3 py-2 hover:bg-[#faf8f5] rounded-lg font-medium text-stone-800 flex items-center gap-2"
                     >
-                      <Heart className="w-4 h-4 text-[#00ff88]" /> Saved Wishlist
+                      <Heart className="w-4 h-4 text-stone-500" /> Saved Wishlist
                     </button>
 
-                    <div className="border-t border-[#00ff88]/20 my-1 pt-1">
+                    <div className="border-t border-stone-100 my-1 pt-1">
                       <div className="px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-stone-400">
                         Switch View / Workspace
                       </div>
                       <button
                         onClick={() => { setUserRole('customer'); setActiveTab('home'); setShowProfileMenu(false); }}
-                        className={`w-full text-left px-3 py-1.5 rounded-lg text-xs font-semibold cursor-pointer ${userRole === 'customer' ? 'text-[#00ff88] bg-[#00ff88]/15 font-bold' : 'text-stone-300 hover:bg-[#0f2119]'}`}
+                        className={`w-full text-left px-3 py-1.5 rounded-lg text-xs font-semibold ${userRole === 'customer' ? 'text-[#4a1525] bg-[#ebd8de]/40' : 'text-stone-700 hover:bg-stone-50'}`}
                       >
                         Customer Experience
                       </button>
                       <button
                         onClick={() => { setUserRole('vendor'); setActiveTab('vendor_portal'); setShowProfileMenu(false); }}
-                        className={`w-full text-left px-3 py-1.5 rounded-lg text-xs font-semibold cursor-pointer ${userRole === 'vendor' ? 'text-[#00ff88] bg-[#00ff88]/15 font-bold' : 'text-stone-300 hover:bg-[#0f2119]'}`}
+                        className={`w-full text-left px-3 py-1.5 rounded-lg text-xs font-semibold ${userRole === 'vendor' ? 'text-[#4a1525] bg-[#ebd8de]/40' : 'text-stone-700 hover:bg-stone-50'}`}
                       >
                         Vendor Portal
                       </button>
                       <button
                         onClick={() => { setUserRole('admin'); setActiveTab('admin_portal'); setShowProfileMenu(false); }}
-                        className={`w-full text-left px-3 py-1.5 rounded-lg text-xs font-semibold cursor-pointer ${userRole === 'admin' ? 'text-[#00ff88] bg-[#00ff88]/15 font-bold' : 'text-stone-300 hover:bg-[#0f2119]'}`}
+                        className={`w-full text-left px-3 py-1.5 rounded-lg text-xs font-semibold ${userRole === 'admin' ? 'text-[#4a1525] bg-[#ebd8de]/40' : 'text-stone-700 hover:bg-stone-50'}`}
                       >
                         Operations Admin Console
                       </button>
                     </div>
 
-                    <div className="border-t border-[#00ff88]/20 mt-1 pt-1">
+                    <div className="border-t border-stone-100 mt-1 pt-1">
                       <button
                         onClick={() => { setShowProfileMenu(false); onLogout(); }}
-                        className="w-full text-left px-3 py-2 text-rose-400 hover:bg-rose-950/40 rounded-lg font-semibold flex items-center gap-2 cursor-pointer"
+                        className="w-full text-left px-3 py-2 text-rose-600 hover:bg-rose-50 rounded-lg font-semibold flex items-center gap-2"
                       >
                         <LogOut className="w-4 h-4" /> Sign Out
                       </button>
@@ -304,9 +304,9 @@ export default function Navbar({
             ) : (
               <button
                 onClick={onOpenAuth}
-                className="btn-neon-green px-3.5 sm:px-5 py-1.5 sm:py-2 rounded-full text-[#050807] text-xs font-black transition-all shadow-[0_0_20px_rgba(0,255,136,0.6)] border border-white/40 hover:scale-105 active:scale-95 flex items-center gap-1.5 shrink-0 cursor-pointer"
+                className="btn-3d-wine px-3 sm:px-5 py-1.5 sm:py-2 rounded-full bg-gradient-to-r from-[#4a1525] via-[#5c1a2e] to-[#4a1525] hover:brightness-110 text-[#f5ebd7] text-xs font-bold transition-all shadow-md border border-[#c5a059]/40 hover:scale-105 active:scale-95 flex items-center gap-1 sm:gap-1.5 shrink-0"
               >
-                <Sparkles className="w-3.5 h-3.5 text-black shrink-0 fill-black" />
+                <Sparkles className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-amber-300 shrink-0" />
                 <span>Sign In</span>
               </button>
             )}
@@ -314,7 +314,7 @@ export default function Navbar({
             {/* MOBILE MENU TOGGLE */}
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="md:hidden p-2 rounded-xl border border-[#00ff88]/40 bg-[#0a1611] text-[#00ff88] hover:bg-[#0f2119] transition-all shadow-xs flex items-center justify-center shrink-0 active:scale-95 cursor-pointer"
+              className="md:hidden p-2 rounded-xl border border-amber-300/80 bg-gradient-to-b from-amber-50 to-amber-100/70 hover:bg-amber-200 text-[#4a1525] transition-all shadow-xs flex items-center justify-center shrink-0 active:scale-95"
               aria-label="Toggle navigation menu"
             >
               {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
@@ -326,16 +326,16 @@ export default function Navbar({
 
       {/* MOBILE ACCORDION DRAWER */}
       {mobileMenuOpen && (
-        <div className="md:hidden bg-[#07100b] border-b-2 border-[#00ff88]/50 px-4 py-4 space-y-3 animate-in slide-in-from-top-2 shadow-[0_15px_30px_rgba(0,0,0,0.9)] text-white">
+        <div className="md:hidden bg-gradient-to-b from-[#fdfbf7] via-[#faf4ea] to-[#f7efe0] border-b-2 border-amber-300/70 px-4 py-4 space-y-3 animate-in slide-in-from-top-2 shadow-2xl">
           {/* City Selector */}
-          <div className="p-2.5 rounded-xl bg-[#0b1812] border border-[#00ff88]/30 flex items-center justify-between shadow-xs">
-            <span className="text-xs text-stone-300 font-semibold flex items-center gap-1.5">
-              <MapPin className="w-3.5 h-3.5 text-[#00ff88]" /> Location:
+          <div className="p-2.5 rounded-xl bg-white/90 border border-amber-200/90 flex items-center justify-between shadow-xs">
+            <span className="text-xs text-stone-600 font-semibold flex items-center gap-1.5">
+              <MapPin className="w-3.5 h-3.5 text-[#4a1525]" /> Location:
             </span>
             <select
               value={selectedCity}
               onChange={(e) => setSelectedCity(e.target.value)}
-              className="bg-[#050807] border border-[#00ff88]/40 rounded-lg px-2.5 py-1 text-xs font-bold text-white focus:outline-none cursor-pointer"
+              className="bg-amber-50/80 border border-amber-300 rounded-lg px-2.5 py-1 text-xs font-bold text-stone-900 focus:outline-none cursor-pointer"
             >
               {cities.map(c => (
                 <option key={c} value={c}>{c}</option>
@@ -345,11 +345,11 @@ export default function Navbar({
 
           {/* Quick Notifications Alert if any */}
           {unreadCount > 0 && (
-            <div className="p-2.5 rounded-xl bg-[#00ff88]/15 border border-[#00ff88]/40 text-[#00ff88] text-xs flex items-center justify-between">
+            <div className="p-2.5 rounded-xl bg-amber-100/90 border border-amber-300 text-amber-950 text-xs flex items-center justify-between">
               <span className="flex items-center gap-1.5 font-bold">
-                <Bell className="w-3.5 h-3.5 text-[#00ff88]" /> {unreadCount} New Notification{unreadCount > 1 ? 's' : ''}
+                <Bell className="w-3.5 h-3.5 text-[#4a1525]" /> {unreadCount} New Notification{unreadCount > 1 ? 's' : ''}
               </span>
-              <span className="text-[10px] bg-[#00ff88] text-black px-2 py-0.5 rounded-full font-black">Alert</span>
+              <span className="text-[10px] bg-[#4a1525] text-amber-200 px-2 py-0.5 rounded-full font-bold">Alert</span>
             </div>
           )}
 
