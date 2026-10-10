@@ -125,7 +125,7 @@ export default function CuratedPackagesSection({
                 <img
                   src={bannerImg}
                   alt={pkg.title}
-                  loading="lazy"
+                  loading="eager"
                   decoding="async"
                   className="w-full h-full object-cover transition-transform duration-700 hover:scale-108"
                 />

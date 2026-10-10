@@ -13,7 +13,8 @@ import {
   Flower2,
   MailOpen,
   CalendarDays,
-  ArrowRight
+  ArrowRight,
+  Crown
 } from 'lucide-react'
 import { getOptimizedImageUrl } from '@/lib/imageUtils'
 
@@ -33,48 +34,48 @@ const ICON_MAP = {
 
 const CATEGORY_ATELIER_META = {
   venues: {
-    badge: 'Heritage & Forts',
-    subtext: 'Royal Citadels & Havelis'
+    badge: 'Heritage Palaces & Forts',
+    subtext: 'Lake Pichola, Rambagh & Havelis'
   },
   catering: {
-    badge: 'Awadhi & Feasts',
-    subtext: 'Shahi Dum Pukht Banquets'
+    badge: 'Awadhi & Royal Feasts',
+    subtext: 'Shahi Dum Pukht & Live Counters'
   },
   decor: {
-    badge: 'Mandaps & Lights',
-    subtext: 'Fragrant Mogra & Crystal'
+    badge: 'Mandaps & Scenography',
+    subtext: 'Mogra Canopies & Crystal Glass'
   },
   makeup: {
-    badge: 'HD Bridal Glam',
-    subtext: 'Celebrity Airbrush Artists'
+    badge: 'Celebrity HD Bridal Glam',
+    subtext: 'Airbrush Styling & Draping'
   },
   outfits: {
-    badge: 'Couture Rentals',
-    subtext: 'Royal Lehengas & Sherwanis'
+    badge: 'Couture Trousseau Rentals',
+    subtext: 'Zardozi Lehengas & Sherwanis'
   },
   photography: {
-    badge: '4K Cinema Films',
-    subtext: 'Aerial Drone Storytellers'
+    badge: '4K Cinema & Aerial Drone',
+    subtext: 'Candid Memoirs & Teasers'
   },
   music: {
-    badge: 'DJ & Dhol Beats',
-    subtext: 'Bollywood & Sufi Ensembles'
+    badge: 'DJ Kabir & Royal Dhol',
+    subtext: 'Punjabi Beats & Sufi Bands'
   },
   gifts: {
-    badge: 'Luxury Favors',
-    subtext: 'Brassware & Artisanal Boxes'
+    badge: 'Artisanal Favors & Brass',
+    subtext: 'Royal Dry Fruit Hampers'
   },
   florists: {
-    badge: 'Fresh Garlands',
-    subtext: 'Varmalas & Rose Entryways'
+    badge: 'Fresh Exotic Florals',
+    subtext: 'Fragrant Varmalas & Entryways'
   },
   invitations: {
-    badge: 'Bespoke E-Cards',
-    subtext: 'Velvet Box & Video Invites'
+    badge: 'Scrolls & 3D Video Invites',
+    subtext: 'Velvet Box Suites & RSVP Portals'
   },
   planners: {
-    badge: 'Full Concierge',
-    subtext: 'End-to-End Orchestration'
+    badge: 'Royal Wedding Architects',
+    subtext: 'Turnkey Day-Of Execution'
   }
 }
 
@@ -82,81 +83,92 @@ export default function EditorialCategories({ categories = [], onSelectCategory,
   const dynamicCategoryImages = cmsContent?.categoryImages || {}
 
   return (
-    <section className="py-12 sm:py-16 px-3.5 sm:px-6 lg:px-8 max-w-7xl mx-auto">
-      <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-8 sm:mb-10">
+    <section className="py-16 sm:py-20 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto select-none">
+      
+      {/* SECTION HEADER */}
+      <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-10 sm:mb-12 gap-4">
         <div>
-          <div className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-gradient-to-r from-amber-100 via-amber-200 to-amber-100 text-[#4a1525] border border-amber-300 text-[11px] uppercase font-bold tracking-[0.2em] mb-2 shadow-xs">
-            <span>⚜</span> Complete Celebration Spectrum
+          <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-champagne/15 border border-champagne/40 text-burgundy text-[11px] font-bold tracking-[0.2em] uppercase mb-2 shadow-2xs">
+            <Crown className="w-3.5 h-3.5 text-champagne" />
+            <span>The Royal Atelier Spectrum</span>
           </div>
-          <h2 className="font-serif text-2xl sm:text-3xl md:text-4xl font-bold text-[#1c1917] tracking-tight">
-            Explore by Royal Specialization
+          <h2 className="font-serif text-3xl sm:text-4xl md:text-5xl font-bold text-espresso tracking-tight">
+            Explore by Celebration Craft
           </h2>
+          <p className="text-xs sm:text-sm text-stone-600 mt-2 max-w-xl font-normal leading-relaxed">
+            Curated across 11 distinguished categories with verified physical inspections and certified rate sheets.
+          </p>
         </div>
+        
         <button
           onClick={() => onSelectCategory('all')}
-          className="text-xs font-bold text-[#4a1525] hover:text-[#781f3a] flex items-center gap-1.5 mt-2 sm:mt-0 transition-colors group cursor-pointer"
+          className="text-xs font-bold text-burgundy hover:text-burgundy-dark flex items-center gap-1.5 transition-colors group cursor-pointer"
         >
-          <span className="underline underline-offset-4 decoration-amber-500">View All 11 Verified Categories</span>
-          <ArrowRight className="w-4 h-4 text-amber-600 group-hover:translate-x-1 transition-transform" />
+          <span className="underline underline-offset-4 decoration-champagne">View Complete Directory</span>
+          <ArrowRight className="w-4 h-4 text-champagne group-hover:translate-x-1 transition-transform" />
         </button>
       </div>
 
+      {/* 11 HIGH-FASHION EDITORIAL CATEGORY CARDS */}
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3 sm:gap-4.5">
         {categories.map((cat, idx) => {
           const IconComponent = ICON_MAP[cat.slug] || Sparkles
           const meta = CATEGORY_ATELIER_META[cat.slug] || { 
-            badge: 'Verified Specialization',
+            badge: 'Verified Craft',
             subtext: 'Curated Wedding Masters'
           }
-          const rawImg = dynamicCategoryImages[cat.slug] || cat.image
-          const catImg = getOptimizedImageUrl(rawImg, { width: 450, quality: 80 })
+          const rawImg = dynamicCategoryImages[cat.slug] || cat.image || 'https://images.unsplash.com/photo-1587271407850-8d438ca9fdf2'
+          const catImg = getOptimizedImageUrl(rawImg, { width: 600, quality: 85 })
 
           return (
             <div
               key={cat.id || cat.slug}
               onClick={() => onSelectCategory(cat.slug)}
-              className="group cursor-pointer rounded-2xl overflow-hidden bg-[#fffdfa] border border-[#e8dfcf] hover:border-[#c5a059] shadow-sm hover:shadow-xl transition-all duration-400 flex flex-col justify-between hover:-translate-y-1 relative"
+              className="group cursor-pointer rounded-2xl sm:rounded-3xl overflow-hidden bg-white border border-[#e8dfcf] hover:border-champagne shadow-sm hover:shadow-2xl transition-all duration-500 flex flex-col justify-between hover:-translate-y-1.5 relative"
             >
-              {/* Category Image with Subtle Zoom & Film Grain Gradient */}
-              <div className="relative aspect-[4/3] w-full overflow-hidden bg-stone-100">
+              {/* Category Portrait Image (Taller 4:5 Aspect Ratio for Rich Drama) */}
+              <div className="relative aspect-[4/5] w-full overflow-hidden bg-stone-900">
                 <img
                   src={catImg}
                   alt={cat.name}
-                  loading="lazy"
+                  loading="eager"
                   decoding="async"
-                  className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+                  className="w-full h-full object-cover group-hover:scale-112 transition-transform duration-700 ease-out"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-[#1b050d]/85 via-black/25 to-transparent" />
+                <div className="absolute inset-0 bg-gradient-to-t from-[#14060b]/90 via-[#14060b]/35 to-transparent" />
                 
-                {/* Floating Heritage Badge */}
-                <div className="absolute top-2 left-2">
-                  <span className="px-2 py-0.5 rounded-md text-[9px] font-bold tracking-wider uppercase backdrop-blur-md bg-[#4a1525]/90 text-amber-200 border border-amber-400/40 shadow-xs">
-                    {meta.badge}
+                {/* Floating Top Badge */}
+                <div className="absolute top-2.5 left-2.5 right-2.5 flex items-center justify-between">
+                  <div className="w-7 h-7 rounded-xl bg-black/50 backdrop-blur-md text-amber-300 border border-amber-300/30 flex items-center justify-center shadow-xs">
+                    <IconComponent className="w-3.5 h-3.5" />
+                  </div>
+                  <span className="px-2 py-0.5 rounded-full text-[9px] font-bold tracking-wider uppercase backdrop-blur-md bg-stone-950/70 text-amber-200 border border-white/20">
+                    {cat.vendorCount || 4}+ Verified
                   </span>
                 </div>
 
-                {/* Verified Count Pill */}
-                <div className="absolute bottom-2 left-2 px-2 py-0.5 rounded-full bg-stone-950/80 backdrop-blur-md text-[10px] text-amber-300 font-semibold border border-amber-400/30 flex items-center gap-1">
-                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
-                  {cat.vendorCount || 4}+ Verified
+                {/* Bottom Overlay Title & Subtext */}
+                <div className="absolute bottom-2.5 left-2.5 right-2.5 text-white">
+                  <span className="text-[9px] uppercase font-bold text-champagne tracking-wider block truncate">
+                    {meta.badge}
+                  </span>
+                  <h3 className="font-serif font-bold text-sm sm:text-base text-white truncate group-hover:text-amber-200 transition-colors">
+                    {cat.name}
+                  </h3>
                 </div>
               </div>
 
-              {/* Title & Starting Price in Regal Alabaster Card */}
-              <div className="p-3 bg-gradient-to-b from-[#fffdfa] to-[#faf6ee]">
-                <div className="flex items-center gap-1.5 mb-1">
-                  <div className="w-6 h-6 rounded-lg bg-amber-100/90 text-[#4a1525] border border-amber-300/60 flex items-center justify-center shrink-0 shadow-xs group-hover:bg-[#4a1525] group-hover:text-amber-200 transition-colors">
-                    <IconComponent className="w-3.5 h-3.5" />
-                  </div>
-                  <span className="font-serif font-bold text-xs text-stone-900 truncate group-hover:text-[#4a1525] transition-colors">
-                    {cat.name}
+              {/* Card Footer: Starting Price in Warm Ivory Bar */}
+              <div className="p-3 bg-gradient-to-b from-[#fffdfa] to-[#faf6ee] border-t border-[#f0e6d6] flex items-center justify-between">
+                <div>
+                  <span className="text-[9px] text-stone-400 uppercase tracking-wider font-semibold block">Starts at</span>
+                  <span className="font-serif font-bold text-burgundy text-xs sm:text-sm">
+                    ₹{(cat.startingPrice || 1000).toLocaleString('en-IN')}
                   </span>
                 </div>
-                <div className="text-[11px] text-stone-600 flex items-baseline gap-1 font-medium">
-                  <span className="text-[10px] text-stone-400 uppercase tracking-wider font-semibold">From</span>
-                  <span className="font-serif font-bold text-[#4a1525] text-xs">₹{(cat.startingPrice || 1000).toLocaleString('en-IN')}</span>
-                  {cat.unit && <span className="text-[9.5px] text-stone-500 truncate">/{cat.unit.replace('per ', '')}</span>}
-                </div>
+                <span className="w-6 h-6 rounded-full bg-amber-100/80 group-hover:bg-burgundy text-burgundy group-hover:text-amber-200 flex items-center justify-center transition-colors text-xs font-bold">
+                  &rarr;
+                </span>
               </div>
             </div>
           )

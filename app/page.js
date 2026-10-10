@@ -68,7 +68,6 @@ import AdminOperationsSuite from '../components/AdminOperationsSuite'
 import FooterSection from '../components/FooterSection'
 import ErrorBoundary from '../components/ErrorBoundary'
 import TopSlidingImageGallery from '../components/TopSlidingImageGallery'
-import KineticTypographySection from '../components/KineticTypographySection'
 import SlidingReviewsSection from '../components/SlidingReviewsSection'
 import NegotiationChatDrawer from '../components/NegotiationChatDrawer'
 import FeaturedVenuesEditorial from '../components/FeaturedVenuesEditorial'
@@ -1525,7 +1524,7 @@ export default function VowsAndVenuesApp() {
               }}
             />
 
-            {/* TOP 3D SLIDING IMAGE GALLERY (Requested by Client) */}
+            {/* TOP 3D SLIDING IMAGE GALLERY (Signature Luxury Showcases) */}
             <div className="animate-luxury-enter stagger-1">
               <TopSlidingImageGallery
                 slides={cmsContent?.gallerySlides}
@@ -1541,18 +1540,8 @@ export default function VowsAndVenuesApp() {
               />
             </div>
 
-            {/* KINETIC TYPOGRAPHY SECTION WITH ROYAL ATELIER STATEMENT */}
+            {/* 11 EDITORIAL CRAFT CATEGORIES (4:5 Portrait Photography Cards) */}
             <div className="animate-luxury-enter stagger-2">
-              <KineticTypographySection
-                onExplore={(cat) => {
-                  setFilterCategory(cat)
-                  setActiveTab('explore')
-                }}
-              />
-            </div>
-
-            {/* 11 EDITORIAL CATEGORIES */}
-            <div className="animate-luxury-enter stagger-3">
               <EditorialCategories
                 categories={categories}
                 cmsContent={cmsContent}
@@ -1563,8 +1552,8 @@ export default function VowsAndVenuesApp() {
               />
             </div>
 
-            {/* EDITORIAL FEATURED PALACES & VENUES (1 Hero Palace + 3 Complementary) */}
-            <div className="animate-luxury-enter stagger-4">
+            {/* EDITORIAL FEATURED PALACES & SANCTUARIES (1 Grand Hero Palace + 3 Complementary) */}
+            <div className="animate-luxury-enter stagger-3">
               <FeaturedVenuesEditorial
                 vendors={vendors}
                 wishlistIds={wishlistIds}
@@ -1579,8 +1568,8 @@ export default function VowsAndVenuesApp() {
               />
             </div>
 
-            {/* CURATED PRIVILEGES / OFFERS */}
-            <div className="animate-luxury-enter stagger-5">
+            {/* CURATED CELEBRATION OFFERS & PRIVILEGES */}
+            <div className="animate-luxury-enter stagger-4">
               <CuratedOffers
                 offers={cmsContent?.offers || []}
                 onSelectOffer={(code) => {
@@ -1590,7 +1579,7 @@ export default function VowsAndVenuesApp() {
               />
             </div>
 
-            {/* CURATED ALL-INCLUSIVE PACKAGES COMPARISON */}
+            {/* CURATED ALL-INCLUSIVE CELEBRATION PACKAGES */}
             <div className="animate-luxury-enter">
               <CuratedPackagesSection
                 packages={packages}
@@ -1600,7 +1589,24 @@ export default function VowsAndVenuesApp() {
               />
             </div>
 
-            {/* FEATURED SIGNATURE CREATORS & VENUES */}
+            {/* THE WEDDING GAZETTE · INSPIRATION MASONRY GALLERY */}
+            <div className="animate-luxury-enter">
+              <WeddingInspirationGallery
+                onExploreCategory={(cat) => {
+                  const slugMap = {
+                    'Palaces & Forts': 'venues',
+                    'Mandaps & Florals': 'decor',
+                    'Catering & Feasts': 'catering',
+                    'Couture & Details': 'outfits'
+                  }
+                  const slug = slugMap[cat] || 'all'
+                  setFilterCategory(slug)
+                  setActiveTab('explore')
+                }}
+              />
+            </div>
+
+            {/* FEATURED SIGNATURE CREATORS & VENUES (Full Directory Preview) */}
             <section className="py-16 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto animate-luxury-enter">
               <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-10">
                 <div>
@@ -1639,23 +1645,6 @@ export default function VowsAndVenuesApp() {
                 ))}
               </div>
             </section>
-
-            {/* WEDDING INSPIRATION EDITORIAL GALLERY */}
-            <div className="animate-luxury-enter">
-              <WeddingInspirationGallery
-                onExploreCategory={(cat) => {
-                  const slugMap = {
-                    'Palaces & Forts': 'venues',
-                    'Mandaps & Florals': 'decor',
-                    'Catering & Feasts': 'catering',
-                    'Couture & Details': 'outfits'
-                  }
-                  const slug = slugMap[cat] || 'all'
-                  setFilterCategory(slug)
-                  setActiveTab('explore')
-                }}
-              />
-            </div>
 
             {/* TRUST, SAFETY & PLATFORM CONFIDENCE */}
             <div className="animate-luxury-enter">

@@ -94,8 +94,8 @@ export default function FeaturedVenuesEditorial({
           />
           
           {/* Multi-tier Editorial Overlay */}
-          <div className="absolute inset-0 bg-gradient-to-t from-espresso via-espresso/70 to-transparent" />
-          <div className="absolute inset-0 bg-gradient-to-r from-espresso/90 via-espresso/40 to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-t from-[#14060b]/95 via-[#14060b]/35 to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-r from-[#14060b]/70 via-transparent to-transparent" />
           <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-transparent via-champagne to-transparent opacity-90" />
 
           {/* TOP PILLS */}
@@ -209,7 +209,7 @@ export default function FeaturedVenuesEditorial({
                   <img
                     src={vImg}
                     alt={v.name}
-                    loading="lazy"
+                    loading="eager"
                     decoding="async"
                     className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
                   />

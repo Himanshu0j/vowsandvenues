@@ -34,7 +34,7 @@ export default function VendorCard({
         <img
           src={imageUrl}
           alt={vendor.name}
-          loading="lazy"
+          loading="eager"
           decoding="async"
           className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 ease-out"
         />
