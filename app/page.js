@@ -75,6 +75,7 @@ import RoyalVenueRevealSection from '../components/RoyalVenueRevealSection'
 import WeddingInspirationGallery from '../components/WeddingInspirationGallery'
 import CuratedPackagesSection from '../components/CuratedPackagesSection'
 import TrustAndConfidenceSection from '../components/TrustAndConfidenceSection'
+import ScrollReveal, { ScrollStaggerContainer, ScrollStaggerItem } from '../components/ScrollReveal'
 import { getOptimizedImageUrl } from '@/lib/imageUtils'
 
 // Indian Top Event Cities
@@ -1526,7 +1527,7 @@ export default function VowsAndVenuesApp() {
             />
 
             {/* SCENE II · ROYAL VENUE REVEAL (Interactive 3D Perspective Palace Showcase) */}
-            <div className="animate-luxury-enter">
+            <ScrollReveal animation="fade-up" duration={0.85}>
               <RoyalVenueRevealSection
                 onCheckAvailability={() => {
                   setFilterCategory('venues')
@@ -1546,10 +1547,10 @@ export default function VowsAndVenuesApp() {
                   }
                 }}
               />
-            </div>
+            </ScrollReveal>
 
             {/* TOP 3D SLIDING IMAGE GALLERY (Signature Luxury Showcases) */}
-            <div className="animate-luxury-enter stagger-1">
+            <ScrollReveal animation="zoom-in" duration={0.85}>
               <TopSlidingImageGallery
                 slides={cmsContent?.gallerySlides}
                 onExploreCategory={(cat) => {
@@ -1562,10 +1563,10 @@ export default function VowsAndVenuesApp() {
                   setActiveTab('explore')
                 }}
               />
-            </div>
+            </ScrollReveal>
 
             {/* 11 EDITORIAL CRAFT CATEGORIES (4:5 Portrait Photography Cards) */}
-            <div className="animate-luxury-enter stagger-2">
+            <ScrollReveal animation="fade-up" duration={0.8}>
               <EditorialCategories
                 categories={categories}
                 cmsContent={cmsContent}
@@ -1574,10 +1575,10 @@ export default function VowsAndVenuesApp() {
                   setActiveTab('explore')
                 }}
               />
-            </div>
+            </ScrollReveal>
 
             {/* EDITORIAL FEATURED PALACES & SANCTUARIES (1 Grand Hero Palace + 3 Complementary) */}
-            <div className="animate-luxury-enter stagger-3">
+            <ScrollReveal animation="fade-up" duration={0.85}>
               <FeaturedVenuesEditorial
                 vendors={vendors}
                 wishlistIds={wishlistIds}
@@ -1590,10 +1591,10 @@ export default function VowsAndVenuesApp() {
                   setActiveTab('explore')
                 }}
               />
-            </div>
+            </ScrollReveal>
 
             {/* CURATED CELEBRATION OFFERS & PRIVILEGES */}
-            <div className="animate-luxury-enter stagger-4">
+            <ScrollReveal animation="fade-up" duration={0.75}>
               <CuratedOffers
                 offers={cmsContent?.offers || []}
                 onSelectOffer={(code) => {
@@ -1601,20 +1602,20 @@ export default function VowsAndVenuesApp() {
                   toast.success(`Applied ${code} to your event booking!`)
                 }}
               />
-            </div>
+            </ScrollReveal>
 
             {/* CURATED ALL-INCLUSIVE CELEBRATION PACKAGES */}
-            <div className="animate-luxury-enter">
+            <ScrollReveal animation="fade-up" duration={0.85}>
               <CuratedPackagesSection
                 packages={packages}
                 onSelectPackage={(pkg) => handleOpenPackageCustomizer(pkg)}
                 onCustomizePackage={(pkg) => handleOpenPackageCustomizer(pkg)}
                 onBookPackage={(pkg) => handleOpenPackageCustomizer(pkg)}
               />
-            </div>
+            </ScrollReveal>
 
             {/* THE WEDDING GAZETTE · INSPIRATION MASONRY GALLERY */}
-            <div className="animate-luxury-enter">
+            <ScrollReveal animation="fade-up" duration={0.85}>
               <WeddingInspirationGallery
                 onExploreCategory={(cat) => {
                   const slugMap = {
@@ -1628,10 +1629,11 @@ export default function VowsAndVenuesApp() {
                   setActiveTab('explore')
                 }}
               />
-            </div>
+            </ScrollReveal>
 
             {/* FEATURED SIGNATURE CREATORS & VENUES (Full Directory Preview) */}
-            <section className="py-16 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto animate-luxury-enter">
+            <ScrollReveal animation="fade-up" duration={0.8}>
+            <section className="py-16 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
               <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-10">
                 <div>
                   <div className="text-[11px] uppercase font-bold tracking-[0.2em] text-[#4a1525] mb-1">
@@ -1669,89 +1671,96 @@ export default function VowsAndVenuesApp() {
                 ))}
               </div>
             </section>
+            </ScrollReveal>
 
             {/* TRUST, SAFETY & PLATFORM CONFIDENCE */}
-            <div className="animate-luxury-enter">
+            <ScrollReveal animation="fade-up" duration={0.75}>
               <TrustAndConfidenceSection />
-            </div>
+            </ScrollReveal>
 
             {/* REAL CELEBRATIONS & EDITORIAL MEMOIRS — SLIDING INDIAN REVIEWS */}
-            <SlidingReviewsSection />
+            <ScrollReveal animation="fade-up" duration={0.8}>
+              <SlidingReviewsSection />
+            </ScrollReveal>
 
             {/* FREQUENTLY ASKED QUESTIONS */}
             {cmsContent?.faqs?.length > 0 && (
-              <section className="py-16 px-4 sm:px-6 lg:px-8 max-w-4xl mx-auto border-t border-[#e8e2d5]">
-                <div className="text-center mb-10">
-                  <div className="text-[11px] uppercase font-bold tracking-[0.2em] text-[#4a1525] mb-1">
-                    Questions &amp; Guidance
+              <ScrollReveal animation="fade-up" duration={0.8}>
+                <section className="py-16 px-4 sm:px-6 lg:px-8 max-w-4xl mx-auto border-t border-[#e8e2d5]">
+                  <div className="text-center mb-10">
+                    <div className="text-[11px] uppercase font-bold tracking-[0.2em] text-[#4a1525] mb-1">
+                      Questions &amp; Guidance
+                    </div>
+                    <h2 className="font-serif text-3xl font-bold text-[#1c1917]">
+                      Frequently Asked Questions
+                    </h2>
                   </div>
-                  <h2 className="font-serif text-3xl font-bold text-[#1c1917]">
-                    Frequently Asked Questions
-                  </h2>
-                </div>
 
-                <div className="space-y-4">
-                  {cmsContent.faqs.map((faq, i) => (
-                    <details
-                      key={i}
-                      className="group bg-gradient-to-br from-[#fffdfa] via-[#fcf8f0] to-[#f8f1e3] rounded-2xl border-2 border-amber-200/80 hover:border-amber-400 p-5 shadow-xs transition-all [&_summary::-webkit-details-marker]:hidden"
-                    >
-                      <summary className="flex items-center justify-between font-serif font-bold text-base text-[#1c1917] cursor-pointer">
-                        <span>{faq.q}</span>
-                        <ChevronDown className="w-4 h-4 text-[#78716c] group-open:rotate-180 transition-transform" />
-                      </summary>
-                      <p className="mt-3 text-xs text-stone-700 leading-relaxed font-medium">
-                        {faq.a}
-                      </p>
-                    </details>
-                  ))}
-                </div>
-              </section>
+                  <div className="space-y-4">
+                    {cmsContent.faqs.map((faq, i) => (
+                      <details
+                        key={i}
+                        className="group bg-gradient-to-br from-[#fffdfa] via-[#fcf8f0] to-[#f8f1e3] rounded-2xl border-2 border-amber-200/80 hover:border-amber-400 p-5 shadow-xs transition-all [&_summary::-webkit-details-marker]:hidden"
+                      >
+                        <summary className="flex items-center justify-between font-serif font-bold text-base text-[#1c1917] cursor-pointer">
+                          <span>{faq.q}</span>
+                          <ChevronDown className="w-4 h-4 text-[#78716c] group-open:rotate-180 transition-transform" />
+                        </summary>
+                        <p className="mt-3 text-xs text-stone-700 leading-relaxed font-medium">
+                          {faq.a}
+                        </p>
+                      </details>
+                    ))}
+                  </div>
+                </section>
+              </ScrollReveal>
             )}
 
             {/* VIP CONCIERGE BANNER WITH 4K ROYAL PALACE BACKDROP */}
-            <section className="py-12 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
-              <div className="card-3d-wrap relative rounded-3xl p-8 sm:p-12 text-white overflow-hidden flex flex-col md:flex-row items-center justify-between gap-8 shadow-[0_20px_50px_rgba(74,21,37,0.25)] border-2 border-amber-400/60">
-                {/* 4K Palace Background Photo */}
-                <div 
-                  className="absolute inset-0 bg-cover bg-center transition-all duration-700"
-                  style={{ backgroundImage: `url('https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=1800&q=80')` }}
-                />
-                {/* Royal Wine & Emerald Gradient Overlay */}
-                <div className="absolute inset-0 bg-gradient-to-r from-[#20050d]/95 via-[#3b0d1b]/85 to-[#0b1611]/80" />
-                <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-amber-300 to-transparent" />
+            <ScrollReveal animation="zoom-in" duration={0.85}>
+              <section className="py-12 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
+                <div className="card-3d-wrap relative rounded-3xl p-8 sm:p-12 text-white overflow-hidden flex flex-col md:flex-row items-center justify-between gap-8 shadow-[0_20px_50px_rgba(74,21,37,0.25)] border-2 border-amber-400/60">
+                  {/* 4K Palace Background Photo */}
+                  <div 
+                    className="absolute inset-0 bg-cover bg-center transition-all duration-700"
+                    style={{ backgroundImage: `url('https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=1800&q=80')` }}
+                  />
+                  {/* Royal Wine & Emerald Gradient Overlay */}
+                  <div className="absolute inset-0 bg-gradient-to-r from-[#20050d]/95 via-[#3b0d1b]/85 to-[#0b1611]/80" />
+                  <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-amber-300 to-transparent" />
 
-                <div className="space-y-3 max-w-xl relative z-10">
-                  <span className="bg-gradient-to-r from-amber-300 to-amber-500 text-stone-950 text-[10px] font-bold uppercase tracking-widest px-3.5 py-1 rounded-full shadow-sm inline-flex items-center gap-1.5">
-                    <Sparkles className="w-3 h-3 text-stone-900" />
-                    <span>VIP Wedding Concierge</span>
-                  </span>
-                  <h3 className="font-serif text-2xl sm:text-3xl lg:text-4xl font-bold text-[#faf8f5]">
-                    Need Bespoke Assistance for a Destination Celebration?
-                  </h3>
-                  <p className="text-xs sm:text-sm text-[#f5ebd7]/85 leading-relaxed font-light">
-                    Our luxury event specialists offer complimentary one-on-one consultation, custom palace sourcing, and consolidated vendor contracts.
-                  </p>
+                  <div className="space-y-3 max-w-xl relative z-10">
+                    <span className="bg-gradient-to-r from-amber-300 to-amber-500 text-stone-950 text-[10px] font-bold uppercase tracking-widest px-3.5 py-1 rounded-full shadow-sm inline-flex items-center gap-1.5">
+                      <Sparkles className="w-3 h-3 text-stone-900" />
+                      <span>VIP Wedding Concierge</span>
+                    </span>
+                    <h3 className="font-serif text-2xl sm:text-3xl lg:text-4xl font-bold text-[#faf8f5]">
+                      Need Bespoke Assistance for a Destination Celebration?
+                    </h3>
+                    <p className="text-xs sm:text-sm text-[#f5ebd7]/85 leading-relaxed font-light">
+                      Our luxury event specialists offer complimentary one-on-one consultation, custom palace sourcing, and consolidated vendor contracts.
+                    </p>
+                  </div>
+                  <div className="flex flex-col sm:flex-row gap-3 shrink-0 relative z-10 w-full sm:w-auto">
+                    <button
+                      onClick={() => {
+                        setActiveTab('builder')
+                        window.scrollTo({ top: 0, behavior: 'smooth' })
+                      }}
+                      className="btn-3d-gold px-7 py-3.5 bg-gradient-to-r from-[#e6ca65] via-[#ffd700] to-[#c5a059] hover:brightness-110 text-stone-950 font-bold text-xs uppercase tracking-wider rounded-xl transition-all shadow-xl hover:scale-105 active:scale-95 cursor-pointer text-center"
+                    >
+                      Start Event Architect
+                    </button>
+                    <a
+                      href="tel:+919876543210"
+                      className="px-6 py-3.5 bg-white/10 hover:bg-white/20 text-white font-bold text-xs uppercase tracking-wider rounded-xl transition-all border border-amber-300/30 text-center hover:scale-105 active:scale-95 cursor-pointer"
+                    >
+                      Call Concierge Desk
+                    </a>
+                  </div>
                 </div>
-                <div className="flex flex-col sm:flex-row gap-3 shrink-0 relative z-10 w-full sm:w-auto">
-                  <button
-                    onClick={() => {
-                      setActiveTab('builder')
-                      window.scrollTo({ top: 0, behavior: 'smooth' })
-                    }}
-                    className="btn-3d-gold px-7 py-3.5 bg-gradient-to-r from-[#e6ca65] via-[#ffd700] to-[#c5a059] hover:brightness-110 text-stone-950 font-bold text-xs uppercase tracking-wider rounded-xl transition-all shadow-xl hover:scale-105 active:scale-95 cursor-pointer text-center"
-                  >
-                    Start Event Architect
-                  </button>
-                  <a
-                    href="tel:+919876543210"
-                    className="px-6 py-3.5 bg-white/10 hover:bg-white/20 text-white font-bold text-xs uppercase tracking-wider rounded-xl transition-all border border-amber-300/30 text-center hover:scale-105 active:scale-95 cursor-pointer"
-                  >
-                    Call Concierge Desk
-                  </a>
-                </div>
-              </div>
-            </section>
+              </section>
+            </ScrollReveal>
           </div>
         )}
 
@@ -4251,8 +4260,8 @@ export default function VowsAndVenuesApp() {
         </div>
       )}
 
-      {/* FLOATING NEGOTIATION & CONCIERGE CHAT BUTTON (Client Requested) */}
-      <div className="fixed bottom-6 right-6 z-40 flex flex-col items-end gap-2">
+      {/* FLOATING NEGOTIATION & CONCIERGE CHAT BUTTON (Positioned above mobile bottom bar) */}
+      <div className="fixed bottom-20 right-4 sm:bottom-6 sm:right-6 z-40 flex flex-col items-end gap-2">
         <button
           onClick={() => handleOpenNegotiation(null)}
           className="group relative flex items-center gap-2.5 px-4 py-3 rounded-full bg-gradient-to-r from-[#2c0e17] via-[#4a1525] to-[#2c0e17] hover:from-[#1f0910] hover:to-[#38101c] text-[#f7efdc] shadow-[0_8px_30px_rgba(74,21,37,0.35)] hover:shadow-[0_12px_40px_rgba(74,21,37,0.5)] border-2 border-[#c5a059] transition-all hover:scale-105 active:scale-95 cursor-pointer"

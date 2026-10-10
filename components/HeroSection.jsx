@@ -95,11 +95,15 @@ export default function HeroSection({
         {/* CENTER TYPOGRAPHY & EDITORIAL STATEMENTS */}
         <div className="relative max-w-4xl mx-auto w-full text-center z-20 my-auto py-6 sm:py-8">
           
-          {/* Master Headline with Gold Shimmer Italic */}
-          <h1 className="font-serif text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight text-white mb-4 leading-[1.08] drop-shadow-[0_4px_30px_rgba(0,0,0,0.85)] animate-luxury-enter stagger-1">
-            Curating India’s Most <br className="hidden sm:inline" />
-            <span className="italic font-normal text-amber-200 drop-shadow-[0_2px_20px_rgba(230,202,101,0.55)]">
-              Breathtaking Celebrations
+          {/* Master Headline with Reference-Matched Staggered Line Reveal */}
+          <h1 className="font-serif text-[clamp(2.1rem,5.8vw,4.6rem)] font-bold tracking-tight text-white mb-4 leading-[1.12] drop-shadow-[0_4px_30px_rgba(0,0,0,0.85)]">
+            <span className="block overflow-hidden pb-1">
+              <span className="inline-block animate-luxury-enter">Curating India’s Most</span>
+            </span>
+            <span className="block overflow-hidden pt-0.5">
+              <span className="inline-block italic font-normal text-amber-200 drop-shadow-[0_2px_20px_rgba(230,202,101,0.55)] animate-luxury-enter stagger-1">
+                Breathtaking Celebrations
+              </span>
             </span>
           </h1>
 
@@ -109,18 +113,18 @@ export default function HeroSection({
           </p>
 
           {/* Quick Metrics Strip */}
-          <div className="inline-flex flex-wrap items-center justify-center gap-4 sm:gap-8 px-6 py-2.5 rounded-full bg-black/55 backdrop-blur-md border border-amber-300/30 text-amber-100 text-xs shadow-xl animate-luxury-enter stagger-3">
-            <div className="flex items-center gap-2">
+          <div className="inline-flex flex-wrap items-center justify-center gap-3 sm:gap-8 px-5 sm:px-6 py-2 sm:py-2.5 rounded-full bg-black/55 backdrop-blur-md border border-amber-300/30 text-amber-100 text-xs shadow-xl animate-luxury-enter stagger-3">
+            <div className="flex items-center gap-1.5 sm:gap-2">
               <span className="font-serif font-bold text-amber-300 text-sm sm:text-base">850+</span>
               <span className="text-stone-300 text-[11px]">Verified Masters</span>
             </div>
             <span className="w-1 h-1 rounded-full bg-amber-400 hidden sm:inline-block" />
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1.5 sm:gap-2">
               <span className="font-serif font-bold text-amber-300 text-sm sm:text-base">14,200+</span>
               <span className="text-stone-300 text-[11px]">Celebrations</span>
             </div>
             <span className="w-1 h-1 rounded-full bg-amber-400 hidden sm:inline-block" />
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1.5 sm:gap-2">
               <span className="font-serif font-bold text-amber-300 text-sm sm:text-base">4.98 ★</span>
               <span className="text-stone-300 text-[11px]">Client Rating</span>
             </div>
@@ -139,11 +143,11 @@ export default function HeroSection({
         <div className="relative z-20 max-w-5xl mx-auto w-full pb-2 animate-luxury-enter stagger-4">
           <div className="bg-gradient-to-br from-[#ffffff]/98 via-[#fefdfa]/95 to-[#fbf7f0]/95 backdrop-blur-2xl rounded-2xl sm:rounded-3xl p-3.5 sm:p-5 shadow-[0_25px_60px_rgba(20,5,10,0.35)] border-2 border-amber-300/80 ring-4 ring-amber-400/20 text-stone-900 transition-all">
             
-            {/* Inline 4-Field Search Grid */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-3 mb-3">
+            {/* Inline 4-Field Search Grid with 44px minimum touch targets */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-3.5 mb-3">
               
               {/* Field 1: Event Type */}
-              <div className="bg-stone-50/90 hover:bg-white rounded-xl p-2.5 border border-stone-200 hover:border-amber-400 transition-all shadow-2xs">
+              <div className="bg-stone-50/90 hover:bg-white rounded-xl p-2.5 border border-stone-200 hover:border-amber-400 transition-all shadow-2xs min-h-[48px] flex flex-col justify-center">
                 <label className="block text-[10px] font-bold text-[#6E2338] uppercase tracking-wider mb-0.5 flex items-center gap-1.5">
                   <span className="w-2 h-2 rounded-full bg-rose-500" />
                   <span>Celebration Type</span>
@@ -151,7 +155,7 @@ export default function HeroSection({
                 <select
                   value={heroSearch.eventType}
                   onChange={(e) => setHeroSearch({ ...heroSearch, eventType: e.target.value })}
-                  className="w-full bg-transparent font-semibold text-stone-900 text-xs sm:text-sm focus:outline-none cursor-pointer"
+                  className="w-full bg-transparent font-semibold text-stone-900 text-xs sm:text-sm focus:outline-none cursor-pointer py-1"
                 >
                   {eventTypes.map(t => (
                     <option key={t.id} value={t.name}>{t.icon} {t.name}</option>
@@ -160,7 +164,7 @@ export default function HeroSection({
               </div>
 
               {/* Field 2: Location */}
-              <div className="bg-stone-50/90 hover:bg-white rounded-xl p-2.5 border border-stone-200 hover:border-amber-400 transition-all shadow-2xs">
+              <div className="bg-stone-50/90 hover:bg-white rounded-xl p-2.5 border border-stone-200 hover:border-amber-400 transition-all shadow-2xs min-h-[48px] flex flex-col justify-center">
                 <label className="block text-[10px] font-bold text-[#6E2338] uppercase tracking-wider mb-0.5 flex items-center gap-1.5">
                   <MapPin className="w-3 h-3 text-amber-600" />
                   <span>Destination City</span>
@@ -171,7 +175,7 @@ export default function HeroSection({
                     setHeroSearch({ ...heroSearch, city: e.target.value })
                     setSelectedCity(e.target.value)
                   }}
-                  className="w-full bg-transparent font-semibold text-stone-900 text-xs sm:text-sm focus:outline-none cursor-pointer"
+                  className="w-full bg-transparent font-semibold text-stone-900 text-xs sm:text-sm focus:outline-none cursor-pointer py-1"
                 >
                   {cities.filter(c => c !== 'All Cities').map(c => (
                     <option key={c} value={c}>{c}</option>
@@ -180,7 +184,7 @@ export default function HeroSection({
               </div>
 
               {/* Field 3: Event Date */}
-              <div className="bg-stone-50/90 hover:bg-white rounded-xl p-2.5 border border-stone-200 hover:border-amber-400 transition-all shadow-2xs">
+              <div className="bg-stone-50/90 hover:bg-white rounded-xl p-2.5 border border-stone-200 hover:border-amber-400 transition-all shadow-2xs min-h-[48px] flex flex-col justify-center">
                 <label className="block text-[10px] font-bold text-[#6E2338] uppercase tracking-wider mb-0.5 flex items-center gap-1.5">
                   <Calendar className="w-3 h-3 text-emerald-600" />
                   <span>Event Date</span>
@@ -189,12 +193,12 @@ export default function HeroSection({
                   type="date"
                   value={heroSearch.date}
                   onChange={(e) => setHeroSearch({ ...heroSearch, date: e.target.value })}
-                  className="w-full bg-transparent font-semibold text-stone-900 text-xs sm:text-sm focus:outline-none cursor-pointer"
+                  className="w-full bg-transparent font-semibold text-stone-900 text-xs sm:text-sm focus:outline-none cursor-pointer py-1"
                 />
               </div>
 
               {/* Field 4: Guests & Target Budget */}
-              <div className="bg-stone-50/90 hover:bg-white rounded-xl p-2.5 border border-stone-200 hover:border-amber-400 transition-all shadow-2xs">
+              <div className="bg-stone-50/90 hover:bg-white rounded-xl p-2.5 border border-stone-200 hover:border-amber-400 transition-all shadow-2xs min-h-[48px] flex flex-col justify-center">
                 <label className="block text-[10px] font-bold text-[#6E2338] uppercase tracking-wider mb-0.5 flex items-center gap-1.5">
                   <Users className="w-3 h-3 text-purple-600" />
                   <span>Guests &amp; Scale</span>
@@ -202,7 +206,7 @@ export default function HeroSection({
                 <select
                   value={heroSearch.guests}
                   onChange={(e) => setHeroSearch({ ...heroSearch, guests: e.target.value })}
-                  className="w-full bg-transparent font-semibold text-stone-900 text-xs sm:text-sm focus:outline-none cursor-pointer"
+                  className="w-full bg-transparent font-semibold text-stone-900 text-xs sm:text-sm focus:outline-none cursor-pointer py-1"
                 >
                   <option value="50">50 – 100 Guests (Intimate)</option>
                   <option value="250">200 – 350 Guests (Grand)</option>
