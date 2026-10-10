@@ -6,12 +6,13 @@ import * as THREE from 'three'
 export default function ThreeWeddingHeroScene() {
   const containerRef = useRef(null)
   const [hasWebGL, setHasWebGL] = useState(true)
+  const [isLoaded, setIsLoaded] = useState(false)
 
   useEffect(() => {
-    // Check WebGL availability
+    // 1. Check WebGL availability
     try {
-      const canvas = document.createElement('canvas')
-      const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl')
+      const testCanvas = document.createElement('canvas')
+      const gl = testCanvas.getContext('webgl') || testCanvas.getContext('experimental-webgl')
       if (!gl) {
         setHasWebGL(false)
         return
@@ -24,16 +25,24 @@ export default function ThreeWeddingHeroScene() {
     const container = containerRef.current
     if (!container) return
 
-    // 1. Scene, Camera, Renderer
+    // Check prefers-reduced-motion
+    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+
+    // 2. Scene, Camera, Renderer Setup
     const scene = new THREE.Scene()
-    // Soft atmospheric fog with warm twilight champagne tint
-    scene.fog = new THREE.FogExp2(0x1a070f, 0.035)
+    // Soft atmospheric haze with subtle royal wine/champagne tone
+    scene.fog = new THREE.FogExp2(0x16070e, 0.032)
 
-    const width = container.clientWidth || window.innerWidth
-    const height = container.clientHeight || window.innerHeight
+    let width = container.clientWidth || window.innerWidth
+    let height = container.clientHeight || window.innerHeight
 
-    const camera = new THREE.PerspectiveCamera(50, width / height, 0.1, 100)
-    camera.position.set(0, 1.2, 5.5)
+    // Perspective camera with natural 46° FOV for editorial architectural framing
+    const camera = new THREE.PerspectiveCamera(46, width / height, 0.1, 100)
+    
+    // Dynamic camera distance based on aspect ratio to guarantee columns frame the viewport edges
+    const isMobile = width < 768
+    const initialCamZ = isMobile ? 6.2 : 5.2
+    camera.position.set(0, 1.35, initialCamZ)
 
     const renderer = new THREE.WebGLRenderer({
       alpha: true,
@@ -41,205 +50,394 @@ export default function ThreeWeddingHeroScene() {
       powerPreference: 'high-performance'
     })
     renderer.setSize(width, height)
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, isMobile ? 1.5 : 2))
     renderer.toneMapping = THREE.ACESFilmicToneMapping
-    renderer.toneMappingExposure = 1.15
+    renderer.toneMappingExposure = 1.18
     container.appendChild(renderer.domElement)
 
-    // 2. Volumetric Lighting
-    const ambientLight = new THREE.AmbientLight(0xffecd2, 0.8)
+    // 3. Volumetric Studio Lighting (Warm Ivory, Antique Gold, Royal Wine)
+    const ambientLight = new THREE.AmbientLight(0xfff7ed, 0.85) // Warm ivory ambient
     scene.add(ambientLight)
 
-    const sunLight = new THREE.DirectionalLight(0xffeedd, 1.6)
-    sunLight.position.set(4, 6, 3)
+    // Key Golden-Hour Sun Light
+    const sunLight = new THREE.DirectionalLight(0xffeed6, 1.8)
+    sunLight.position.set(5, 7, 3.5)
     scene.add(sunLight)
 
-    const royalWineLight = new THREE.PointLight(0xb33951, 2.5, 12)
-    royalWineLight.position.set(-3, 2, 2)
-    scene.add(royalWineLight)
+    // Subtle Deep Burgundy Rim Fill Light
+    const burgundyRimLight = new THREE.PointLight(0x6e1b32, 2.0, 14)
+    burgundyRimLight.position.set(-4.5, 2.0, 2.0)
+    scene.add(burgundyRimLight)
 
-    const goldChandelierLight = new THREE.PointLight(0xffd700, 3.0, 10)
-    goldChandelierLight.position.set(0, 3.2, 0)
-    scene.add(goldChandelierLight)
+    // Left Colonnade Sconce Warm Flame
+    const leftSconceLight = new THREE.PointLight(0xffb84d, 2.2, 9)
+    leftSconceLight.position.set(-3.2, 2.3, 0.2)
+    scene.add(leftSconceLight)
 
-    // 3. 3D Architectural Mandap & Courtyard Geometry
-    const mandapGroup = new THREE.Group()
+    // Right Colonnade Sconce Warm Flame
+    const rightSconceLight = new THREE.PointLight(0xffb84d, 2.2, 9)
+    rightSconceLight.position.set(3.2, 2.3, 0.2)
+    scene.add(rightSconceLight)
 
-    // Materials
-    const marbleMaterial = new THREE.MeshStandardMaterial({
-      color: 0xfaf4e8,
-      roughness: 0.25,
-      metalness: 0.15
+    // Background Mandap Sacred Diya Light (Far distance, soft romantic center glow)
+    const diyaLight = new THREE.PointLight(0xff9e2c, 1.8, 8)
+    diyaLight.position.set(0, 1.1, -4.8)
+    scene.add(diyaLight)
+
+    // 4. Architectural Materials (High-Fidelity PBR)
+    const makaranaMarbleMaterial = new THREE.MeshStandardMaterial({
+      color: 0xfcf8f2, // Makarana royal white marble
+      roughness: 0.16,
+      metalness: 0.08
     })
 
-    const goldMaterial = new THREE.MeshStandardMaterial({
-      color: 0xd4af37,
-      roughness: 0.2,
-      metalness: 0.85
+    const plinthMarbleMaterial = new THREE.MeshStandardMaterial({
+      color: 0x221319, // Deep burgundy-charcoal polished stone plinth
+      roughness: 0.24,
+      metalness: 0.12
     })
 
-    const pillarGeometry = new THREE.CylinderGeometry(0.12, 0.16, 3.4, 24)
-    const pillarBaseGeometry = new THREE.BoxGeometry(0.5, 0.25, 0.5)
-    const pillarPositions = [
-      [-1.8, 0, -1.2],
-      [1.8, 0, -1.2],
-      [-1.4, 0, 1.0],
-      [1.4, 0, 1.0]
+    const antiqueGoldMaterial = new THREE.MeshStandardMaterial({
+      color: 0xdfb76c, // 24K Royal Antique Champagne Gold
+      roughness: 0.22,
+      metalness: 0.88
+    })
+
+    const sacredFlameMaterial = new THREE.MeshBasicMaterial({
+      color: 0xffdd88
+    })
+
+    // 5. Build Architectural Colonnade (Framing Left & Right Wings)
+    const pavilionGroup = new THREE.Group()
+
+    // Helper: Build a classical Indian Palace Column with multi-tiered plinth and lotus capital
+    const createPalaceColumn = (x, z) => {
+      const colGroup = new THREE.Group()
+      colGroup.position.set(x, 0, z)
+
+      // 1. Stepped Plinth Base
+      const plinthBase = new THREE.Mesh(
+        new THREE.BoxGeometry(0.62, 0.22, 0.62),
+        plinthMarbleMaterial
+      )
+      plinthBase.position.y = 0.11
+      colGroup.add(plinthBase)
+
+      const plinthMolding = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.26, 0.31, 0.16, 28),
+        antiqueGoldMaterial
+      )
+      plinthMolding.position.y = 0.30
+      colGroup.add(plinthMolding)
+
+      // 2. Classical Fluted Shaft
+      const shaft = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.17, 0.20, 3.8, 28),
+        makaranaMarbleMaterial
+      )
+      shaft.position.y = 2.28
+      colGroup.add(shaft)
+
+      // Shaft Lower & Mid Rings
+      const lowerRing = new THREE.Mesh(
+        new THREE.TorusGeometry(0.19, 0.025, 12, 28),
+        antiqueGoldMaterial
+      )
+      lowerRing.rotation.x = Math.PI / 2
+      lowerRing.position.y = 0.65
+      colGroup.add(lowerRing)
+
+      const upperRing = new THREE.Mesh(
+        new THREE.TorusGeometry(0.17, 0.025, 12, 28),
+        antiqueGoldMaterial
+      )
+      upperRing.rotation.x = Math.PI / 2
+      upperRing.position.y = 3.9
+      colGroup.add(upperRing)
+
+      // 3. Flared Lotus Capital
+      const lotusCapital = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.30, 0.17, 0.35, 16),
+        antiqueGoldMaterial
+      )
+      lotusCapital.position.y = 4.35
+      colGroup.add(lotusCapital)
+
+      // 4. Square Abacus Slab
+      const abacus = new THREE.Mesh(
+        new THREE.BoxGeometry(0.58, 0.16, 0.58),
+        makaranaMarbleMaterial
+      )
+      abacus.position.y = 4.58
+      colGroup.add(abacus)
+
+      return colGroup
+    }
+
+    // Determine horizontal column spread: columns flank outer margins leaving central text zone 100% unobstructed
+    const spreadInner = isMobile ? 2.5 : 3.4
+    const spreadOuter = isMobile ? 3.3 : 4.4
+
+    // Left Colonnade
+    const leftInnerCol = createPalaceColumn(-spreadInner, 0.2)
+    const leftOuterCol = createPalaceColumn(-spreadOuter, -1.2)
+    pavilionGroup.add(leftInnerCol)
+    pavilionGroup.add(leftOuterCol)
+
+    // Right Colonnade
+    const rightInnerCol = createPalaceColumn(spreadInner, 0.2)
+    const rightOuterCol = createPalaceColumn(spreadOuter, -1.2)
+    pavilionGroup.add(rightInnerCol)
+    pavilionGroup.add(rightOuterCol)
+
+    // Sconce Lantern Brackets on Inner Columns
+    const createLantern = (x, y, z) => {
+      const lanternGroup = new THREE.Group()
+      lanternGroup.position.set(x, y, z)
+
+      const arm = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.02, 0.02, 0.35, 8),
+        antiqueGoldMaterial
+      )
+      arm.rotation.z = x > 0 ? Math.PI / 4 : -Math.PI / 4
+      lanternGroup.add(arm)
+
+      const housing = new THREE.Mesh(
+        new THREE.OctahedronGeometry(0.12, 0),
+        antiqueGoldMaterial
+      )
+      housing.position.set(x > 0 ? -0.18 : 0.18, 0.1, 0.1)
+      lanternGroup.add(housing)
+
+      const flame = new THREE.Mesh(
+        new THREE.SphereGeometry(0.045, 12, 12),
+        sacredFlameMaterial
+      )
+      flame.position.copy(housing.position)
+      lanternGroup.add(flame)
+
+      return lanternGroup
+    }
+
+    pavilionGroup.add(createLantern(-spreadInner + 0.15, 2.3, 0.2))
+    pavilionGroup.add(createLantern(spreadInner - 0.15, 2.3, 0.2))
+
+    // High Royal Arch spanning OVER the entire scene (y = 4.65, comfortably above headline)
+    const archRadius = isMobile ? 2.6 : 3.6
+    const archGeom = new THREE.TorusGeometry(archRadius, 0.045, 16, 48, Math.PI)
+    const royalGrandArch = new THREE.Mesh(archGeom, antiqueGoldMaterial)
+    royalGrandArch.position.set(0, 4.65, 0.1)
+    pavilionGroup.add(royalGrandArch)
+
+    // Secondary decorative cusped arch rib
+    const innerArchGeom = new THREE.TorusGeometry(archRadius - 0.25, 0.025, 12, 48, Math.PI)
+    const royalInnerArch = new THREE.Mesh(innerArchGeom, antiqueGoldMaterial)
+    royalInnerArch.position.set(0, 4.65, -0.3)
+    pavilionGroup.add(royalInnerArch)
+
+    // 6. Deep-Background Sacred Mandap Pavilion (Positioned at z = -4.8 in deep perspective)
+    const backgroundMandap = new THREE.Group()
+    backgroundMandap.position.set(0, 0, -4.8)
+
+    // Tiered Circular Dais
+    const dais = new THREE.Mesh(
+      new THREE.CylinderGeometry(1.6, 1.8, 0.22, 32),
+      plinthMarbleMaterial
+    )
+    dais.position.y = 0.11
+    backgroundMandap.add(dais)
+
+    const daisGoldRim = new THREE.Mesh(
+      new THREE.TorusGeometry(1.62, 0.03, 12, 32),
+      antiqueGoldMaterial
+    )
+    daisGoldRim.rotation.x = Math.PI / 2
+    daisGoldRim.position.y = 0.22
+    backgroundMandap.add(daisGoldRim)
+
+    // 4 Slender Pavilion Stanchions
+    const stanchionGeom = new THREE.CylinderGeometry(0.055, 0.075, 1.8, 16)
+    const stanchionPositions = [
+      [-0.85, 0.95, -0.85],
+      [0.85, 0.95, -0.85],
+      [-0.85, 0.95, 0.85],
+      [0.85, 0.95, 0.85]
     ]
-
-    pillarPositions.forEach(([x, y, z]) => {
-      // Shaft
-      const shaft = new THREE.Mesh(pillarGeometry, marbleMaterial)
-      shaft.position.set(x, 1.7, z)
-      mandapGroup.add(shaft)
-
-      // Base
-      const base = new THREE.Mesh(pillarBaseGeometry, goldMaterial)
-      base.position.set(x, 0.12, z)
-      mandapGroup.add(base)
-
-      // Capital / Crown
-      const crown = new THREE.Mesh(pillarBaseGeometry, goldMaterial)
-      crown.position.set(x, 3.35, z)
-      mandapGroup.add(crown)
+    stanchionPositions.forEach(([sx, sy, sz]) => {
+      const stan = new THREE.Mesh(stanchionGeom, antiqueGoldMaterial)
+      stan.position.set(sx, sy, sz)
+      backgroundMandap.add(stan)
     })
 
-    // Mandap Canopy Arches (Curved Royal Domes)
-    const archGeometry = new THREE.TorusGeometry(1.6, 0.05, 12, 32, Math.PI)
-    const frontArch = new THREE.Mesh(archGeometry, goldMaterial)
-    frontArch.position.set(0, 3.4, 1.0)
-    mandapGroup.add(frontArch)
+    // Miniature Golden Chhatri Dome Crown at far depth
+    const domeGeom = new THREE.SphereGeometry(0.95, 24, 16, 0, Math.PI * 2, 0, Math.PI / 2)
+    const dome = new THREE.Mesh(domeGeom, antiqueGoldMaterial)
+    dome.position.y = 1.85
+    backgroundMandap.add(dome)
 
-    const backArch = new THREE.Mesh(archGeometry, goldMaterial)
-    backArch.position.set(0, 3.4, -1.2)
-    mandapGroup.add(backArch)
+    // Glowing Sacred Diya in Center Altar
+    const diyaBase = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.18, 0.12, 0.12, 16),
+      antiqueGoldMaterial
+    )
+    diyaBase.position.y = 0.28
+    backgroundMandap.add(diyaBase)
 
-    // Central Suspended Kalash / Golden Chandelier
-    const kalashGeom = new THREE.OctahedronGeometry(0.35, 1)
-    const kalash = new THREE.Mesh(kalashGeom, goldMaterial)
-    kalash.position.set(0, 3.0, -0.1)
-    mandapGroup.add(kalash)
+    const diyaFlame = new THREE.Mesh(
+      new THREE.SphereGeometry(0.07, 12, 12),
+      sacredFlameMaterial
+    )
+    diyaFlame.position.y = 0.38
+    backgroundMandap.add(diyaFlame)
 
-    // Courtyard Terrace Floor
-    const floorGeometry = new THREE.PlaneGeometry(24, 24)
-    const floorMaterial = new THREE.MeshStandardMaterial({
-      color: 0x180b12,
-      roughness: 0.4,
-      metalness: 0.3
-    })
-    const floor = new THREE.Mesh(floorGeometry, floorMaterial)
-    floor.rotation.x = -Math.PI / 2
-    floor.position.y = 0
-    mandapGroup.add(floor)
+    pavilionGroup.add(backgroundMandap)
+    scene.add(pavilionGroup)
 
-    scene.add(mandapGroup)
+    // 7. Organic Floating Rose & Marigold Petals (Tasteful, Slow, Natural Movement)
+    // Desktop: 30 petals, Mobile: 14 petals
+    const petalCount = isMobile ? 14 : 30
+    
+    // Slight curved petal geometry using a segmented plane with gentle curve
+    const petalGeom = new THREE.PlaneGeometry(0.10, 0.14, 2, 2)
+    // Subtle physical curvature along vertex positions for realism
+    const posAttr = petalGeom.attributes.position
+    posAttr.setZ(0, 0.02)
+    posAttr.setZ(2, 0.02)
+    posAttr.setZ(6, 0.02)
+    posAttr.setZ(8, 0.02)
+    posAttr.needsUpdate = true
 
-    // 4. Floating Rose & Marigold Petal Particles (True 3D drifting simulation)
-    const petalCount = 75
-    const petalGeom = new THREE.PlaneGeometry(0.08, 0.12)
-    const petalMaterialRed = new THREE.MeshStandardMaterial({
-      color: 0xa8203d, // Deep Royal Crimson Rose
+    const petalMatRed = new THREE.MeshStandardMaterial({
+      color: 0x8f152b, // Royal Velvet Rose Crimson
       side: THREE.DoubleSide,
-      roughness: 0.5
+      roughness: 0.55
     })
-    const petalMaterialGold = new THREE.MeshStandardMaterial({
-      color: 0xf5a623, // Fresh Marigold Yellow
+    const petalMatGold = new THREE.MeshStandardMaterial({
+      color: 0xf59e0b, // Fresh Amber Marigold
       side: THREE.DoubleSide,
-      roughness: 0.4
+      roughness: 0.45
+    })
+    const petalMatBlush = new THREE.MeshStandardMaterial({
+      color: 0xc44569, // Twilight Blush Rose
+      side: THREE.DoubleSide,
+      roughness: 0.52
     })
 
     const petals = []
     for (let i = 0; i < petalCount; i++) {
-      const mat = Math.random() > 0.4 ? petalMaterialRed : petalMaterialGold
-      const mesh = new THREE.Mesh(petalGeom, mat)
-      mesh.position.set(
-        (Math.random() - 0.5) * 8,
-        Math.random() * 6 + 0.5,
-        (Math.random() - 0.5) * 6
+      const rand = Math.random()
+      const mat = rand > 0.65 ? petalMatGold : rand > 0.3 ? petalMatRed : petalMatBlush
+      const petalMesh = new THREE.Mesh(petalGeom, mat)
+
+      // Random scale for natural variance
+      const s = 0.6 + Math.random() * 0.7
+      petalMesh.scale.set(s, s, s)
+
+      petalMesh.position.set(
+        (Math.random() - 0.5) * (isMobile ? 5 : 9),
+        Math.random() * 6.0 + 0.2,
+        (Math.random() - 0.5) * 5.5 + 0.5
       )
-      mesh.rotation.set(
-        Math.random() * Math.PI,
-        Math.random() * Math.PI,
-        Math.random() * Math.PI
+      petalMesh.rotation.set(
+        Math.random() * Math.PI * 2,
+        Math.random() * Math.PI * 2,
+        Math.random() * Math.PI * 2
       )
-      mesh.userData = {
-        speedY: Math.random() * 0.008 + 0.005,
-        speedX: (Math.random() - 0.5) * 0.004,
-        rotSpeedX: Math.random() * 0.02 + 0.01,
-        rotSpeedZ: Math.random() * 0.03 + 0.01,
+
+      petalMesh.userData = {
+        speedY: 0.003 + Math.random() * 0.004, // Very slow, graceful falling
+        speedX: 0.002 + Math.random() * 0.003,
+        rotSpeedX: (Math.random() - 0.5) * 0.015,
+        rotSpeedY: (Math.random() - 0.5) * 0.018,
+        rotSpeedZ: (Math.random() - 0.5) * 0.012,
+        swayFreq: 0.8 + Math.random() * 1.2,
         swayOffset: Math.random() * Math.PI * 2
       }
-      scene.add(mesh)
-      petals.push(mesh)
+
+      scene.add(petalMesh)
+      petals.push(petalMesh)
     }
 
-    // 5. Cursor Interactive Parallax
+    // 8. Cursor Interactive Parallax (Desktop) & Ambient Breathing (Mobile)
     let mouseX = 0
     let mouseY = 0
-    let targetX = 0
-    let targetY = 0
+    let targetCamX = 0
+    let targetCamY = 0
 
     const handleMouseMove = (e) => {
+      if (prefersReducedMotion) return
       mouseX = (e.clientX / window.innerWidth) * 2 - 1
       mouseY = -(e.clientY / window.innerHeight) * 2 + 1
     }
     window.addEventListener('mousemove', handleMouseMove, { passive: true })
 
-    // 6. Animation Loop
+    // 9. 60fps Animation Loop
     let animationFrameId
-    let clock = new THREE.Clock()
+    const clock = new THREE.Clock()
 
     const animate = () => {
       animationFrameId = requestAnimationFrame(animate)
       const elapsedTime = clock.getElapsedTime()
 
-      // Smooth camera interpolation towards mouse target
-      targetX += (mouseX * 0.45 - targetX) * 0.05
-      targetY += (mouseY * 0.25 - targetY) * 0.05
-
-      camera.position.x = targetX
-      camera.position.y = 1.2 + targetY
-      camera.lookAt(0, 1.8, 0)
-
-      // Chandelier subtle breathing glow
-      goldChandelierLight.intensity = 2.8 + Math.sin(elapsedTime * 2.5) * 0.6
-      kalash.rotation.y = elapsedTime * 0.35
-
-      // Mandap gentle floating sway
-      mandapGroup.rotation.y = Math.sin(elapsedTime * 0.4) * 0.02
-
-      // Petal physics: falling, tumbling, and swaying
-      petals.forEach((p) => {
-        p.position.y -= p.userData.speedY
-        p.position.x += Math.sin(elapsedTime + p.userData.swayOffset) * p.userData.speedX
-        p.rotation.x += p.userData.rotSpeedX
-        p.rotation.z += p.userData.rotSpeedZ
-
-        // Recycle petal when it falls below ground
-        if (p.position.y < 0) {
-          p.position.y = 5.5 + Math.random()
-          p.position.x = (Math.random() - 0.5) * 8
-          p.position.z = (Math.random() - 0.5) * 6
+      if (!prefersReducedMotion) {
+        // Desktop gentle cursor parallax interpolation
+        if (!isMobile) {
+          targetCamX += (mouseX * 0.35 - targetCamX) * 0.04
+          targetCamY += (mouseY * 0.18 - targetCamY) * 0.04
+          camera.position.x = targetCamX
+          camera.position.y = 1.35 + targetCamY
+          camera.lookAt(0, 1.45, -1.0)
+        } else {
+          // Mobile lightweight ambient breathing motion
+          camera.position.x = Math.sin(elapsedTime * 0.4) * 0.08
+          camera.position.y = 1.35 + Math.cos(elapsedTime * 0.3) * 0.05
+          camera.lookAt(0, 1.45, -1.0)
         }
-      })
+
+        // Slow, organic petal drift physics
+        petals.forEach((p) => {
+          p.position.y -= p.userData.speedY
+          p.position.x += Math.sin(elapsedTime * p.userData.swayFreq + p.userData.swayOffset) * p.userData.speedX
+          p.rotation.x += p.userData.rotSpeedX
+          p.rotation.y += p.userData.rotSpeedY
+          p.rotation.z += p.userData.rotSpeedZ
+
+          // Respawn petal gracefully above the camera view
+          if (p.position.y < -0.2) {
+            p.position.y = 6.2 + Math.random() * 0.5
+            p.position.x = (Math.random() - 0.5) * (isMobile ? 5 : 9)
+            p.position.z = (Math.random() - 0.5) * 5.5 + 0.5
+          }
+        })
+
+        // Gentle flickering lantern flames
+        const flicker = Math.sin(elapsedTime * 3.5) * 0.18 + Math.cos(elapsedTime * 7.2) * 0.10
+        leftSconceLight.intensity = 2.2 + flicker
+        rightSconceLight.intensity = 2.2 - flicker
+        diyaLight.intensity = 1.8 + flicker * 1.2
+      }
 
       renderer.render(scene, camera)
     }
 
     animate()
+    setIsLoaded(true)
 
-    // 7. Responsive Resize Handler
+    // 10. Responsive Resize Handler
     const handleResize = () => {
       if (!container) return
-      const newW = container.clientWidth
-      const newH = container.clientHeight
-      camera.aspect = newW / newH
+      width = container.clientWidth
+      height = container.clientHeight
+      camera.aspect = width / height
+      
+      const currentIsMobile = width < 768
+      camera.position.z = currentIsMobile ? 6.2 : 5.2
       camera.updateProjectionMatrix()
-      renderer.setSize(newW, newH)
+      renderer.setSize(width, height)
     }
     window.addEventListener('resize', handleResize)
 
-    // Cleanup on unmount
+    // 11. Cleanup
     return () => {
       window.removeEventListener('mousemove', handleMouseMove)
       window.removeEventListener('resize', handleResize)
@@ -257,7 +455,9 @@ export default function ThreeWeddingHeroScene() {
   return (
     <div
       ref={containerRef}
-      className="absolute inset-0 pointer-events-none z-10 overflow-hidden"
+      className={`absolute inset-0 pointer-events-none z-10 overflow-hidden transition-opacity duration-1000 ${
+        isLoaded ? 'opacity-100' : 'opacity-0'
+      }`}
       aria-hidden="true"
     />
   )

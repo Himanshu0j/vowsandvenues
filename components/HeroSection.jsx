@@ -57,55 +57,59 @@ export default function HeroSection({
       {/* ============================================================== */}
       {/* 1. CINEMATIC 4K HERO BANNER (Vibrant, Majestic, Full-Bleed)     */}
       {/* ============================================================== */}
-      <section className="relative min-h-[82vh] sm:min-h-[88vh] lg:min-h-[92vh] flex flex-col justify-between py-8 sm:py-12 px-4 sm:px-6 lg:px-8">
+      <section className="relative min-h-[82vh] sm:min-h-[88vh] lg:min-h-[92vh] flex flex-col justify-between py-8 sm:py-12 px-4 sm:px-6 lg:px-8 select-none">
         
-        {/* 4K Background Photography (High Clarity, Vibrant Warm Tone) */}
+        {/* 4K Background Photography (Subtle 35mm lens blur & slow ambient zoom) */}
         <div 
-          className="absolute inset-0 bg-cover bg-center transition-all duration-1000 scale-100"
-          style={{ backgroundImage: `url('${backdrop4K}')` }}
+          className="absolute inset-0 bg-cover bg-center transition-transform ease-out scale-105 pointer-events-none"
+          style={{ 
+            backgroundImage: `url('${backdrop4K}')`,
+            filter: 'blur(1.5px) brightness(0.82)',
+            transitionDuration: '25s'
+          }}
         />
 
-        {/* Real Interactive 3D WebGL Mandap Canvas with Drifting Petals & Camera Parallax */}
+        {/* Real Interactive 3D WebGL Palace Colonnade & Petal Drift */}
         <ThreeWeddingHeroScene />
 
-        {/* Refined Luxury Editorial Scrim (Preserves Vibrant Palace Lights & Color) */}
-        <div className="absolute inset-0 bg-gradient-to-t from-[#14060b] via-[#1a070f]/45 to-black/30" />
-        <div className="absolute inset-0 bg-radial-at-c from-transparent via-[#120509]/30 to-[#120509]/75" />
+        {/* Multi-tier Cinematic Scrim: deep royal wine & espresso vignette */}
+        <div className="absolute inset-0 bg-gradient-to-t from-[#14060b] via-[#1a070f]/45 to-black/35 pointer-events-none" />
+        <div className="absolute inset-0 bg-radial-at-c from-transparent via-[#120509]/25 to-[#120509]/80 pointer-events-none" />
 
         {/* Top Champagne Gold Accent Border */}
         <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-[#e6ca65] to-transparent opacity-90" />
 
         {/* TOP STATUS / LOCATION PILL */}
-        <div className="relative z-10 max-w-6xl mx-auto w-full flex items-center justify-between text-white/90 pt-2">
-          <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-black/40 backdrop-blur-md border border-amber-300/30 text-amber-200 text-[11px] font-semibold tracking-wide shadow-md">
+        <div className="relative z-20 max-w-6xl mx-auto w-full flex items-center justify-between text-white/90 pt-2 animate-luxury-down">
+          <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-black/50 backdrop-blur-md border border-amber-300/35 text-amber-200 text-[11px] font-semibold tracking-wide shadow-md">
             <Crown className="w-3.5 h-3.5 text-amber-300 shrink-0" />
             <span>{heroData.badge || "The Royal Wedding & Celebration Concierge"}</span>
           </div>
 
-          <div className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-black/40 backdrop-blur-md border border-white/15 text-stone-200 text-[11px] font-medium">
+          <div className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-black/50 backdrop-blur-md border border-white/20 text-stone-200 text-[11px] font-medium shadow-md">
             <MapPin className="w-3.5 h-3.5 text-amber-300" />
             <span>{heroData.locationTag || "Jagmandir Island Palace · Udaipur"}</span>
           </div>
         </div>
 
         {/* CENTER TYPOGRAPHY & EDITORIAL STATEMENTS */}
-        <div className="relative max-w-5xl mx-auto w-full text-center z-10 my-auto py-6 sm:py-8">
+        <div className="relative max-w-4xl mx-auto w-full text-center z-20 my-auto py-6 sm:py-8">
           
           {/* Master Headline with Gold Shimmer Italic */}
-          <h1 className="font-serif text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight text-white mb-4 leading-[1.1] drop-shadow-lg">
+          <h1 className="font-serif text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight text-white mb-4 leading-[1.08] drop-shadow-[0_4px_30px_rgba(0,0,0,0.85)] animate-luxury-enter stagger-1">
             Curating India’s Most <br className="hidden sm:inline" />
-            <span className="italic font-normal text-amber-200 drop-shadow-[0_2px_15px_rgba(230,202,101,0.4)]">
+            <span className="italic font-normal text-amber-200 drop-shadow-[0_2px_20px_rgba(230,202,101,0.55)]">
               Breathtaking Celebrations
             </span>
           </h1>
 
           {/* Editorial Subtitle */}
-          <p className="max-w-2xl mx-auto text-xs sm:text-sm md:text-base text-amber-50/95 font-light mb-6 sm:mb-8 leading-relaxed drop-shadow px-2">
+          <p className="max-w-2xl mx-auto text-xs sm:text-sm md:text-base text-amber-50/95 font-light mb-6 sm:mb-8 leading-relaxed drop-shadow-[0_2px_12px_rgba(0,0,0,0.8)] px-2 animate-luxury-enter stagger-2">
             {heroData.subheadline}
           </p>
 
           {/* Quick Metrics Strip */}
-          <div className="inline-flex flex-wrap items-center justify-center gap-4 sm:gap-8 px-6 py-2.5 rounded-full bg-black/45 backdrop-blur-md border border-amber-300/25 text-amber-100 text-xs shadow-lg">
+          <div className="inline-flex flex-wrap items-center justify-center gap-4 sm:gap-8 px-6 py-2.5 rounded-full bg-black/55 backdrop-blur-md border border-amber-300/30 text-amber-100 text-xs shadow-xl animate-luxury-enter stagger-3">
             <div className="flex items-center gap-2">
               <span className="font-serif font-bold text-amber-300 text-sm sm:text-base">850+</span>
               <span className="text-stone-300 text-[11px]">Verified Masters</span>
@@ -132,7 +136,7 @@ export default function HeroSection({
         {/* 2. FLOATING FROSTED-GLASS QUICK DISCOVERY CONSOLE              */}
         {/* Docked neatly inside the hero with high contrast and ease of use */}
         {/* ============================================================== */}
-        <div className="relative z-20 max-w-5xl mx-auto w-full pb-2">
+        <div className="relative z-20 max-w-5xl mx-auto w-full pb-2 animate-luxury-enter stagger-4">
           <div className="bg-gradient-to-br from-[#ffffff]/98 via-[#fefdfa]/95 to-[#fbf7f0]/95 backdrop-blur-2xl rounded-2xl sm:rounded-3xl p-3.5 sm:p-5 shadow-[0_25px_60px_rgba(20,5,10,0.35)] border-2 border-amber-300/80 ring-4 ring-amber-400/20 text-stone-900 transition-all">
             
             {/* Inline 4-Field Search Grid */}

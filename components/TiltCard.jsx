@@ -1,19 +1,29 @@
 'use client'
 
-import React, { useRef, useState } from 'react'
+import React, { useRef, useState, useEffect } from 'react'
 
 export default function TiltCard({
   children,
   className = '',
-  maxTilt = 8, // maximum degrees of tilt
-  scale = 1.02,
+  maxTilt = 7, // Subtle, refined degrees of tilt
+  scale = 1.015,
   glare = true
 }) {
   const cardRef = useRef(null)
   const [transform, setTransform] = useState('perspective(1000px) rotateX(0deg) rotateY(0deg) scale3d(1, 1, 1)')
   const [glarePosition, setGlarePosition] = useState({ x: 50, y: 50, opacity: 0 })
+  const [isHovered, setIsHovered] = useState(false)
+  const [reducedMotion, setReducedMotion] = useState(false)
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const media = window.matchMedia('(prefers-reduced-motion: reduce)')
+      setReducedMotion(media.matches)
+    }
+  }, [])
 
   const handleMouseMove = (e) => {
+    if (reducedMotion) return
     const card = cardRef.current
     if (!card) return
 
@@ -27,17 +37,19 @@ export default function TiltCard({
     const rotateX = ((y - centerY) / centerY) * -maxTilt
     const rotateY = ((x - centerX) / centerX) * maxTilt
 
-    setTransform(`perspective(1000px) rotateX(${rotateX.toFixed(2)}deg) rotateY(${rotateY.toFixed(2)}deg) scale3d(${scale}, ${scale}, ${scale})`)
+    setIsHovered(true)
+    setTransform(`perspective(1100px) rotateX(${rotateX.toFixed(2)}deg) rotateY(${rotateY.toFixed(2)}deg) scale3d(${scale}, ${scale}, ${scale})`)
 
     if (glare) {
       const glareX = (x / rect.width) * 100
       const glareY = (y / rect.height) * 100
-      setGlarePosition({ x: glareX, y: glareY, opacity: 0.35 })
+      setGlarePosition({ x: glareX, y: glareY, opacity: 0.30 })
     }
   }
 
   const handleMouseLeave = () => {
-    setTransform('perspective(1000px) rotateX(0deg) rotateY(0deg) scale3d(1, 1, 1)')
+    setIsHovered(false)
+    setTransform('perspective(1100px) rotateX(0deg) rotateY(0deg) scale3d(1, 1, 1)')
     if (glare) {
       setGlarePosition(prev => ({ ...prev, opacity: 0 }))
     }
@@ -50,19 +62,21 @@ export default function TiltCard({
       onMouseLeave={handleMouseLeave}
       style={{
         transform,
-        transition: 'transform 0.18s cubic-bezier(0.25, 1, 0.5, 1)'
+        transition: isHovered
+          ? 'transform 0.12s cubic-bezier(0.25, 1, 0.5, 1)'
+          : 'transform 0.6s cubic-bezier(0.16, 1, 0.3, 1)'
       }}
       className={`relative transform-gpu will-change-transform ${className}`}
     >
       {children}
 
       {/* Dynamic Specular 3D Glare */}
-      {glare && (
+      {glare && !reducedMotion && (
         <div
           className="absolute inset-0 rounded-[inherit] pointer-events-none transition-opacity duration-300 z-30"
           style={{
             opacity: glarePosition.opacity,
-            background: `radial-gradient(circle 320px at ${glarePosition.x}% ${glarePosition.y}%, rgba(255, 235, 190, 0.28), transparent 75%)`
+            background: `radial-gradient(circle 340px at ${glarePosition.x}% ${glarePosition.y}%, rgba(255, 235, 190, 0.25), transparent 75%)`
           }}
         />
       )}
