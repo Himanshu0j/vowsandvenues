@@ -14,13 +14,69 @@ import {
 } from 'lucide-react'
 import { getOptimizedImageUrl } from '@/lib/imageUtils'
 
+const DEFAULT_PACKAGES = [
+  {
+    id: 'pkg_basic_celebration',
+    title: 'Basic Celebration Package',
+    subtitle: 'Ideal for intimate birthdays, anniversaries, and roka ceremonies (up to 75 guests)',
+    eventType: 'Intimate Soiree',
+    price: 75000,
+    originalPrice: 90000,
+    badge: 'Best Value',
+    popular: false,
+    bannerImage: 'https://images.unsplash.com/photo-1530103862676-de8c9debad1d?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjA1MDV8MHwxfHNlYXJjaHwzfHxiaXJ0aGRheSUyMGNlbGVicmF0aW9ufGVufDB8fHx8MTc4ODkzNzIzOHww&ixlib=rb-4.1.0&q=85',
+    highlights: [
+      'Fairy Light Backdrop Decor',
+      'Pro DJ & Sound (3 hrs)',
+      'Candid Photo & Video (1 Pro)',
+      'Digital 3D E-Invite Suite'
+    ]
+  },
+  {
+    id: 'pkg_premium_celebration',
+    title: 'Premium Celebration & Sangeet',
+    subtitle: 'Comprehensive package for engagements, grand sangeet, and 200-guest receptions',
+    eventType: 'Engagement & Sangeet',
+    price: 165000,
+    originalPrice: 195000,
+    badge: 'Most Popular',
+    popular: true,
+    bannerImage: 'https://images.unsplash.com/photo-1587012521796-6359d3678f2a?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NTYxOTB8MHwxfHNlYXJjaHwxfHxzYW5nZWV0fGVufDB8fHx8MTc4ODkzNzIzOXww&ixlib=rb-4.1.0&q=85',
+    highlights: [
+      'Floral Mandap & Stage (30ft)',
+      'Awadhi Feast (100 Pax Starter)',
+      'Bridal HD Glam Look',
+      'Candid Cinema + Drone Shoot',
+      'DJ Kabir + Punjabi Dhol'
+    ]
+  },
+  {
+    id: 'pkg_luxury_royal_wedding',
+    title: 'Luxury Royal Indian Wedding',
+    subtitle: 'The all-inclusive royal wedding extravaganza covering all 11 categories for 350+ guests',
+    eventType: 'Royal Wedding Extravaganza',
+    price: 495000,
+    originalPrice: 580000,
+    badge: 'All-Inclusive Royalty',
+    popular: true,
+    bannerImage: 'https://images.unsplash.com/photo-1587271407850-8d438ca9fdf2',
+    highlights: [
+      'Palace Banquet & Lawn Exclusivity',
+      'Imperial 4-Pillar Floral Mandap',
+      'Royal Shahi 4-Course Multi-Cuisine Feast',
+      'Full Cinema Crew + 4K Drone Coverage',
+      'Full Day Royal Wedding Planner Coordination'
+    ]
+  }
+]
+
 export default function CuratedPackagesSection({
   packages = [],
   onSelectPackage,
   onCustomizePackage,
   onBookPackage
 }) {
-  if (!packages || packages.length === 0) return null
+  const displayPackages = packages && packages.length > 0 ? packages : DEFAULT_PACKAGES
 
   return (
     <section className="py-16 sm:py-24 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto select-none border-t border-[#e8dfcf]">
@@ -48,7 +104,7 @@ export default function CuratedPackagesSection({
 
       {/* PACKAGES COMPARISON CARDS */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 items-stretch">
-        {packages.map((pkg, idx) => {
+        {displayPackages.map((pkg, idx) => {
           const isFeatured = pkg.popular || idx === 0
           const bannerImg = getOptimizedImageUrl(pkg.bannerImage || pkg.image || 'https://images.unsplash.com/photo-1587271407850-8d438ca9fdf2', { width: 800, quality: 75 })
 
