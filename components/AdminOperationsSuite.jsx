@@ -99,6 +99,7 @@ export default function AdminOperationsSuite({
   // CMS Edit State
   const [cmsDraft, setCmsDraft] = useState(cmsContent || {})
   const [cmsSaving, setCmsSaving] = useState(false)
+  const [cmsSectionTab, setCmsSectionTab] = useState('visuals') // 'visuals' | 'text' | 'offers'
 
   // SEO Edit State
   const [seoDraft, setSeoDraft] = useState({
@@ -406,8 +407,22 @@ export default function AdminOperationsSuite({
   const handleSaveCMS = async () => {
     setCmsSaving(true)
     try {
-      await onUpdateCMS(cmsDraft)
-      toast.success('Website CMS changes published successfully!')
+      const heroImg = cmsDraft.hero?.heroImage || cmsDraft.banners?.heroBackdrop || 'https://images.unsplash.com/photo-1519741497674-611481863552'
+      const payload = {
+        ...cmsDraft,
+        hero: {
+          ...(cmsDraft.hero || {}),
+          heroImage: heroImg,
+          headline: cmsDraft.hero?.headline || cmsDraft.heroSection?.title || "Plan Your Perfect Celebration, All in One Place",
+          subheadline: cmsDraft.hero?.subheadline || cmsDraft.heroSection?.subtitle || "From royal heritage palaces in Udaipur to authentic Awadhi banquets in Lucknow, discover and book India's most distinguished verified event creators."
+        },
+        banners: {
+          ...(cmsDraft.banners || {}),
+          heroBackdrop: heroImg
+        }
+      }
+      await onUpdateCMS(payload)
+      toast.success('Website visual assets and CMS published live!')
     } catch (e) {
       toast.error('Failed to save CMS: ' + e.message)
     } finally {
@@ -1543,62 +1558,540 @@ export default function AdminOperationsSuite({
         </div>
       )}
 
-      {/* 7. SUB-TAB: LIVE CMS */}
+      {/* 7. SUB-TAB: LIVE CMS — WEBSITE BANNERS, IMAGES & EDITORIAL MANAGER */}
       {activeSubTab === 'cms' && (
         <div className="bg-white rounded-3xl p-5 sm:p-7 border border-[#e8e2d5] shadow-sm space-y-6">
-          <div className="flex items-center justify-between">
+          {/* Header with Save Button */}
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-stone-200">
             <div>
-              <h3 className="font-serif font-bold text-lg text-[#1c1917]">Live Website Content Management System</h3>
-              <p className="text-xs text-stone-500">Manage announcements, headlines, and guarantees in real-time.</p>
+              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-100/80 text-[#4a1525] border border-amber-300 text-[10px] font-bold uppercase tracking-wider mb-1.5">
+                <Sparkles className="w-3 h-3 text-amber-700" />
+                <span>Live Marketplace Visual & Content CMS</span>
+              </div>
+              <h3 className="font-serif font-bold text-xl text-[#1c1917]">
+                Website Banners, Images & Editorial Manager
+              </h3>
+              <p className="text-xs text-stone-500">
+                Update royal backdrops, top sliding 3D galleries, category showcase imagery, headlines and privilege offers with 1-click persistence.
+              </p>
             </div>
             <button
               onClick={handleSaveCMS}
               disabled={cmsSaving}
-              className="px-4 py-2 rounded-xl bg-[#c5a059] hover:bg-[#b08d47] text-[#1c1917] font-bold text-xs flex items-center gap-1.5 shadow-md transition-all"
+              className="px-5 py-2.5 rounded-xl bg-[#c5a059] hover:bg-[#b08d47] text-[#1c1917] font-bold text-xs flex items-center gap-2 shadow-md transition-all shrink-0 cursor-pointer disabled:opacity-50"
             >
-              <Save className="w-3.5 h-3.5" /> {cmsSaving ? 'Publishing...' : 'Save & Publish Live'}
+              <Save className="w-4 h-4" />
+              <span>{cmsSaving ? 'Publishing Live...' : 'Save & Publish Live'}</span>
             </button>
           </div>
 
-          <div className="space-y-4">
-            <div>
-              <label className="block text-xs font-bold text-stone-700 mb-1">Top Announcement Bar Text</label>
-              <input
-                type="text"
-                value={cmsDraft.announcementBar?.text || ''}
-                onChange={e => setCmsDraft({
-                  ...cmsDraft,
-                  announcementBar: { ...cmsDraft.announcementBar, text: e.target.value }
-                })}
-                className="w-full px-3 py-2 rounded-xl bg-stone-50 border border-stone-200 text-xs focus:outline-none focus:border-stone-400 font-medium"
-              />
-            </div>
+          {/* CMS Sub-tabs: Visuals | Text | Offers */}
+          <div className="flex items-center gap-2 p-1 bg-stone-100 rounded-2xl w-fit">
+            <button
+              onClick={() => setCmsSectionTab('visuals')}
+              className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer ${
+                cmsSectionTab === 'visuals'
+                  ? 'bg-white text-[#4a1525] shadow-xs'
+                  : 'text-stone-600 hover:text-stone-900'
+              }`}
+            >
+              <ImageIcon className="w-3.5 h-3.5" />
+              <span>Website Banners & Images</span>
+            </button>
+            <button
+              onClick={() => setCmsSectionTab('text')}
+              className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer ${
+                cmsSectionTab === 'text'
+                  ? 'bg-white text-[#4a1525] shadow-xs'
+                  : 'text-stone-600 hover:text-stone-900'
+              }`}
+            >
+              <FileText className="w-3.5 h-3.5" />
+              <span>Headlines & Announcements</span>
+            </button>
+            <button
+              onClick={() => setCmsSectionTab('offers')}
+              className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer ${
+                cmsSectionTab === 'offers'
+                  ? 'bg-white text-[#4a1525] shadow-xs'
+                  : 'text-stone-600 hover:text-stone-900'
+              }`}
+            >
+              <Tag className="w-3.5 h-3.5" />
+              <span>Privilege Offers & Vouchers</span>
+            </button>
+          </div>
 
-            <div>
-              <label className="block text-xs font-bold text-stone-700 mb-1">Hero Section Title</label>
-              <input
-                type="text"
-                value={cmsDraft.heroSection?.title || ''}
-                onChange={e => setCmsDraft({
-                  ...cmsDraft,
-                  heroSection: { ...cmsDraft.heroSection, title: e.target.value }
-                })}
-                className="w-full px-3 py-2 rounded-xl bg-stone-50 border border-stone-200 text-xs focus:outline-none focus:border-stone-400 font-medium"
-              />
-            </div>
+          {/* ---------------------------------------------------- */}
+          {/* TAB 1: WEBSITE BANNERS & IMAGES                      */}
+          {/* ---------------------------------------------------- */}
+          {cmsSectionTab === 'visuals' && (
+            <div className="space-y-8 animate-in fade-in">
+              {/* 1.1 HERO BANNER 4K BACKDROP */}
+              <div className="p-5 rounded-2xl bg-stone-50 border border-stone-200 space-y-4">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h4 className="font-serif font-bold text-sm text-stone-900 flex items-center gap-2">
+                      <span>1. Hero Section 4K Background Wallpaper</span>
+                      <span className="text-[10px] bg-amber-200/80 text-amber-950 font-sans px-2 py-0.5 rounded-full font-bold">Main Homepage</span>
+                    </h4>
+                    <p className="text-[11px] text-stone-500 mt-0.5">
+                      The primary 4K visual shown behind the royal headline when visitors land on the marketplace.
+                    </p>
+                  </div>
+                </div>
 
-            <div>
-              <label className="block text-xs font-bold text-stone-700 mb-1">Hero Subtitle</label>
-              <textarea
-                rows={2}
-                value={cmsDraft.heroSection?.subtitle || ''}
-                onChange={e => setCmsDraft({
-                  ...cmsDraft,
-                  heroSection: { ...cmsDraft.heroSection, subtitle: e.target.value }
-                })}
-                className="w-full px-3 py-2 rounded-xl bg-stone-50 border border-stone-200 text-xs focus:outline-none focus:border-stone-400 font-medium"
-              />
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-start">
+                  {/* Live Preview Thumbnail */}
+                  <div className="relative aspect-[16/9] rounded-xl overflow-hidden border-2 border-amber-400/80 bg-stone-900 shadow-sm group">
+                    <img
+                      src={getOptimizedImageUrl(cmsDraft.hero?.heroImage || cmsDraft.banners?.heroBackdrop || 'https://images.unsplash.com/photo-1519741497674-611481863552', { width: 600, quality: 75 })}
+                      alt="Hero Live Preview"
+                      className="w-full h-full object-cover"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent flex flex-col justify-end p-2.5">
+                      <div className="text-[9px] font-bold text-amber-300 uppercase tracking-widest">Live Hero Backdrop Preview</div>
+                      <div className="text-[11px] font-serif font-bold text-white truncate">Plan Your Perfect Celebration</div>
+                    </div>
+                  </div>
+
+                  {/* URL Input & Preset Selector */}
+                  <div className="md:col-span-2 space-y-3">
+                    <div>
+                      <label className="block text-xs font-bold text-stone-700 mb-1">
+                        Hero Background Image URL (Direct 4K / High-Res Image Link)
+                      </label>
+                      <input
+                        type="url"
+                        value={cmsDraft.hero?.heroImage || cmsDraft.banners?.heroBackdrop || ''}
+                        onChange={(e) => {
+                          const val = e.target.value
+                          setCmsDraft({
+                            ...cmsDraft,
+                            hero: { ...(cmsDraft.hero || {}), heroImage: val },
+                            banners: { ...(cmsDraft.banners || {}), heroBackdrop: val }
+                          })
+                        }}
+                        placeholder="https://images.unsplash.com/photo-..."
+                        className="w-full px-3.5 py-2.5 rounded-xl bg-white border border-stone-300 text-xs focus:outline-none focus:border-[#4a1525] font-mono"
+                      />
+                    </div>
+
+                    {/* Presets */}
+                    <div>
+                      <div className="text-[11px] font-bold text-stone-600 mb-1.5 flex items-center gap-1">
+                        <span>⚜ Quick Apply Verified 4K Indian Royal Backdrops:</span>
+                      </div>
+                      <div className="flex flex-wrap gap-1.5">
+                        {[
+                          { name: 'Udaipur Island Palace', url: 'https://images.unsplash.com/photo-1519741497674-611481863552' },
+                          { name: 'Jaipur Rambagh Citadel', url: 'https://images.unsplash.com/photo-1587271407850-8d438ca9fdf2' },
+                          { name: 'Grand Marigold Mandap', url: 'https://images.unsplash.com/photo-1583939003579-730e3918a45a' },
+                          { name: 'Awadhi Feast Banquet', url: 'https://images.unsplash.com/photo-1555396273-367ea4eb4db5' },
+                          { name: 'Fragrant Mogra Florals', url: 'https://images.unsplash.com/photo-1511795409834-ef04bbd61622' }
+                        ].map((preset) => (
+                          <button
+                            key={preset.name}
+                            type="button"
+                            onClick={() => {
+                              setCmsDraft({
+                                ...cmsDraft,
+                                hero: { ...(cmsDraft.hero || {}), heroImage: preset.url },
+                                banners: { ...(cmsDraft.banners || {}), heroBackdrop: preset.url }
+                              })
+                              toast.info(`Selected "${preset.name}" preset! Click Save & Publish Live to apply.`)
+                            }}
+                            className="px-2.5 py-1 rounded-lg bg-white hover:bg-amber-100 border border-stone-200 text-[10.5px] font-medium text-stone-700 hover:text-[#4a1525] transition-colors cursor-pointer"
+                          >
+                            + {preset.name}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* 1.2 TOP 3D SLIDING GALLERY SLIDES */}
+              <div className="p-5 rounded-2xl bg-stone-50 border border-stone-200 space-y-4">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                  <div>
+                    <h4 className="font-serif font-bold text-sm text-stone-900 flex items-center gap-2">
+                      <span>2. 3D Interactive Top Gallery Slides ({(cmsDraft.gallerySlides || []).length} Slides)</span>
+                      <span className="text-[10px] bg-emerald-200 text-emerald-900 font-sans px-2 py-0.5 rounded-full font-bold">Auto-Sliding Showcase</span>
+                    </h4>
+                    <p className="text-[11px] text-stone-500 mt-0.5">
+                      Configure slide images, royal titles, locations, and pricing tags displayed in the top sliding carousel.
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const cur = cmsDraft.gallerySlides || []
+                      const newSlide = {
+                        id: `slide_${Date.now()}`,
+                        title: 'Grand Royal Celebration Venue',
+                        city: 'Udaipur / Delhi NCR',
+                        category: 'Heritage Venues & Forts',
+                        rating: 4.98,
+                        reviews: 65,
+                        price: '₹2,50,000 / day',
+                        tag: 'Signature Showcase',
+                        image: 'https://images.unsplash.com/photo-1519741497674-611481863552',
+                        description: 'Bespoke celebration setting with royal hospitality, verified staff, and 100% direct date lock guarantee.'
+                      }
+                      setCmsDraft({ ...cmsDraft, gallerySlides: [...cur, newSlide] })
+                      toast.success('Added new slide! Update its image and title below.')
+                    }}
+                    className="px-3 py-1.5 rounded-xl bg-[#4a1525] hover:bg-[#340b17] text-amber-200 text-xs font-bold flex items-center gap-1.5 transition-colors cursor-pointer shrink-0"
+                  >
+                    <Plus className="w-3.5 h-3.5" />
+                    <span>Add New Slide</span>
+                  </button>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {(cmsDraft.gallerySlides || []).map((slide, sIdx) => (
+                    <div
+                      key={slide.id || sIdx}
+                      className="p-3.5 rounded-xl bg-white border border-stone-200 space-y-3 shadow-xs hover:border-amber-400 transition-all"
+                    >
+                      <div className="flex items-start gap-3">
+                        {/* Slide Thumbnail */}
+                        <div className="w-24 h-20 rounded-lg overflow-hidden bg-stone-900 border border-stone-200 shrink-0 relative">
+                          <img
+                            src={getOptimizedImageUrl(slide.image, { width: 250, quality: 75 })}
+                            alt={slide.title}
+                            className="w-full h-full object-cover"
+                          />
+                          <span className="absolute top-1 left-1 px-1.5 py-0.5 rounded text-[8px] font-bold bg-black/80 text-amber-300">
+                            #{sIdx + 1}
+                          </span>
+                        </div>
+
+                        {/* Title, City, Price */}
+                        <div className="flex-1 min-w-0 space-y-1.5">
+                          <div className="flex items-center justify-between">
+                            <span className="text-[10px] font-bold uppercase text-amber-800 tracking-wider">Slide #{sIdx + 1}</span>
+                            {(cmsDraft.gallerySlides || []).length > 1 && (
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  const updated = (cmsDraft.gallerySlides || []).filter((_, i) => i !== sIdx)
+                                  setCmsDraft({ ...cmsDraft, gallerySlides: updated })
+                                  toast.info(`Removed Slide #${sIdx + 1}`)
+                                }}
+                                className="text-stone-400 hover:text-rose-600 transition-colors p-1"
+                                title="Delete Slide"
+                              >
+                                <Trash2 className="w-3.5 h-3.5" />
+                              </button>
+                            )}
+                          </div>
+                          <input
+                            type="text"
+                            value={slide.title || ''}
+                            onChange={(e) => {
+                              const updated = [...(cmsDraft.gallerySlides || [])]
+                              updated[sIdx] = { ...updated[sIdx], title: e.target.value }
+                              setCmsDraft({ ...cmsDraft, gallerySlides: updated })
+                            }}
+                            placeholder="Slide Title"
+                            className="w-full px-2 py-1 rounded bg-stone-50 border border-stone-200 text-xs font-semibold focus:outline-none"
+                          />
+                          <div className="grid grid-cols-2 gap-1.5">
+                            <input
+                              type="text"
+                              value={slide.city || ''}
+                              onChange={(e) => {
+                                const updated = [...(cmsDraft.gallerySlides || [])]
+                                updated[sIdx] = { ...updated[sIdx], city: e.target.value }
+                                setCmsDraft({ ...cmsDraft, gallerySlides: updated })
+                              }}
+                              placeholder="City / Region"
+                              className="w-full px-2 py-1 rounded bg-stone-50 border border-stone-200 text-[11px] focus:outline-none"
+                            />
+                            <input
+                              type="text"
+                              value={slide.price || ''}
+                              onChange={(e) => {
+                                const updated = [...(cmsDraft.gallerySlides || [])]
+                                updated[sIdx] = { ...updated[sIdx], price: e.target.value }
+                                setCmsDraft({ ...cmsDraft, gallerySlides: updated })
+                              }}
+                              placeholder="e.g. ₹3,50,000 / day"
+                              className="w-full px-2 py-1 rounded bg-stone-50 border border-stone-200 text-[11px] focus:outline-none font-medium"
+                            />
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Image URL input */}
+                      <div>
+                        <label className="block text-[10.5px] font-bold text-stone-600 mb-1">
+                          Slide Image URL:
+                        </label>
+                        <input
+                          type="url"
+                          value={slide.image || ''}
+                          onChange={(e) => {
+                            const updated = [...(cmsDraft.gallerySlides || [])]
+                            updated[sIdx] = { ...updated[sIdx], image: e.target.value }
+                            setCmsDraft({ ...cmsDraft, gallerySlides: updated })
+                          }}
+                          placeholder="https://images.unsplash.com/photo-..."
+                          className="w-full px-2.5 py-1.5 rounded-lg bg-stone-50 border border-stone-200 text-[11px] font-mono focus:outline-none focus:border-[#4a1525]"
+                        />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* 1.3 11 SPECIALIZATION CATEGORY SHOWCASE IMAGES */}
+              <div className="p-5 rounded-2xl bg-stone-50 border border-stone-200 space-y-4">
+                <div>
+                  <h4 className="font-serif font-bold text-sm text-stone-900 flex items-center gap-2">
+                    <span>3. 11 Verified Specialization Category Cards</span>
+                    <span className="text-[10px] bg-purple-200 text-purple-900 font-sans px-2 py-0.5 rounded-full font-bold">Category Grid</span>
+                  </h4>
+                  <p className="text-[11px] text-stone-500 mt-0.5">
+                    Customize the thumbnail photo for each celebration category card shown on the homepage.
+                  </p>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3.5">
+                  {[
+                    { slug: 'venues', label: '1. Heritage Venues & Forts', defaultImg: 'https://images.unsplash.com/photo-1587271407850-8d438ca9fdf2' },
+                    { slug: 'catering', label: '2. Catering & Royal Feasts', defaultImg: 'https://images.unsplash.com/photo-1555244162-803834f70033' },
+                    { slug: 'decor', label: '3. Decoration & Mandaps', defaultImg: 'https://images.unsplash.com/photo-1587271636175-90d58cdad458' },
+                    { slug: 'makeup', label: '4. Bridal Makeup Artists', defaultImg: 'https://images.unsplash.com/photo-1600685890506-593fdf55949b' },
+                    { slug: 'outfits', label: '5. Couture Rental Outfits', defaultImg: 'https://images.unsplash.com/photo-1767955694884-d4bf352c23c2' },
+                    { slug: 'photography', label: '6. Photography & 4K Cinema', defaultImg: 'https://images.unsplash.com/photo-1744805624954-a6686543c3ff' },
+                    { slug: 'music', label: '7. DJ & Live Music', defaultImg: 'https://images.unsplash.com/photo-1541126274323-dbac58d14741' },
+                    { slug: 'gifts', label: '8. Return Gifts & Favors', defaultImg: 'https://images.unsplash.com/photo-1508899203029-1c9eb493c9bd' },
+                    { slug: 'florists', label: '9. Florists & Garlands', defaultImg: 'https://images.unsplash.com/photo-1617627143750-d86bc21e42bb' },
+                    { slug: 'invitations', label: '10. Invitation Cards & E-Invites', defaultImg: 'https://images.unsplash.com/photo-1656104717095-9d062b0d4e8d' },
+                    { slug: 'planners', label: '11. Event Planners & Concierge', defaultImg: 'https://images.unsplash.com/photo-1527529482837-4698179dc6ce' }
+                  ].map((catItem) => {
+                    const currentImg = cmsDraft.categoryImages?.[catItem.slug] || catItem.defaultImg
+                    return (
+                      <div
+                        key={catItem.slug}
+                        className="p-3 rounded-xl bg-white border border-stone-200 flex flex-col justify-between space-y-2.5 shadow-2xs"
+                      >
+                        <div className="flex items-center gap-2.5">
+                          <div className="w-12 h-12 rounded-lg overflow-hidden bg-stone-100 shrink-0 border border-stone-200">
+                            <img
+                              src={getOptimizedImageUrl(currentImg, { width: 120, quality: 70 })}
+                              alt={catItem.label}
+                              className="w-full h-full object-cover"
+                            />
+                          </div>
+                          <div className="min-w-0 flex-1">
+                            <span className="font-serif font-bold text-xs text-stone-900 block truncate">
+                              {catItem.label}
+                            </span>
+                            <span className="text-[10px] text-stone-500 font-mono">
+                              slug: {catItem.slug}
+                            </span>
+                          </div>
+                        </div>
+
+                        <div>
+                          <input
+                            type="url"
+                            value={cmsDraft.categoryImages?.[catItem.slug] || ''}
+                            onChange={(e) => {
+                              setCmsDraft({
+                                ...cmsDraft,
+                                categoryImages: {
+                                  ...(cmsDraft.categoryImages || {}),
+                                  [catItem.slug]: e.target.value
+                                }
+                              })
+                            }}
+                            placeholder={catItem.defaultImg}
+                            className="w-full px-2 py-1 rounded bg-stone-50 border border-stone-200 text-[10.5px] font-mono focus:outline-none focus:border-[#4a1525]"
+                          />
+                        </div>
+                      </div>
+                    )
+                  })}
+                </div>
+              </div>
             </div>
+          )}
+
+          {/* ---------------------------------------------------- */}
+          {/* TAB 2: HEADLINES & ANNOUNCEMENTS                     */}
+          {/* ---------------------------------------------------- */}
+          {cmsSectionTab === 'text' && (
+            <div className="space-y-4 animate-in fade-in">
+              <div>
+                <label className="block text-xs font-bold text-stone-700 mb-1">Top Announcement Bar Text</label>
+                <input
+                  type="text"
+                  value={cmsDraft.announcementBar?.text || cmsDraft.announcement?.text || ''}
+                  onChange={e => setCmsDraft({
+                    ...cmsDraft,
+                    announcementBar: { ...(cmsDraft.announcementBar || {}), text: e.target.value },
+                    announcement: { ...(cmsDraft.announcement || {}), text: e.target.value }
+                  })}
+                  className="w-full px-3 py-2 rounded-xl bg-stone-50 border border-stone-200 text-xs focus:outline-none focus:border-stone-400 font-medium"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-stone-700 mb-1">Hero Section Eyebrow Badge</label>
+                <input
+                  type="text"
+                  value={cmsDraft.hero?.badge || "India's Premier Luxury Wedding & Event Concierge"}
+                  onChange={e => setCmsDraft({
+                    ...cmsDraft,
+                    hero: { ...(cmsDraft.hero || {}), badge: e.target.value }
+                  })}
+                  className="w-full px-3 py-2 rounded-xl bg-stone-50 border border-stone-200 text-xs focus:outline-none focus:border-stone-400 font-medium"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-stone-700 mb-1">Hero Section Master Headline</label>
+                <input
+                  type="text"
+                  value={cmsDraft.heroSection?.title || cmsDraft.hero?.headline || ''}
+                  onChange={e => setCmsDraft({
+                    ...cmsDraft,
+                    heroSection: { ...(cmsDraft.heroSection || {}), title: e.target.value },
+                    hero: { ...(cmsDraft.hero || {}), headline: e.target.value }
+                  })}
+                  className="w-full px-3 py-2 rounded-xl bg-stone-50 border border-stone-200 text-xs focus:outline-none focus:border-stone-400 font-medium"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-stone-700 mb-1">Hero Subtitle</label>
+                <textarea
+                  rows={3}
+                  value={cmsDraft.heroSection?.subtitle || cmsDraft.hero?.subheadline || ''}
+                  onChange={e => setCmsDraft({
+                    ...cmsDraft,
+                    heroSection: { ...(cmsDraft.heroSection || {}), subtitle: e.target.value },
+                    hero: { ...(cmsDraft.hero || {}), subheadline: e.target.value }
+                  })}
+                  className="w-full px-3 py-2 rounded-xl bg-stone-50 border border-stone-200 text-xs focus:outline-none focus:border-stone-400 font-medium"
+                />
+              </div>
+            </div>
+          )}
+
+          {/* ---------------------------------------------------- */}
+          {/* TAB 3: PRIVILEGE OFFERS & PROMO CODES                */}
+          {/* ---------------------------------------------------- */}
+          {cmsSectionTab === 'offers' && (
+            <div className="space-y-4 animate-in fade-in">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h4 className="font-serif font-bold text-sm text-stone-900">Curated Privilege Offers (3 Cards)</h4>
+                  <p className="text-[11px] text-stone-500">Edit the discount amount, promo code, and description shown on the homepage.</p>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                {(cmsDraft.offers || []).map((offer, oIdx) => (
+                  <div
+                    key={offer.id || oIdx}
+                    className="p-4 rounded-xl bg-stone-50 border border-stone-200 space-y-3 shadow-2xs"
+                  >
+                    <div className="flex items-center justify-between">
+                      <span className="text-[10px] font-bold uppercase text-amber-800 tracking-wider">Offer #{oIdx + 1}</span>
+                      <input
+                        type="text"
+                        value={offer.badge || 'Signature Privilege'}
+                        onChange={(e) => {
+                          const updated = [...(cmsDraft.offers || [])]
+                          updated[oIdx] = { ...updated[oIdx], badge: e.target.value }
+                          setCmsDraft({ ...cmsDraft, offers: updated })
+                        }}
+                        className="px-2 py-0.5 rounded text-[10px] font-bold bg-white border border-stone-200 text-right"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-[10px] font-bold text-stone-600 mb-0.5">Offer Title</label>
+                      <input
+                        type="text"
+                        value={offer.title || ''}
+                        onChange={(e) => {
+                          const updated = [...(cmsDraft.offers || [])]
+                          updated[oIdx] = { ...updated[oIdx], title: e.target.value }
+                          setCmsDraft({ ...cmsDraft, offers: updated })
+                        }}
+                        className="w-full px-2.5 py-1.5 rounded-lg bg-white border border-stone-200 text-xs font-semibold focus:outline-none"
+                      />
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-2">
+                      <div>
+                        <label className="block text-[10px] font-bold text-stone-600 mb-0.5">Discount</label>
+                        <input
+                          type="text"
+                          value={offer.discount || ''}
+                          onChange={(e) => {
+                            const updated = [...(cmsDraft.offers || [])]
+                            updated[oIdx] = { ...updated[oIdx], discount: e.target.value }
+                            setCmsDraft({ ...cmsDraft, offers: updated })
+                          }}
+                          className="w-full px-2 py-1 rounded bg-white border border-stone-200 text-xs font-bold text-[#4a1525]"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-[10px] font-bold text-stone-600 mb-0.5">Promo Code</label>
+                        <input
+                          type="text"
+                          value={offer.code || ''}
+                          onChange={(e) => {
+                            const updated = [...(cmsDraft.offers || [])]
+                            updated[oIdx] = { ...updated[oIdx], code: e.target.value }
+                            setCmsDraft({ ...cmsDraft, offers: updated })
+                          }}
+                          className="w-full px-2 py-1 rounded bg-white border border-stone-200 text-xs font-mono font-bold"
+                        />
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="block text-[10px] font-bold text-stone-600 mb-0.5">Description</label>
+                      <textarea
+                        rows={2}
+                        value={offer.desc || offer.description || ''}
+                        onChange={(e) => {
+                          const updated = [...(cmsDraft.offers || [])]
+                          updated[oIdx] = { ...updated[oIdx], desc: e.target.value, description: e.target.value }
+                          setCmsDraft({ ...cmsDraft, offers: updated })
+                        }}
+                        className="w-full px-2.5 py-1.5 rounded-lg bg-white border border-stone-200 text-[11px] focus:outline-none"
+                      />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Bottom Save CTA Strip */}
+          <div className="pt-4 border-t border-stone-200 flex items-center justify-between">
+            <span className="text-xs text-stone-500">
+              Changes take effect immediately across all customer and vendor portal pages once published.
+            </span>
+            <button
+              onClick={handleSaveCMS}
+              disabled={cmsSaving}
+              className="px-5 py-2.5 rounded-xl bg-[#c5a059] hover:bg-[#b08d47] text-[#1c1917] font-bold text-xs flex items-center gap-2 shadow-md transition-all cursor-pointer disabled:opacity-50"
+            >
+              <Save className="w-4 h-4" />
+              <span>{cmsSaving ? 'Publishing Live...' : 'Save & Publish Live'}</span>
+            </button>
           </div>
         </div>
       )}

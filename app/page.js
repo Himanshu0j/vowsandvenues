@@ -1522,46 +1522,56 @@ export default function VowsAndVenuesApp() {
             />
 
             {/* TOP 3D SLIDING IMAGE GALLERY (Requested by Client) */}
-            <TopSlidingImageGallery
-              onExploreCategory={(cat) => {
-                setFilterCategory(cat)
-                setActiveTab('explore')
-              }}
-              onSelectCity={(c) => {
-                setSelectedCity(c)
-                setFilterCity(c)
-                setActiveTab('explore')
-              }}
-            />
+            <div className="animate-luxury-enter stagger-1">
+              <TopSlidingImageGallery
+                slides={cmsContent?.gallerySlides}
+                onExploreCategory={(cat) => {
+                  setFilterCategory(cat)
+                  setActiveTab('explore')
+                }}
+                onSelectCity={(c) => {
+                  setSelectedCity(c)
+                  setFilterCity(c)
+                  setActiveTab('explore')
+                }}
+              />
+            </div>
 
-            {/* KINETIC TYPOGRAPHY SECTION WITH SITTING MASCOT (Requested by Client) */}
-            <KineticTypographySection
-              onExplore={(cat) => {
-                setFilterCategory(cat)
-                setActiveTab('explore')
-              }}
-            />
+            {/* KINETIC TYPOGRAPHY SECTION WITH ROYAL ATELIER STATEMENT */}
+            <div className="animate-luxury-enter stagger-2">
+              <KineticTypographySection
+                onExplore={(cat) => {
+                  setFilterCategory(cat)
+                  setActiveTab('explore')
+                }}
+              />
+            </div>
 
             {/* CURATED PRIVILEGES / OFFERS */}
-            <CuratedOffers
-              offers={cmsContent?.offers || []}
-              onSelectOffer={(code) => {
-                setBookingDetails(prev => ({ ...prev, promoCode: code }))
-                toast.success(`Applied ${code} to your event booking!`)
-              }}
-            />
+            <div className="animate-luxury-enter stagger-3">
+              <CuratedOffers
+                offers={cmsContent?.offers || []}
+                onSelectOffer={(code) => {
+                  setBookingDetails(prev => ({ ...prev, promoCode: code }))
+                  toast.success(`Applied ${code} to your event booking!`)
+                }}
+              />
+            </div>
 
             {/* 11 EDITORIAL CATEGORIES */}
-            <EditorialCategories
-              categories={categories}
-              onSelectCategory={(slug) => {
-                setFilterCategory(slug)
-                setActiveTab('explore')
-              }}
-            />
+            <div className="animate-luxury-enter stagger-4">
+              <EditorialCategories
+                categories={categories}
+                cmsContent={cmsContent}
+                onSelectCategory={(slug) => {
+                  setFilterCategory(slug)
+                  setActiveTab('explore')
+                }}
+              />
+            </div>
 
             {/* FEATURED SIGNATURE CREATORS & VENUES */}
-            <section className="py-16 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
+            <section className="py-16 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto animate-luxury-enter stagger-5">
               <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-10">
                 <div>
                   <div className="text-[11px] uppercase font-bold tracking-[0.2em] text-[#4a1525] mb-1">

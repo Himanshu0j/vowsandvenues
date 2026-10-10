@@ -90,32 +90,40 @@ const GALLERY_SLIDES = [
   }
 ]
 
-export default function TopSlidingImageGallery({ onExploreCategory, onSelectCity }) {
+export default function TopSlidingImageGallery({ slides, onExploreCategory, onSelectCity }) {
+  const activeSlides = (slides && slides.length > 0) ? slides : GALLERY_SLIDES
   const [currentIndex, setCurrentIndex] = useState(0)
   const [isAutoPlaying, setIsAutoPlaying] = useState(true)
   const timerRef = useRef(null)
 
+  // Reset index if slides change
+  useEffect(() => {
+    if (currentIndex >= activeSlides.length) {
+      setCurrentIndex(0)
+    }
+  }, [activeSlides.length, currentIndex])
+
   // Auto sliding timer
   useEffect(() => {
-    if (!isAutoPlaying) return
+    if (!isAutoPlaying || activeSlides.length <= 1) return
 
     timerRef.current = setInterval(() => {
-      setCurrentIndex((prev) => (prev + 1) % GALLERY_SLIDES.length)
+      setCurrentIndex((prev) => (prev + 1) % activeSlides.length)
     }, 4200)
 
     return () => clearInterval(timerRef.current)
-  }, [isAutoPlaying])
+  }, [isAutoPlaying, activeSlides.length])
 
   const handlePrev = () => {
-    setCurrentIndex((prev) => (prev - 1 + GALLERY_SLIDES.length) % GALLERY_SLIDES.length)
+    setCurrentIndex((prev) => (prev - 1 + activeSlides.length) % activeSlides.length)
   }
 
   const handleNext = () => {
-    setCurrentIndex((prev) => (prev + 1) % GALLERY_SLIDES.length)
+    setCurrentIndex((prev) => (prev + 1) % activeSlides.length)
   }
 
-  const currentSlide = GALLERY_SLIDES[currentIndex]
-  const optimizedImg = getOptimizedImageUrl(currentSlide.image, { width: 2000, quality: 85 })
+  const currentSlide = activeSlides[currentIndex] || activeSlides[0]
+  const optimizedImg = getOptimizedImageUrl(currentSlide?.image || GALLERY_SLIDES[0].image, { width: 2000, quality: 85 })
 
   return (
     <div 
@@ -140,7 +148,7 @@ export default function TopSlidingImageGallery({ onExploreCategory, onSelectCity
         {/* Carousel controls & Slide Counter */}
         <div className="flex items-center gap-3">
           <div className="text-xs font-mono font-bold text-stone-500">
-            <span className="text-[#4a1525] text-sm">{String(currentIndex + 1).padStart(2, '0')}</span> / {String(GALLERY_SLIDES.length).padStart(2, '0')}
+            <span className="text-[#4a1525] text-sm">{String(currentIndex + 1).padStart(2, '0')}</span> / {String(activeSlides.length).padStart(2, '0')}
           </div>
           <div className="flex items-center gap-2">
             <button
@@ -234,9 +242,9 @@ export default function TopSlidingImageGallery({ onExploreCategory, onSelectCity
 
       {/* THUMBNAIL STRIP BELOW SHOWCASE */}
       <div className="grid grid-cols-3 sm:grid-cols-6 gap-2 sm:gap-3 mt-3">
-        {GALLERY_SLIDES.map((slide, idx) => (
+        {activeSlides.map((slide, idx) => (
           <button
-            key={slide.id}
+            key={slide.id || idx}
             onClick={() => setCurrentIndex(idx)}
             className={`relative rounded-xl overflow-hidden h-14 sm:h-20 border-2 transition-all duration-300 cursor-pointer ${
               currentIndex === idx 
