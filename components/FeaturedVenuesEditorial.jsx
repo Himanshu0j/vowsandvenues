@@ -16,6 +16,7 @@ import {
 } from 'lucide-react'
 import { getOptimizedImageUrl } from '@/lib/imageUtils'
 import TiltCard from './TiltCard'
+import ScrollReveal, { TextLineReveal, ScrollStaggerContainer, ScrollStaggerItem } from './ScrollReveal'
 
 export default function FeaturedVenuesEditorial({
   vendors = [],
@@ -59,36 +60,50 @@ export default function FeaturedVenuesEditorial({
       {/* SECTION HEADER */}
       <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-10 sm:mb-14 gap-4">
         <div>
-          <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-champagne/15 border border-champagne/40 text-burgundy text-[11px] font-bold tracking-[0.2em] uppercase mb-2.5 shadow-2xs">
-            <Crown className="w-3.5 h-3.5 text-champagne" />
-            <span>Curated Heritage Portfolios</span>
-            <span className="w-1.5 h-1.5 rounded-full bg-champagne animate-pulse" />
-          </div>
-          <h2 className="font-serif text-3xl sm:text-4xl md:text-5xl font-bold text-espresso tracking-tight">
-            Distinguished Palaces &amp; Sanctuaries
-          </h2>
-          <p className="text-xs sm:text-sm text-stone-600 mt-2 max-w-xl font-normal leading-relaxed">
-            Hand-inspected royal citadels, lakeside island palaces, and manicured Mughal gardens with direct date-locking guarantees.
-          </p>
+          <ScrollReveal animation="fade-down" delay={0.05}>
+            <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-champagne/15 border border-champagne/40 text-burgundy text-[11px] font-bold tracking-[0.2em] uppercase mb-2.5 shadow-2xs">
+              <Crown className="w-3.5 h-3.5 text-champagne" />
+              <span>Curated Heritage Portfolios</span>
+              <span className="w-1.5 h-1.5 rounded-full bg-champagne animate-pulse" />
+            </div>
+          </ScrollReveal>
+
+          <TextLineReveal
+            lines={[
+              'Distinguished Palaces',
+              '& Sanctuaries.'
+            ]}
+            className="font-serif text-3xl sm:text-4xl md:text-5xl font-bold text-espresso tracking-tight"
+            lineClassName="first:text-stone-900 last:italic last:font-normal last:text-burgundy"
+            stagger={0.12}
+          />
+
+          <ScrollReveal animation="fade-up" delay={0.2}>
+            <p className="text-xs sm:text-sm text-stone-600 mt-2 max-w-xl font-normal leading-relaxed">
+              Hand-inspected royal citadels, lakeside island palaces, and manicured Mughal gardens with direct date-locking guarantees.
+            </p>
+          </ScrollReveal>
         </div>
 
-        <button
-          onClick={onViewAll}
-          className="inline-flex items-center gap-2 text-xs font-bold text-burgundy hover:text-burgundy-dark transition-colors group cursor-pointer shrink-0"
-        >
-          <span className="underline underline-offset-4 decoration-champagne">View All Verified Venues ({venueVendors.length || vendors.length})</span>
-          <ArrowRight className="w-4 h-4 text-champagne group-hover:translate-x-1 transition-transform" />
-        </button>
+        <ScrollReveal animation="fade-left" delay={0.25}>
+          <button
+            onClick={onViewAll}
+            className="inline-flex items-center gap-2 text-xs font-bold text-burgundy hover:text-burgundy-dark transition-colors group cursor-pointer shrink-0"
+          >
+            <span className="underline underline-offset-4 decoration-champagne">View All Verified Venues ({venueVendors.length || vendors.length})</span>
+            <ArrowRight className="w-4 h-4 text-champagne group-hover:translate-x-1 transition-transform" />
+          </button>
+        </ScrollReveal>
       </div>
 
       {/* EDITORIAL GRID: 1 EXPANSIVE HERO VENUE + 3 COMPLEMENTARY CARDS */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
-        
-        <TiltCard
-          maxTilt={5}
-          scale={1.01}
-          className="lg:col-span-7 rounded-3xl overflow-hidden bg-espresso text-white border-2 border-champagne/60 shadow-2xl min-h-[540px]"
-        >
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-stretch">
+        <ScrollReveal animation="fade-right" duration={0.85} className="lg:col-span-7">
+          <TiltCard
+            maxTilt={5}
+            scale={1.01}
+            className="rounded-3xl overflow-hidden bg-espresso text-white border-2 border-champagne/60 shadow-2xl min-h-[540px] h-full"
+          >
           <div className="flex flex-col justify-between h-full relative group hover:border-champagne transition-all duration-700 min-h-[540px]">
             {/* 4K Background Photo */}
             <div 
@@ -191,17 +206,19 @@ export default function FeaturedVenuesEditorial({
           </div>
           </div>
         </TiltCard>
+      </ScrollReveal>
 
         {/* ============================================================== */}
         {/* 2. COMPLEMENTARY VENUE CARDS (Takes 5 of 12 columns on Desktop)*/}
         {/* ============================================================== */}
-        <div className="lg:col-span-5 flex flex-col justify-between gap-4">
+        <ScrollStaggerContainer staggerDelay={0.09} className="lg:col-span-5 flex flex-col justify-between gap-4">
           {secondaryVenues.map((v) => {
             const vImg = getOptimizedImageUrl(v.heroImage || v.image, { width: 800, quality: 75 })
             const isFav = wishlistIds.includes(v.id)
 
             return (
-              <TiltCard
+              <ScrollStaggerItem key={v.id} yOffset={24}>
+                <TiltCard
                 key={v.id}
                 maxTilt={6}
                 scale={1.01}
@@ -290,10 +307,11 @@ export default function FeaturedVenuesEditorial({
                   </div>
                 </div>
               </div>
-            </TiltCard>
+              </TiltCard>
+            </ScrollStaggerItem>
             )
           })}
-        </div>
+        </ScrollStaggerContainer>
 
       </div>
     </section>

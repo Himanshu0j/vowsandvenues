@@ -13,6 +13,7 @@ import {
   Wand2
 } from 'lucide-react'
 import { getOptimizedImageUrl } from '@/lib/imageUtils'
+import ScrollReveal, { TextLineReveal, ScrollStaggerContainer, ScrollStaggerItem } from './ScrollReveal'
 
 const DEFAULT_PACKAGES = [
   {
@@ -84,34 +85,48 @@ export default function CuratedPackagesSection({
       {/* SECTION HEADER */}
       <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-10 sm:mb-14 gap-4">
         <div>
-          <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-champagne/15 border border-champagne/40 text-burgundy text-[11px] font-bold tracking-[0.2em] uppercase mb-2.5 shadow-2xs">
-            <Crown className="w-3.5 h-3.5 text-champagne" />
-            <span>Complete Celebration Ensembles</span>
-          </div>
-          <h2 className="font-serif text-3xl sm:text-4xl md:text-5xl font-bold text-espresso tracking-tight">
-            Curated All-Inclusive Event Packages
-          </h2>
-          <p className="text-xs sm:text-sm text-stone-600 mt-2 max-w-xl font-normal leading-relaxed">
-            Coordinated multi-vendor ensembles combining luxury venues, royal catering feasts, fragrant floral mandaps, and 4K cinema.
-          </p>
+          <ScrollReveal animation="fade-down" delay={0.05}>
+            <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-champagne/15 border border-champagne/40 text-burgundy text-[11px] font-bold tracking-[0.2em] uppercase mb-2.5 shadow-2xs">
+              <Crown className="w-3.5 h-3.5 text-champagne" />
+              <span>Complete Celebration Ensembles</span>
+            </div>
+          </ScrollReveal>
+
+          <TextLineReveal
+            lines={[
+              'Curated All-Inclusive',
+              'Event Packages.'
+            ]}
+            className="font-serif text-3xl sm:text-4xl md:text-5xl font-bold text-espresso tracking-tight"
+            lineClassName="first:text-stone-900 last:italic last:font-normal last:text-burgundy"
+            stagger={0.12}
+          />
+
+          <ScrollReveal animation="fade-up" delay={0.2}>
+            <p className="text-xs sm:text-sm text-stone-600 mt-2 max-w-xl font-normal leading-relaxed">
+              Coordinated multi-vendor ensembles combining luxury venues, royal catering feasts, fragrant floral mandaps, and 4K cinema.
+            </p>
+          </ScrollReveal>
         </div>
 
-        <div className="flex items-center gap-2 text-xs font-semibold text-stone-600 bg-white px-4 py-2 rounded-full border border-stone-200 shadow-2xs">
-          <ShieldCheck className="w-4 h-4 text-emerald-600" />
-          <span>Save up to 18% with Bundled Multi-Vendor Rates</span>
-        </div>
+        <ScrollReveal animation="fade-left" delay={0.25}>
+          <div className="flex items-center gap-2 text-xs font-semibold text-stone-600 bg-white px-4 py-2 rounded-full border border-stone-200 shadow-2xs">
+            <ShieldCheck className="w-4 h-4 text-emerald-600" />
+            <span>Save up to 18% with Bundled Multi-Vendor Rates</span>
+          </div>
+        </ScrollReveal>
       </div>
 
       {/* PACKAGES COMPARISON CARDS */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 items-stretch">
+      <ScrollStaggerContainer staggerDelay={0.1} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 items-stretch">
         {displayPackages.map((pkg, idx) => {
           const isFeatured = pkg.popular || idx === 0
           const bannerImg = getOptimizedImageUrl(pkg.bannerImage || pkg.image || 'https://images.unsplash.com/photo-1587271407850-8d438ca9fdf2', { width: 800, quality: 75 })
 
           return (
-            <div
-              key={pkg.id || idx}
-              className={`rounded-3xl overflow-hidden flex flex-col justify-between transition-all duration-500 hover:-translate-y-1.5 relative ${
+            <ScrollStaggerItem key={pkg.id || idx} yOffset={26} className="h-full flex flex-col">
+              <div
+                className={`rounded-3xl overflow-hidden flex flex-col justify-between transition-all duration-500 hover:-translate-y-1.5 relative h-full ${
                 isFeatured
                   ? 'bg-gradient-to-b from-[#fffefc] via-[#fbf7ee] to-[#f4ebe0] border-2 border-champagne shadow-xl ring-2 ring-champagne/20'
                   : 'bg-gradient-to-b from-white to-[#faf6ee] border border-[#e2d5c3] shadow-sm hover:border-champagne hover:shadow-lg'
@@ -221,9 +236,10 @@ export default function CuratedPackagesSection({
                 </div>
               </div>
             </div>
+          </ScrollStaggerItem>
           )
         })}
-      </div>
+      </ScrollStaggerContainer>
     </section>
   )
 }

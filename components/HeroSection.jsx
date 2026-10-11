@@ -14,6 +14,8 @@ import {
 } from 'lucide-react'
 import { getOptimizedImageUrl } from '@/lib/imageUtils'
 import dynamic from 'next/dynamic'
+import { motion } from 'framer-motion'
+import { luxuryEasing } from './ScrollReveal'
 
 const ThreeWeddingHeroScene = dynamic(() => import('./ThreeWeddingHeroScene'), {
   ssr: false,
@@ -80,7 +82,12 @@ export default function HeroSection({
         <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-[#e6ca65] to-transparent opacity-90" />
 
         {/* TOP STATUS / LOCATION PILL */}
-        <div className="relative z-20 max-w-6xl mx-auto w-full flex items-center justify-between text-white/90 pt-2 animate-luxury-down">
+        <motion.div
+          initial={{ opacity: 0, y: -16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.7, ease: luxuryEasing }}
+          className="relative z-20 max-w-6xl mx-auto w-full flex items-center justify-between text-white/90 pt-2"
+        >
           <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-black/50 backdrop-blur-md border border-amber-300/35 text-amber-200 text-[11px] font-semibold tracking-wide shadow-md">
             <Crown className="w-3.5 h-3.5 text-amber-300 shrink-0" />
             <span>{heroData.badge || "The Royal Wedding & Celebration Concierge"}</span>
@@ -90,7 +97,7 @@ export default function HeroSection({
             <MapPin className="w-3.5 h-3.5 text-amber-300" />
             <span>{heroData.locationTag || "Jagmandir Island Palace · Udaipur"}</span>
           </div>
-        </div>
+        </motion.div>
 
         {/* CENTER TYPOGRAPHY & EDITORIAL STATEMENTS */}
         <div className="relative max-w-4xl mx-auto w-full text-center z-20 my-auto py-6 sm:py-8">
@@ -98,22 +105,44 @@ export default function HeroSection({
           {/* Master Headline with Reference-Matched Staggered Line Reveal */}
           <h1 className="font-serif text-[clamp(2.1rem,5.8vw,4.6rem)] font-bold tracking-tight text-white mb-4 leading-[1.12] drop-shadow-[0_4px_30px_rgba(0,0,0,0.85)]">
             <span className="block overflow-hidden pb-1">
-              <span className="inline-block animate-luxury-enter">Curating India’s Most</span>
+              <motion.span
+                initial={{ y: "115%", opacity: 0 }}
+                animate={{ y: "0%", opacity: 1 }}
+                transition={{ duration: 0.85, ease: luxuryEasing }}
+                className="inline-block"
+              >
+                Curating India’s Most
+              </motion.span>
             </span>
             <span className="block overflow-hidden pt-0.5">
-              <span className="inline-block italic font-normal text-amber-200 drop-shadow-[0_2px_20px_rgba(230,202,101,0.55)] animate-luxury-enter stagger-1">
+              <motion.span
+                initial={{ y: "115%", opacity: 0 }}
+                animate={{ y: "0%", opacity: 1 }}
+                transition={{ duration: 0.85, delay: 0.14, ease: luxuryEasing }}
+                className="inline-block italic font-normal text-amber-200 drop-shadow-[0_2px_20px_rgba(230,202,101,0.55)]"
+              >
                 Breathtaking Celebrations
-              </span>
+              </motion.span>
             </span>
           </h1>
 
           {/* Editorial Subtitle */}
-          <p className="max-w-2xl mx-auto text-xs sm:text-sm md:text-base text-amber-50/95 font-light mb-6 sm:mb-8 leading-relaxed drop-shadow-[0_2px_12px_rgba(0,0,0,0.8)] px-2 animate-luxury-enter stagger-2">
+          <motion.p
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.28, ease: luxuryEasing }}
+            className="max-w-2xl mx-auto text-xs sm:text-sm md:text-base text-amber-50/95 font-light mb-6 sm:mb-8 leading-relaxed drop-shadow-[0_2px_12px_rgba(0,0,0,0.8)] px-2"
+          >
             {heroData.subheadline}
-          </p>
+          </motion.p>
 
           {/* Quick Metrics Strip */}
-          <div className="inline-flex flex-wrap items-center justify-center gap-3 sm:gap-8 px-5 sm:px-6 py-2 sm:py-2.5 rounded-full bg-black/55 backdrop-blur-md border border-amber-300/30 text-amber-100 text-xs shadow-xl animate-luxury-enter stagger-3">
+          <motion.div
+            initial={{ opacity: 0, y: 18 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.75, delay: 0.38, ease: luxuryEasing }}
+            className="inline-flex flex-wrap items-center justify-center gap-3 sm:gap-8 px-5 sm:px-6 py-2 sm:py-2.5 rounded-full bg-black/55 backdrop-blur-md border border-amber-300/30 text-amber-100 text-xs shadow-xl"
+          >
             <div className="flex items-center gap-1.5 sm:gap-2">
               <span className="font-serif font-bold text-amber-300 text-sm sm:text-base">850+</span>
               <span className="text-stone-300 text-[11px]">Verified Masters</span>
@@ -133,14 +162,19 @@ export default function HeroSection({
               <ShieldCheck className="w-3.5 h-3.5" />
               <span>Zero Markup Guarantee</span>
             </div>
-          </div>
+          </motion.div>
         </div>
 
         {/* ============================================================== */}
         {/* 2. FLOATING FROSTED-GLASS QUICK DISCOVERY CONSOLE              */}
         {/* Docked neatly inside the hero with high contrast and ease of use */}
         {/* ============================================================== */}
-        <div className="relative z-20 max-w-5xl mx-auto w-full pb-2 animate-luxury-enter stagger-4">
+        <motion.div
+          initial={{ opacity: 0, y: 28 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.85, delay: 0.48, ease: luxuryEasing }}
+          className="relative z-20 max-w-5xl mx-auto w-full pb-2"
+        >
           <div className="bg-gradient-to-br from-[#ffffff]/98 via-[#fefdfa]/95 to-[#fbf7f0]/95 backdrop-blur-2xl rounded-2xl sm:rounded-3xl p-3.5 sm:p-5 shadow-[0_25px_60px_rgba(20,5,10,0.35)] border-2 border-amber-300/80 ring-4 ring-amber-400/20 text-stone-900 transition-all">
             
             {/* Inline 4-Field Search Grid with 44px minimum touch targets */}
@@ -281,7 +315,7 @@ export default function HeroSection({
             </div>
 
           </div>
-        </div>
+        </motion.div>
 
       </section>
 

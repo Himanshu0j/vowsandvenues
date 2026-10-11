@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useRef } from 'react'
 import { Star, ChevronLeft, ChevronRight, Quote, ShieldCheck, Sparkles, MapPin, Calendar } from 'lucide-react'
 import { getOptimizedImageUrl } from '@/lib/imageUtils'
+import ScrollReveal, { TextLineReveal } from './ScrollReveal'
 
 const INDIAN_REVIEWS = [
   {
@@ -112,23 +113,36 @@ export default function SlidingReviewsSection() {
       {/* SECTION HEADER */}
       <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-10 sm:mb-14 gap-4">
         <div>
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-gradient-to-r from-amber-100 to-amber-200 border border-amber-300 text-[#4a1525] text-xs font-bold tracking-widest uppercase mb-2 shadow-xs">
-            <Sparkles className="w-3.5 h-3.5 text-amber-700" />
-            <span>Client Memoirs &amp; Celebrations</span>
-          </div>
-          <h2 className="font-serif text-3xl sm:text-4xl md:text-5xl font-bold text-[#1c1917] tracking-tight">
-            Celebrated by India’s Discerning Families
-          </h2>
-          <p className="text-xs sm:text-sm text-[#78716c] mt-2 max-w-xl">
-            Real experiences from grand multi-day weddings planned effortlessly through Vows &amp; Venues across Rajasthan, Lucknow, and Pan-India.
-          </p>
+          <ScrollReveal animation="fade-down" delay={0.05}>
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-gradient-to-r from-amber-100 to-amber-200 border border-amber-300 text-[#4a1525] text-xs font-bold tracking-widest uppercase mb-2.5 shadow-xs">
+              <Sparkles className="w-3.5 h-3.5 text-amber-700" />
+              <span>Client Memoirs &amp; Celebrations</span>
+            </div>
+          </ScrollReveal>
+
+          <TextLineReveal
+            lines={[
+              'Celebrated by India’s',
+              'Discerning Families.'
+            ]}
+            className="font-serif text-3xl sm:text-4xl md:text-5xl font-bold text-[#1c1917] tracking-tight"
+            lineClassName="first:text-stone-900 last:italic last:font-normal last:text-[#4a1525]"
+            stagger={0.12}
+          />
+
+          <ScrollReveal animation="fade-up" delay={0.2}>
+            <p className="text-xs sm:text-sm text-[#78716c] mt-2 max-w-xl">
+              Real experiences from grand multi-day weddings planned effortlessly through Vows &amp; Venues across Rajasthan, Lucknow, and Pan-India.
+            </p>
+          </ScrollReveal>
         </div>
 
         {/* SLIDER NAVIGATION CONTROLS */}
-        <div className="flex items-center gap-3 shrink-0">
-          <div className="text-xs font-mono font-bold text-stone-500">
-            <span className="text-[#4a1525] text-sm font-bold">{String(currentIndex + 1).padStart(2, '0')}</span> / {String(INDIAN_REVIEWS.length).padStart(2, '0')}
-          </div>
+        <ScrollReveal animation="fade-left" delay={0.25}>
+          <div className="flex items-center gap-3 shrink-0">
+            <div className="text-xs font-mono font-bold text-stone-500">
+              <span className="text-[#4a1525] text-sm font-bold">{String(currentIndex + 1).padStart(2, '0')}</span> / {String(INDIAN_REVIEWS.length).padStart(2, '0')}
+            </div>
           <div className="flex items-center gap-2">
             <button
               onClick={handlePrev}
@@ -146,10 +160,12 @@ export default function SlidingReviewsSection() {
             </button>
           </div>
         </div>
-      </div>
+      </ScrollReveal>
+    </div>
 
       {/* HERO SLIDING TESTIMONIAL FEATURE CARD */}
-      <div className="relative rounded-3xl overflow-hidden bg-gradient-to-br from-[#fffdfa] via-[#fcf8f0] to-[#f7efe0] border-2 border-amber-300/80 shadow-[0_16px_45px_rgba(74,21,37,0.08)] p-7 sm:p-10 lg:p-12 transition-all duration-700">
+      <ScrollReveal animation="zoom-in" duration={0.85}>
+        <div className="relative rounded-3xl overflow-hidden bg-gradient-to-br from-[#fffdfa] via-[#fcf8f0] to-[#f7efe0] border-2 border-amber-300/80 shadow-[0_16px_45px_rgba(74,21,37,0.08)] p-7 sm:p-10 lg:p-12 transition-all duration-700">
         {/* Subtle decorative gold filigree top accent */}
         <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-[#4a1525] via-amber-400 via-amber-500 to-[#4a1525]" />
         
@@ -230,6 +246,7 @@ export default function SlidingReviewsSection() {
 
         </div>
       </div>
+    </ScrollReveal>
 
       {/* THUMBNAIL PAGINATION STRIP (Click to Jump) */}
       <div className="flex items-center justify-center gap-2 mt-6">

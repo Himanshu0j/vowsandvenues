@@ -14,6 +14,7 @@ import {
 } from 'lucide-react'
 import { INSPIRATION_GALLERY_ITEMS } from '@/lib/imageAssetLibrary'
 import { getOptimizedImageUrl } from '@/lib/imageUtils'
+import ScrollReveal, { TextLineReveal, ScrollStaggerContainer, ScrollStaggerItem } from './ScrollReveal'
 
 const GALLERY_CATEGORIES = [
   'All Visuals',
@@ -37,38 +38,52 @@ export default function WeddingInspirationGallery({ onExploreCategory }) {
       {/* SECTION HEADER */}
       <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-8 sm:mb-12 gap-4">
         <div>
-          <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-champagne/15 border border-champagne/40 text-burgundy text-[11px] font-bold tracking-[0.2em] uppercase mb-2.5 shadow-2xs">
-            <Camera className="w-3.5 h-3.5 text-champagne" />
-            <span>The Wedding Gazette · Editorial Memoirs</span>
-          </div>
-          <h2 className="font-serif text-3xl sm:text-4xl md:text-5xl font-bold text-espresso tracking-tight">
-            Curated Inspiration Gallery
-          </h2>
-          <p className="text-xs sm:text-sm text-stone-600 mt-2 max-w-xl font-normal leading-relaxed">
-            High-fashion editorial captures from Lake Pichola island processions to centuries-old Awadhi banquet banqueting.
-          </p>
+          <ScrollReveal animation="fade-down" delay={0.05}>
+            <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-champagne/15 border border-champagne/40 text-burgundy text-[11px] font-bold tracking-[0.2em] uppercase mb-2.5 shadow-2xs">
+              <Camera className="w-3.5 h-3.5 text-champagne" />
+              <span>The Wedding Gazette · Editorial Memoirs</span>
+            </div>
+          </ScrollReveal>
+
+          <TextLineReveal
+            lines={[
+              'Curated Wedding',
+              'Inspiration Gallery.'
+            ]}
+            className="font-serif text-3xl sm:text-4xl md:text-5xl font-bold text-espresso tracking-tight"
+            lineClassName="first:text-stone-900 last:italic last:font-normal last:text-burgundy"
+            stagger={0.12}
+          />
+
+          <ScrollReveal animation="fade-up" delay={0.2}>
+            <p className="text-xs sm:text-sm text-stone-600 mt-2 max-w-xl font-normal leading-relaxed">
+              High-fashion editorial captures from Lake Pichola island processions to centuries-old Awadhi banquet banqueting.
+            </p>
+          </ScrollReveal>
         </div>
 
         {/* CATEGORY FILTER PILLS */}
-        <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
-          {GALLERY_CATEGORIES.map((cat) => (
-            <button
-              key={cat}
-              onClick={() => setActiveCategory(cat)}
-              className={`px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all cursor-pointer ${
-                activeCategory === cat
-                  ? 'bg-burgundy text-amber-200 border border-champagne/50 shadow-sm'
-                  : 'bg-white hover:bg-[#faf4e8] text-stone-700 border border-stone-200 hover:border-champagne'
-              }`}
-            >
-              {cat}
-            </button>
-          ))}
-        </div>
+        <ScrollReveal animation="fade-left" delay={0.25}>
+          <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
+            {GALLERY_CATEGORIES.map((cat) => (
+              <button
+                key={cat}
+                onClick={() => setActiveCategory(cat)}
+                className={`px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all cursor-pointer ${
+                  activeCategory === cat
+                    ? 'bg-burgundy text-amber-200 border border-champagne/50 shadow-sm'
+                    : 'bg-white hover:bg-[#faf4e8] text-stone-700 border border-stone-200 hover:border-champagne'
+                }`}
+              >
+                {cat}
+              </button>
+            ))}
+          </div>
+        </ScrollReveal>
       </div>
 
-      {/* EDITORIAL MASONRY / COLLAGE GRID */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6">
+      {/* EDITORIAL MASONRY / COLLAGE GRID WITH SCROLL STAGGER */}
+      <ScrollStaggerContainer staggerDelay={0.08} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6">
         {filteredItems.map((item, idx) => {
           const imgUrl = getOptimizedImageUrl(item.image, { width: 1200, quality: 80 })
           
@@ -80,11 +95,11 @@ export default function WeddingInspirationGallery({ onExploreCategory }) {
             : 'aspect-square'
 
           return (
-            <div
-              key={item.id || idx}
-              onClick={() => setActiveModalItem(item)}
-              className={`group relative rounded-3xl overflow-hidden bg-espresso shadow-sm hover:shadow-2xl transition-all duration-500 hover:-translate-y-1 cursor-pointer border border-[#e2d5c3] hover:border-champagne ${aspectClass}`}
-            >
+            <ScrollStaggerItem key={item.id || idx} yOffset={30}>
+              <div
+                onClick={() => setActiveModalItem(item)}
+                className={`group relative rounded-3xl overflow-hidden bg-espresso shadow-sm hover:shadow-2xl transition-all duration-500 hover:-translate-y-1 cursor-pointer border border-[#e2d5c3] hover:border-champagne ${aspectClass}`}
+              >
               {/* Photo */}
               <img
                 src={imgUrl}
@@ -131,9 +146,10 @@ export default function WeddingInspirationGallery({ onExploreCategory }) {
                 </div>
               </div>
             </div>
+          </ScrollStaggerItem>
           )
         })}
-      </div>
+      </ScrollStaggerContainer>
 
       {/* FULLSCREEN LIGHTBOX INSPECTION MODAL */}
       {activeModalItem && (

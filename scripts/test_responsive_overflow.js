@@ -26,11 +26,14 @@ const VIEWPORTS = [
   const page = await browser.newPage();
 
   console.log('Testing horizontal overflow & viewport health across', VIEWPORTS.length, 'sizes...');
+  console.log('Initial page load on', TARGET_URL);
+  await page.setViewport({ width: 1440, height: 900, deviceScaleFactor: 1 });
+  await page.goto(TARGET_URL, { waitUntil: 'networkidle2', timeout: 60000 });
+  await new Promise(r => setTimeout(r, 2000));
 
   for (const vp of VIEWPORTS) {
     await page.setViewport({ width: vp.width, height: vp.height, deviceScaleFactor: 1 });
-    await page.goto(TARGET_URL, { waitUntil: 'networkidle2', timeout: 30000 });
-    await new Promise(r => setTimeout(r, 1000));
+    await new Promise(r => setTimeout(r, 600));
 
     const metrics = await page.evaluate(() => {
       const scrollW = document.documentElement.scrollWidth;

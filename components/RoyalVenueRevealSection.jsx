@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useRef } from 'react'
+import React from 'react'
 import {
   Crown,
   MapPin,
@@ -9,11 +9,10 @@ import {
   Star,
   Users,
   ArrowRight,
-  Eye,
   Sparkles
 } from 'lucide-react'
 import { getOptimizedImageUrl } from '@/lib/imageUtils'
-import TiltCard from './TiltCard'
+import ScrollReveal, { TextLineReveal, ImageReveal } from './ScrollReveal'
 
 export default function RoyalVenueRevealSection({
   onSelectVenue,
@@ -22,145 +21,181 @@ export default function RoyalVenueRevealSection({
 }) {
   const palaceImg = getOptimizedImageUrl(
     'https://images.unsplash.com/photo-1587271407850-8d438ca9fdf2',
-    { width: 2200, quality: 85 }
+    { width: 1800, quality: 85 }
   )
 
   return (
     <section className="py-20 sm:py-28 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto select-none overflow-hidden">
       
-      {/* SECTION HEADER */}
-      <div className="text-center max-w-3xl mx-auto mb-12 sm:mb-16">
-        <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-champagne/15 border border-champagne/40 text-burgundy text-[11px] font-bold tracking-[0.22em] uppercase mb-3 shadow-2xs">
-          <Crown className="w-3.5 h-3.5 text-champagne" />
-          <span>Scene II · The Royal Heritage Reveal</span>
-        </div>
-        <h2 className="font-serif text-3xl sm:text-5xl md:text-6xl font-bold text-espresso tracking-tight leading-[1.12]">
-          Step into Majestic <br className="hidden sm:inline" />
-          <span className="italic font-normal text-burgundy font-serif">Living Royalty</span>
-        </h2>
-        <p className="text-xs sm:text-sm text-stone-600 mt-3 font-normal leading-relaxed max-w-xl mx-auto">
-          Immerse your celebration within sandstone ramparts, carved jharokhas, and starlit Mewari courtyards hand-preserved for generations.
-        </p>
-      </div>
+      {/* SECTION TOP OVERLINE & LINE-REVEAL HEADING */}
+      <div className="text-center max-w-3xl mx-auto mb-14 sm:mb-20">
+        <ScrollReveal animation="fade-down" delay={0.05}>
+          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-champagne/15 border border-champagne/40 text-burgundy text-[11px] font-bold tracking-[0.22em] uppercase mb-4 shadow-2xs">
+            <Crown className="w-3.5 h-3.5 text-champagne" />
+            <span>Scene II · The Royal Heritage Reveal</span>
+          </div>
+        </ScrollReveal>
 
-      {/* EXPANSIVE 3D TILT PALACE HERO FRAME */}
-      <TiltCard
-        maxTilt={6}
-        scale={1.01}
-        className="rounded-3xl sm:rounded-[2.5rem] overflow-hidden bg-espresso border-2 border-champagne/70 shadow-[0_30px_90px_rgba(30,10,20,0.25)] relative group text-white min-h-[520px] sm:min-h-[580px] flex flex-col justify-between"
-      >
-        {/* Full-Bleed 4K Heritage Photography */}
-        <div
-          className="absolute inset-0 bg-cover bg-center transition-transform duration-1000 group-hover:scale-106"
-          style={{ backgroundImage: `url('${palaceImg}')` }}
+        <TextLineReveal
+          lines={[
+            'Step into Majestic',
+            'Living Royalty.'
+          ]}
+          className="font-serif text-3xl sm:text-5xl md:text-6xl font-bold text-espresso tracking-tight leading-[1.12]"
+          lineClassName="first:text-stone-900 last:italic last:font-normal last:text-burgundy"
+          stagger={0.14}
         />
 
-        {/* Cinematic Scrim & Ambient Glow */}
-        <div className="absolute inset-0 bg-gradient-to-t from-espresso/95 via-espresso/35 to-black/30" />
-        <div className="absolute inset-0 bg-gradient-to-r from-espresso/80 via-transparent to-espresso/60" />
+        <ScrollReveal animation="fade-up" delay={0.25}>
+          <p className="text-xs sm:text-sm md:text-base text-stone-600 mt-4 font-normal leading-relaxed max-w-xl mx-auto">
+            Immerse your celebration within sandstone ramparts, carved jharokhas, and starlit Mewari courtyards hand-preserved for generations.
+          </p>
+        </ScrollReveal>
+      </div>
 
-        {/* Top Gold Foil Accent Bar */}
-        <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-burgundy via-champagne to-burgundy" />
-
-        {/* Top Floating Glass Badges */}
-        <div className="relative z-10 p-6 sm:p-10 flex flex-wrap items-center justify-between gap-3">
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-black/60 backdrop-blur-md border border-amber-300/40 text-amber-200 text-xs font-semibold shadow-md">
-            <Sparkles className="w-3.5 h-3.5 text-champagne" />
-            <span>Featured Sanctuary of the Month</span>
-          </div>
-
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-black/60 backdrop-blur-md border border-white/20 text-stone-200 text-xs font-medium">
-            <MapPin className="w-3.5 h-3.5 text-champagne" />
-            <span>Rambagh Citadel &amp; Mughal Gardens · Jaipur</span>
-          </div>
-        </div>
-
-        {/* Bottom Editorial Content & Key Features */}
-        <div className="relative z-10 p-6 sm:p-10 flex flex-col lg:flex-row items-end justify-between gap-8">
-          
-          <div className="max-w-2xl space-y-3">
-            <div className="flex items-center gap-3 text-xs text-amber-200 font-semibold">
-              <span className="flex items-center gap-1">
-                <Star className="w-4 h-4 fill-champagne text-champagne" />
-                <span className="font-bold text-white text-sm">4.99 / 5</span>
-                <span className="text-stone-300">(186 Royal Reviews)</span>
+      {/* EDITORIAL 2-COLUMN SPLIT SHOWCASE (MATCHING REFERENCE DESIGN) */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
+        
+        {/* LEFT COLUMN: LARGE VENUE PHOTOGRAPHY WITH SMOOTH SCALE & FLOATING QUOTE */}
+        <div className="lg:col-span-7">
+          <ImageReveal
+            src={palaceImg}
+            alt="Rambagh Citadel & Mughal Gardens"
+            className="rounded-3xl sm:rounded-[2.5rem] border-2 border-champagne/60 shadow-[0_25px_70px_rgba(30,10,20,0.18)] min-h-[420px] sm:min-h-[520px] aspect-[4/3] lg:aspect-[5/6]"
+            imgClassName="transition-transform duration-1000 hover:scale-105"
+          >
+            {/* Top Floating Badge */}
+            <div className="absolute top-4 left-4 sm:top-6 sm:left-6 flex flex-wrap items-center gap-2 z-10">
+              <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-black/60 backdrop-blur-md border border-amber-300/40 text-amber-200 text-xs font-semibold shadow-md">
+                <Sparkles className="w-3.5 h-3.5 text-champagne" />
+                <span>Featured Sanctuary</span>
               </span>
-              <span className="text-stone-400">•</span>
-              <span className="flex items-center gap-1">
-                <Users className="w-3.5 h-3.5 text-champagne" />
-                <span>Up to 1,200 Guests</span>
-              </span>
-              <span className="text-stone-400">•</span>
-              <span className="text-emerald-400 flex items-center gap-1">
-                <ShieldCheck className="w-3.5 h-3.5" />
-                <span>Verified Heritage Citadel</span>
+              <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-black/60 backdrop-blur-md border border-white/20 text-stone-200 text-xs font-medium">
+                <MapPin className="w-3.5 h-3.5 text-champagne" />
+                <span>Jaipur, Rajasthan</span>
               </span>
             </div>
 
-            <h3 className="font-serif text-2xl sm:text-4xl lg:text-5xl font-bold text-white tracking-tight leading-tight">
-              Rambagh Heritage Citadel &amp; Mughal Courtyards
+            {/* Subtle Gradient Scrim at Bottom */}
+            <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-transparent to-transparent pointer-events-none" />
+
+            {/* Overlaid Floating Testimonial Quote Card (Mirroring Reference Design) */}
+            <div className="absolute bottom-4 left-4 right-4 sm:bottom-6 sm:left-6 sm:right-6 bg-stone-950/85 backdrop-blur-xl border border-amber-300/35 rounded-2xl p-4 sm:p-5 text-white z-10 shadow-2xl">
+              <p className="font-serif italic text-xs sm:text-sm text-amber-100/95 leading-relaxed">
+                &ldquo;The carved Mewari sandstone courtyards at twilight are completely unmatched in royal splendor. Our guests still talk about the baraat procession.&rdquo;
+              </p>
+              <div className="flex items-center justify-between mt-3 pt-3 border-t border-white/10 text-xs">
+                <div className="flex items-center gap-2">
+                  <div className="w-6 h-6 rounded-full bg-gradient-to-tr from-amber-400 to-amber-200 text-stone-900 font-bold flex items-center justify-center text-[10px]">
+                    AK
+                  </div>
+                  <div>
+                    <span className="font-semibold text-white text-[11px] sm:text-xs">Aanya &amp; Kabir Kapoor</span>
+                    <span className="text-stone-400 text-[10px] ml-1.5">Wedding · Feb 2026</span>
+                  </div>
+                </div>
+                <div className="flex items-center gap-1 text-amber-300 text-xs">
+                  <Star className="w-3.5 h-3.5 fill-amber-300" />
+                  <span className="font-bold">4.99</span>
+                </div>
+              </div>
+            </div>
+          </ImageReveal>
+        </div>
+
+        {/* RIGHT COLUMN: EDITORIAL STORY, STATS GRID & BOOKING ACTION */}
+        <div className="lg:col-span-5 space-y-6">
+          
+          <ScrollReveal animation="fade-left" delay={0.1}>
+            <div className="text-[11px] uppercase font-bold tracking-[0.25em] text-champagne flex items-center gap-2">
+              <span className="w-6 h-0.5 bg-champagne" />
+              <span>THE HERITAGE CITADEL</span>
+            </div>
+
+            <h3 className="font-serif text-2xl sm:text-4xl text-stone-900 font-bold tracking-tight mt-2 leading-[1.2]">
+              A celebration <br />
+              <span className="italic font-normal text-burgundy">bathed in regal light.</span>
             </h3>
 
-            <p className="text-xs sm:text-sm text-stone-200 font-light leading-relaxed max-w-xl">
-              Authentic Mewari sandstone arches, central marble fountain pavilions, private vintage car baraat pathway, and starlit open-air amphitheater with royal Awadhi dawat banquets.
+            <p className="text-xs sm:text-sm text-stone-600 font-normal leading-relaxed mt-4">
+              The Rambagh Citadel dates back generations, with original hand-carved Mewari jharokhas, central fountain courtyards, and vaulted stone terraces that carry the music of live shehnai ensembles with extraordinary warmth.
             </p>
+          </ScrollReveal>
 
-            {/* Inclusions Pill Bar */}
-            <div className="flex flex-wrap items-center gap-2 pt-2">
-              <span className="px-3 py-1 rounded-full text-[10px] font-semibold bg-white/10 backdrop-blur-md border border-white/15 text-amber-100">
-                🏰 3 Imperial Courtyards
-              </span>
-              <span className="px-3 py-1 rounded-full text-[10px] font-semibold bg-white/10 backdrop-blur-md border border-white/15 text-amber-100">
-                👑 24 Royal Guest Suites
-              </span>
-              <span className="px-3 py-1 rounded-full text-[10px] font-semibold bg-white/10 backdrop-blur-md border border-white/15 text-amber-100">
-                🌸 Fresh Mogra Mandap Included
-              </span>
-              <span className="px-3 py-1 rounded-full text-[10px] font-semibold bg-white/10 backdrop-blur-md border border-white/15 text-amber-100">
-                🍲 Awadhi Shahi Dawat Certified
-              </span>
-            </div>
-          </div>
-
-          {/* Pricing & CTAs Box */}
-          <div className="w-full lg:w-auto shrink-0 bg-stone-950/80 backdrop-blur-xl rounded-2xl p-5 sm:p-6 border border-amber-300/40 shadow-2xl space-y-4">
-            <div>
-              <div className="text-[10px] uppercase font-bold text-stone-400 tracking-wider">
-                Exclusivity Package Rate
+          {/* LUXURY ESTATE DETAIL STATS GRID (REFERENCE-MATCHED) */}
+          <ScrollReveal animation="fade-up" delay={0.2}>
+            <div className="bg-[#faf6ee] rounded-2xl sm:rounded-3xl p-5 sm:p-6 border border-[#e8ded0] space-y-4">
+              <div className="text-[10px] font-bold tracking-[0.2em] uppercase text-stone-500">
+                Sanctuary Specifications
               </div>
-              <div className="flex items-baseline gap-2 mt-0.5">
-                <span className="font-serif font-bold text-2xl sm:text-3xl text-amber-300">
-                  ₹2,80,000
-                </span>
-                <span className="text-xs text-stone-300">/ full day</span>
+
+              <div className="grid grid-cols-2 gap-4 pt-1 border-t border-stone-200/80">
+                <div>
+                  <div className="font-serif text-2xl sm:text-3xl font-bold text-burgundy">1,200</div>
+                  <div className="text-[10px] uppercase font-bold text-stone-500 tracking-wider mt-0.5">Max Guests</div>
+                </div>
+                <div>
+                  <div className="font-serif text-2xl sm:text-3xl font-bold text-burgundy">Sole</div>
+                  <div className="text-[10px] uppercase font-bold text-stone-500 tracking-wider mt-0.5">Use Policy</div>
+                </div>
+                <div>
+                  <div className="font-serif text-2xl sm:text-3xl font-bold text-burgundy">3</div>
+                  <div className="text-[10px] uppercase font-bold text-stone-500 tracking-wider mt-0.5">Courtyards</div>
+                </div>
+                <div>
+                  <div className="font-serif text-2xl sm:text-3xl font-bold text-burgundy">1842</div>
+                  <div className="text-[10px] uppercase font-bold text-stone-500 tracking-wider mt-0.5">Established</div>
+                </div>
               </div>
-              <div className="text-[10px] text-emerald-400 font-medium flex items-center gap-1 mt-1">
-                <ShieldCheck className="w-3 h-3" />
-                <span>25% Advance Lock · Zero Markups</span>
+
+              <p className="text-[11px] text-stone-500 italic pt-2 border-t border-stone-200/60 leading-normal">
+                Available on an exclusive-use basis only. Your wedding, your private citadel, your day entirely.
+              </p>
+            </div>
+          </ScrollReveal>
+
+          {/* PRICING & CTAS */}
+          <ScrollReveal animation="fade-up" delay={0.3}>
+            <div className="bg-white rounded-2xl p-5 border border-stone-200 shadow-sm space-y-3">
+              <div className="flex items-baseline justify-between">
+                <div>
+                  <span className="text-[10px] font-bold text-stone-400 uppercase tracking-wider block">Exclusivity Rate</span>
+                  <div className="flex items-baseline gap-1.5 mt-0.5">
+                    <span className="font-serif font-bold text-2xl sm:text-3xl text-burgundy">₹2,80,000</span>
+                    <span className="text-xs text-stone-500">/ full day</span>
+                  </div>
+                </div>
+                <div className="text-right">
+                  <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-full border border-emerald-200">
+                    <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
+                    <span>25% Advance Lock</span>
+                  </span>
+                </div>
+              </div>
+
+              <div className="flex flex-col sm:flex-row gap-2.5 pt-1">
+                <button
+                  onClick={onCheckAvailability}
+                  className="flex-1 px-5 py-3 rounded-xl bg-gradient-to-r from-[#e6ca65] via-[#ffd700] to-[#c5a059] hover:brightness-105 text-stone-950 font-bold text-xs uppercase tracking-wider transition-all shadow-md active:scale-95 cursor-pointer text-center flex items-center justify-center gap-2"
+                >
+                  <CalendarDays className="w-4 h-4 text-stone-900" />
+                  <span>Check Availability</span>
+                </button>
+
+                <button
+                  onClick={onExploreVenues}
+                  className="flex-1 px-4 py-3 rounded-xl bg-stone-100 hover:bg-stone-200 text-stone-800 font-semibold text-xs tracking-wider border border-stone-300 transition-all active:scale-95 cursor-pointer text-center flex items-center justify-center gap-1.5"
+                >
+                  <span>Explore Sanctuaries</span>
+                  <ArrowRight className="w-3.5 h-3.5 text-burgundy" />
+                </button>
               </div>
             </div>
-
-            <div className="flex flex-col sm:flex-row lg:flex-col gap-2">
-              <button
-                onClick={onCheckAvailability}
-                className="w-full px-6 py-3 rounded-xl bg-gradient-to-r from-[#e6ca65] via-[#ffd700] to-[#c5a059] hover:brightness-110 text-stone-950 font-bold text-xs uppercase tracking-wider transition-all shadow-lg active:scale-95 cursor-pointer text-center flex items-center justify-center gap-2"
-              >
-                <CalendarDays className="w-3.5 h-3.5 text-stone-900" />
-                <span>Check Date Availability</span>
-              </button>
-
-              <button
-                onClick={onExploreVenues}
-                className="w-full px-5 py-2.5 rounded-xl bg-white/10 hover:bg-white/20 text-white font-semibold text-xs tracking-wider border border-white/20 transition-all active:scale-95 cursor-pointer text-center flex items-center justify-center gap-1.5"
-              >
-                <span>View Full Palace Roster</span>
-                <ArrowRight className="w-3.5 h-3.5 text-amber-300" />
-              </button>
-            </div>
-          </div>
+          </ScrollReveal>
 
         </div>
-      </TiltCard>
+
+      </div>
 
     </section>
   )

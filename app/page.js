@@ -75,7 +75,7 @@ import RoyalVenueRevealSection from '../components/RoyalVenueRevealSection'
 import WeddingInspirationGallery from '../components/WeddingInspirationGallery'
 import CuratedPackagesSection from '../components/CuratedPackagesSection'
 import TrustAndConfidenceSection from '../components/TrustAndConfidenceSection'
-import ScrollReveal, { ScrollStaggerContainer, ScrollStaggerItem } from '../components/ScrollReveal'
+import ScrollReveal, { TextLineReveal, ScrollStaggerContainer, ScrollStaggerItem } from '../components/ScrollReveal'
 import { getOptimizedImageUrl } from '@/lib/imageUtils'
 
 // Indian Top Event Cities
@@ -1527,27 +1527,25 @@ export default function VowsAndVenuesApp() {
             />
 
             {/* SCENE II · ROYAL VENUE REVEAL (Interactive 3D Perspective Palace Showcase) */}
-            <ScrollReveal animation="fade-up" duration={0.85}>
-              <RoyalVenueRevealSection
-                onCheckAvailability={() => {
+            <RoyalVenueRevealSection
+              onCheckAvailability={() => {
+                setFilterCategory('venues')
+                setActiveTab('explore')
+              }}
+              onExploreVenues={() => {
+                setFilterCategory('venues')
+                setActiveTab('explore')
+              }}
+              onSelectVenue={(v) => {
+                const found = vendors.find(item => item.id === v?.id || item.name?.toLowerCase().includes('rambagh'))
+                if (found) {
+                  setSelectedVendorModal(found)
+                } else {
                   setFilterCategory('venues')
                   setActiveTab('explore')
-                }}
-                onExploreVenues={() => {
-                  setFilterCategory('venues')
-                  setActiveTab('explore')
-                }}
-                onSelectVenue={(v) => {
-                  const found = vendors.find(item => item.id === v?.id || item.name?.toLowerCase().includes('rambagh'))
-                  if (found) {
-                    setSelectedVendorModal(found)
-                  } else {
-                    setFilterCategory('venues')
-                    setActiveTab('explore')
-                  }
-                }}
-              />
-            </ScrollReveal>
+                }
+              }}
+            />
 
             {/* TOP 3D SLIDING IMAGE GALLERY (Signature Luxury Showcases) */}
             <ScrollReveal animation="zoom-in" duration={0.85}>
@@ -1566,32 +1564,28 @@ export default function VowsAndVenuesApp() {
             </ScrollReveal>
 
             {/* 11 EDITORIAL CRAFT CATEGORIES (4:5 Portrait Photography Cards) */}
-            <ScrollReveal animation="fade-up" duration={0.8}>
-              <EditorialCategories
-                categories={categories}
-                cmsContent={cmsContent}
-                onSelectCategory={(slug) => {
-                  setFilterCategory(slug)
-                  setActiveTab('explore')
-                }}
-              />
-            </ScrollReveal>
+            <EditorialCategories
+              categories={categories}
+              cmsContent={cmsContent}
+              onSelectCategory={(slug) => {
+                setFilterCategory(slug)
+                setActiveTab('explore')
+              }}
+            />
 
             {/* EDITORIAL FEATURED PALACES & SANCTUARIES (1 Grand Hero Palace + 3 Complementary) */}
-            <ScrollReveal animation="fade-up" duration={0.85}>
-              <FeaturedVenuesEditorial
-                vendors={vendors}
-                wishlistIds={wishlistIds}
-                onToggleFavorite={handleToggleWishlist}
-                onSelectVendor={(v) => setSelectedVendorModal(v)}
-                onAddToEvent={(v) => handleAddVendorToEvent(v)}
-                onNegotiate={(v) => handleOpenNegotiation(v)}
-                onViewAll={() => {
-                  setFilterCategory('venues')
-                  setActiveTab('explore')
-                }}
-              />
-            </ScrollReveal>
+            <FeaturedVenuesEditorial
+              vendors={vendors}
+              wishlistIds={wishlistIds}
+              onToggleFavorite={handleToggleWishlist}
+              onSelectVendor={(v) => setSelectedVendorModal(v)}
+              onAddToEvent={(v) => handleAddVendorToEvent(v)}
+              onNegotiate={(v) => handleOpenNegotiation(v)}
+              onViewAll={() => {
+                setFilterCategory('venues')
+                setActiveTab('explore')
+              }}
+            />
 
             {/* CURATED CELEBRATION OFFERS & PRIVILEGES */}
             <ScrollReveal animation="fade-up" duration={0.75}>
@@ -1605,95 +1599,110 @@ export default function VowsAndVenuesApp() {
             </ScrollReveal>
 
             {/* CURATED ALL-INCLUSIVE CELEBRATION PACKAGES */}
-            <ScrollReveal animation="fade-up" duration={0.85}>
-              <CuratedPackagesSection
-                packages={packages}
-                onSelectPackage={(pkg) => handleOpenPackageCustomizer(pkg)}
-                onCustomizePackage={(pkg) => handleOpenPackageCustomizer(pkg)}
-                onBookPackage={(pkg) => handleOpenPackageCustomizer(pkg)}
-              />
-            </ScrollReveal>
+            <CuratedPackagesSection
+              packages={packages}
+              onSelectPackage={(pkg) => handleOpenPackageCustomizer(pkg)}
+              onCustomizePackage={(pkg) => handleOpenPackageCustomizer(pkg)}
+              onBookPackage={(pkg) => handleOpenPackageCustomizer(pkg)}
+            />
 
             {/* THE WEDDING GAZETTE · INSPIRATION MASONRY GALLERY */}
-            <ScrollReveal animation="fade-up" duration={0.85}>
-              <WeddingInspirationGallery
-                onExploreCategory={(cat) => {
-                  const slugMap = {
-                    'Palaces & Forts': 'venues',
-                    'Mandaps & Florals': 'decor',
-                    'Catering & Feasts': 'catering',
-                    'Couture & Details': 'outfits'
-                  }
-                  const slug = slugMap[cat] || 'all'
-                  setFilterCategory(slug)
-                  setActiveTab('explore')
-                }}
-              />
-            </ScrollReveal>
+            <WeddingInspirationGallery
+              onExploreCategory={(cat) => {
+                const slugMap = {
+                  'Palaces & Forts': 'venues',
+                  'Mandaps & Florals': 'decor',
+                  'Catering & Feasts': 'catering',
+                  'Couture & Details': 'outfits'
+                }
+                const slug = slugMap[cat] || 'all'
+                setFilterCategory(slug)
+                setActiveTab('explore')
+              }}
+            />
 
             {/* FEATURED SIGNATURE CREATORS & VENUES (Full Directory Preview) */}
-            <ScrollReveal animation="fade-up" duration={0.8}>
             <section className="py-16 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
-              <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-10">
+              <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-10 gap-4">
                 <div>
-                  <div className="text-[11px] uppercase font-bold tracking-[0.2em] text-[#4a1525] mb-1">
-                    Curated Excellence
-                  </div>
-                  <h2 className="font-serif text-3xl sm:text-4xl font-bold text-[#1c1917]">
-                    Featured Event Creators &amp; Venues
-                  </h2>
-                  <p className="text-xs text-[#78716c] mt-1">
-                    Top-rated verified partners across {selectedCity === 'All Cities' ? 'Pan-India' : selectedCity} with verified reviews.
-                  </p>
+                  <ScrollReveal animation="fade-down" delay={0.05}>
+                    <div className="text-[11px] uppercase font-bold tracking-[0.2em] text-[#4a1525] mb-2">
+                      Curated Excellence
+                    </div>
+                  </ScrollReveal>
+
+                  <TextLineReveal
+                    lines={[
+                      'Featured Event Creators',
+                      '& Venues.'
+                    ]}
+                    className="font-serif text-3xl sm:text-4xl font-bold text-[#1c1917]"
+                    lineClassName="first:text-stone-900 last:italic last:font-normal last:text-[#4a1525]"
+                    stagger={0.12}
+                  />
+
+                  <ScrollReveal animation="fade-up" delay={0.2}>
+                    <p className="text-xs text-[#78716c] mt-2">
+                      Top-rated verified partners across {selectedCity === 'All Cities' ? 'Pan-India' : selectedCity} with verified reviews.
+                    </p>
+                  </ScrollReveal>
                 </div>
-                <button
-                  onClick={() => {
-                    setFilterCategory('all')
-                    setActiveTab('explore')
-                  }}
-                  className="inline-flex items-center gap-1.5 text-xs font-bold text-[#4a1525] hover:text-[#2d0c16] underline underline-offset-4 cursor-pointer mt-3 sm:mt-0"
-                >
-                  View Full Directory ({vendors.length}) &rarr;
-                </button>
+
+                <ScrollReveal animation="fade-left" delay={0.25}>
+                  <button
+                    onClick={() => {
+                      setFilterCategory('all')
+                      setActiveTab('explore')
+                    }}
+                    className="inline-flex items-center gap-1.5 text-xs font-bold text-[#4a1525] hover:text-[#2d0c16] underline underline-offset-4 cursor-pointer mt-3 sm:mt-0"
+                  >
+                    View Full Directory ({vendors.length}) &rarr;
+                  </button>
+                </ScrollReveal>
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+              <ScrollStaggerContainer staggerDelay={0.07} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                 {featuredCreators.map((vendor) => (
-                  <VendorCard
-                    key={vendor.id}
-                    vendor={vendor}
-                    isFavorite={wishlistIds.includes(vendor.id)}
-                    onToggleFavorite={handleToggleWishlist}
-                    onSelectVendor={(v) => setSelectedVendorModal(v)}
-                    onAddToEvent={(v) => handleAddVendorToEvent(v)}
-                    onNegotiate={(v) => handleOpenNegotiation(v)}
-                  />
+                  <ScrollStaggerItem key={vendor.id} yOffset={25}>
+                    <VendorCard
+                      vendor={vendor}
+                      isFavorite={wishlistIds.includes(vendor.id)}
+                      onToggleFavorite={handleToggleWishlist}
+                      onSelectVendor={(v) => setSelectedVendorModal(v)}
+                      onAddToEvent={(v) => handleAddVendorToEvent(v)}
+                      onNegotiate={(v) => handleOpenNegotiation(v)}
+                    />
+                  </ScrollStaggerItem>
                 ))}
-              </div>
+              </ScrollStaggerContainer>
             </section>
-            </ScrollReveal>
 
             {/* TRUST, SAFETY & PLATFORM CONFIDENCE */}
-            <ScrollReveal animation="fade-up" duration={0.75}>
-              <TrustAndConfidenceSection />
-            </ScrollReveal>
+            <TrustAndConfidenceSection />
 
             {/* REAL CELEBRATIONS & EDITORIAL MEMOIRS — SLIDING INDIAN REVIEWS */}
-            <ScrollReveal animation="fade-up" duration={0.8}>
-              <SlidingReviewsSection />
-            </ScrollReveal>
+            <SlidingReviewsSection />
 
             {/* FREQUENTLY ASKED QUESTIONS */}
             {cmsContent?.faqs?.length > 0 && (
               <ScrollReveal animation="fade-up" duration={0.8}>
                 <section className="py-16 px-4 sm:px-6 lg:px-8 max-w-4xl mx-auto border-t border-[#e8e2d5]">
                   <div className="text-center mb-10">
-                    <div className="text-[11px] uppercase font-bold tracking-[0.2em] text-[#4a1525] mb-1">
-                      Questions &amp; Guidance
-                    </div>
-                    <h2 className="font-serif text-3xl font-bold text-[#1c1917]">
-                      Frequently Asked Questions
-                    </h2>
+                    <ScrollReveal animation="fade-down" delay={0.05}>
+                      <div className="text-[11px] uppercase font-bold tracking-[0.2em] text-[#4a1525] mb-2">
+                        Questions &amp; Guidance
+                      </div>
+                    </ScrollReveal>
+
+                    <TextLineReveal
+                      lines={[
+                        'Frequently Asked',
+                        'Questions.'
+                      ]}
+                      className="font-serif text-3xl sm:text-4xl font-bold text-[#1c1917]"
+                      lineClassName="first:text-stone-900 last:italic last:font-normal last:text-[#4a1525]"
+                      stagger={0.12}
+                    />
                   </div>
 
                   <div className="space-y-4">
