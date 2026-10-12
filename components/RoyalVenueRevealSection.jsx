@@ -28,11 +28,11 @@ export default function RoyalVenueRevealSection({
     <section className="py-20 sm:py-28 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto select-none overflow-hidden">
       
       {/* SECTION TOP OVERLINE & LINE-REVEAL HEADING */}
-      <div className="text-center max-w-3xl mx-auto mb-14 sm:mb-20">
+      <div className="text-center max-w-3xl mx-auto mb-10 sm:mb-20">
         <ScrollReveal animation="fade-down" delay={0.05}>
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-champagne/15 border border-champagne/40 text-burgundy text-[11px] font-bold tracking-[0.22em] uppercase mb-4 shadow-2xs">
-            <Crown className="w-3.5 h-3.5 text-champagne" />
-            <span>Scene II · The Royal Heritage Reveal</span>
+          <div className="inline-flex items-center gap-1.5 sm:gap-2 px-3.5 sm:px-4 py-1.5 rounded-full bg-champagne/15 border border-champagne/40 text-burgundy text-[10px] sm:text-[11px] font-bold tracking-[0.14em] sm:tracking-[0.22em] uppercase mb-3 sm:mb-4 shadow-2xs max-w-full">
+            <Crown className="w-3.5 h-3.5 text-champagne shrink-0" />
+            <span className="truncate">Scene II · Royal Heritage Reveal</span>
           </div>
         </ScrollReveal>
 
@@ -47,7 +47,7 @@ export default function RoyalVenueRevealSection({
         />
 
         <ScrollReveal animation="fade-up" delay={0.25}>
-          <p className="text-xs sm:text-sm md:text-base text-stone-600 mt-4 font-normal leading-relaxed max-w-xl mx-auto">
+          <p className="text-xs sm:text-sm md:text-base text-stone-600 mt-3 sm:mt-4 font-normal leading-relaxed max-w-xl mx-auto px-2">
             Immerse your celebration within sandstone ramparts, carved jharokhas, and starlit Mewari courtyards hand-preserved for generations.
           </p>
         </ScrollReveal>
@@ -57,46 +57,46 @@ export default function RoyalVenueRevealSection({
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
         
         {/* LEFT COLUMN: LARGE VENUE PHOTOGRAPHY WITH SMOOTH SCALE & FLOATING QUOTE */}
-        <div className="lg:col-span-7">
+        <div className="lg:col-span-7 w-full max-w-full">
           <ImageReveal
             src={palaceImg}
             alt="Rambagh Citadel & Mughal Gardens"
-            className="rounded-3xl sm:rounded-[2.5rem] border-2 border-champagne/60 shadow-[0_25px_70px_rgba(30,10,20,0.18)] min-h-[420px] sm:min-h-[520px] aspect-[4/3] lg:aspect-[5/6]"
-            imgClassName="transition-transform duration-1000 hover:scale-105"
+            className="w-full max-w-full rounded-2xl sm:rounded-3xl lg:rounded-[2.5rem] border-2 border-champagne/60 shadow-[0_25px_70px_rgba(30,10,20,0.18)] aspect-[4/5] sm:aspect-[4/3] lg:aspect-[5/6]"
+            imgClassName="w-full h-full object-cover transition-transform duration-1000 hover:scale-105"
           >
             {/* Top Floating Badge */}
-            <div className="absolute top-4 left-4 sm:top-6 sm:left-6 flex flex-wrap items-center gap-2 z-10">
-              <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-black/60 backdrop-blur-md border border-amber-300/40 text-amber-200 text-xs font-semibold shadow-md">
-                <Sparkles className="w-3.5 h-3.5 text-champagne" />
+            <div className="absolute top-3 left-3 sm:top-6 sm:left-6 flex flex-wrap items-center gap-1.5 sm:gap-2 z-10">
+              <span className="inline-flex items-center gap-1.5 px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-full bg-black/60 backdrop-blur-md border border-amber-300/40 text-amber-200 text-[10px] sm:text-xs font-semibold shadow-md">
+                <Sparkles className="w-3 sm:w-3.5 h-3 sm:h-3.5 text-champagne" />
                 <span>Featured Sanctuary</span>
               </span>
-              <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-black/60 backdrop-blur-md border border-white/20 text-stone-200 text-xs font-medium">
-                <MapPin className="w-3.5 h-3.5 text-champagne" />
+              <span className="inline-flex items-center gap-1.5 px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-full bg-black/60 backdrop-blur-md border border-white/20 text-stone-200 text-[10px] sm:text-xs font-medium">
+                <MapPin className="w-3 sm:w-3.5 h-3 sm:h-3.5 text-champagne" />
                 <span>Jaipur, Rajasthan</span>
               </span>
             </div>
 
             {/* Subtle Gradient Scrim at Bottom */}
-            <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-transparent to-transparent pointer-events-none" />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent pointer-events-none" />
 
-            {/* Overlaid Floating Testimonial Quote Card (Mirroring Reference Design) */}
-            <div className="absolute bottom-4 left-4 right-4 sm:bottom-6 sm:left-6 sm:right-6 bg-stone-950/85 backdrop-blur-xl border border-amber-300/35 rounded-2xl p-4 sm:p-5 text-white z-10 shadow-2xl">
-              <p className="font-serif italic text-xs sm:text-sm text-amber-100/95 leading-relaxed">
+            {/* Overlaid Floating Testimonial Quote Card (Compact on mobile to showcase the palace photo) */}
+            <div className="absolute bottom-3 left-3 right-3 sm:bottom-6 sm:left-6 sm:right-6 bg-stone-950/90 backdrop-blur-xl border border-amber-300/35 rounded-xl sm:rounded-2xl p-3 sm:p-5 text-white z-10 shadow-2xl">
+              <p className="font-serif italic text-xs sm:text-sm text-amber-100/95 leading-relaxed line-clamp-2 sm:line-clamp-none">
                 &ldquo;The carved Mewari sandstone courtyards at twilight are completely unmatched in royal splendor. Our guests still talk about the baraat procession.&rdquo;
               </p>
-              <div className="flex items-center justify-between mt-3 pt-3 border-t border-white/10 text-xs">
-                <div className="flex items-center gap-2">
-                  <div className="w-6 h-6 rounded-full bg-gradient-to-tr from-amber-400 to-amber-200 text-stone-900 font-bold flex items-center justify-center text-[10px]">
+              <div className="flex items-center justify-between mt-2.5 sm:mt-3 pt-2 sm:pt-3 border-t border-white/10 text-xs">
+                <div className="flex items-center gap-1.5 sm:gap-2 min-w-0">
+                  <div className="w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-gradient-to-tr from-amber-400 to-amber-200 text-stone-900 font-bold flex items-center justify-center text-[9px] sm:text-[10px] shrink-0">
                     AK
                   </div>
-                  <div>
-                    <span className="font-semibold text-white text-[11px] sm:text-xs">Aanya &amp; Kabir Kapoor</span>
-                    <span className="text-stone-400 text-[10px] ml-1.5">Wedding · Feb 2026</span>
+                  <div className="truncate">
+                    <span className="font-semibold text-white text-[10px] sm:text-xs">Aanya &amp; Kabir</span>
+                    <span className="text-stone-400 text-[9px] sm:text-[10px] ml-1">· Feb 2026</span>
                   </div>
                 </div>
-                <div className="flex items-center gap-1 text-amber-300 text-xs">
-                  <Star className="w-3.5 h-3.5 fill-amber-300" />
-                  <span className="font-bold">4.99</span>
+                <div className="flex items-center gap-1 text-amber-300 text-xs shrink-0">
+                  <Star className="w-3 sm:w-3.5 h-3 sm:h-3.5 fill-amber-300" />
+                  <span className="font-bold text-[11px] sm:text-xs">4.99</span>
                 </div>
               </div>
             </div>
