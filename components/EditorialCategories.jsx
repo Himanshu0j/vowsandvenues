@@ -183,7 +183,7 @@ export default function EditorialCategories({ categories = [], onSelectCategory,
                   </div>
 
                   {/* Card Footer: Starting Price in Warm Ivory Bar */}
-                  <div className="p-3 bg-gradient-to-b from-[#fffdfa] to-[#faf6ee] border-t border-[#f0e6d6] flex items-center justify-between">
+                  <div className="p-2.5 sm:p-3 bg-gradient-to-b from-[#fffdfa] to-[#faf6ee] border-t border-[#f0e6d6] flex items-center justify-between">
                     <div>
                       <span className="text-[9px] text-stone-400 uppercase tracking-wider font-semibold block">Starts at</span>
                       <span className="font-serif font-bold text-burgundy text-xs sm:text-sm">

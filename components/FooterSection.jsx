@@ -27,7 +27,7 @@ export default function FooterSection({
   }
 
   return (
-    <footer className="bg-gradient-to-b from-[#1c1917] via-[#161413] to-[#0f0e0d] text-white pt-16 pb-12 border-t border-amber-900/30 relative">
+    <footer className="bg-gradient-to-b from-[#1c1917] via-[#161413] to-[#0f0e0d] text-white pt-16 pb-28 sm:pb-14 border-t border-amber-900/30 relative">
       {/* Decorative top gold hairline */}
       <div className="absolute top-0 left-0 right-0 h-0.5 bg-gradient-to-r from-transparent via-[#c5a059] to-transparent opacity-60" />
 

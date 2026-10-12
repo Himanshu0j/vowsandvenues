@@ -19,6 +19,7 @@ import {
   Gift,
   HelpCircle,
   ChevronRight,
+  ChevronLeft,
   Check
 } from 'lucide-react'
 import { toast } from 'sonner'
@@ -53,6 +54,9 @@ export default function NegotiationChatDrawer({
   const [customerMessage, setCustomerMessage] = useState('')
   const [submittingNew, setSubmittingNew] = useState(false)
 
+  // Ref tracking to prevent stale closures and out-of-order async response overwrites
+  const activeNegotiationIdRef = useRef(null)
+  const fetchRequestIdRef = useRef(0)
   const messagesEndRef = useRef(null)
 
   // Initialize or read customer info from localStorage
@@ -68,7 +72,7 @@ export default function NegotiationChatDrawer({
   }, [currentUser])
 
   // Get effective target vendor
-  const effectiveVendor = targetVendor || allVendors.find(v => v.id === selectedVendorId) || allVendors[0]
+  const effectiveVendor = allVendors.find(v => v.id === selectedVendorId) || targetVendor || allVendors[0]
   const originalStartingPrice = effectiveVendor?.startingPrice || 200000
 
   // Whenever targetVendor changes or modal opens
@@ -81,8 +85,9 @@ export default function NegotiationChatDrawer({
     }
   }, [targetVendor, originalStartingPrice])
 
-  // Load user negotiations from API
-  const loadMyNegotiations = async () => {
+  // Load user negotiations from API with sequence counter and ref tracking
+  const loadMyNegotiations = async (forceSelectId = null) => {
+    const reqId = ++fetchRequestIdRef.current
     try {
       const email = customerEmail || currentUser?.email || localStorage.getItem('vv_neg_email')
       const userId = currentUser?.id
@@ -96,19 +101,26 @@ export default function NegotiationChatDrawer({
       const res = await fetch(`/api/negotiations?${params.toString()}`)
       if (res.ok) {
         const data = await res.json()
+        // If a newer request has already been issued, drop stale response
+        if (reqId !== fetchRequestIdRef.current) return
+
         if (Array.isArray(data)) {
           setUserNegotiations(data)
-          // If we have an active negotiation, refresh it with latest data
-          if (activeNegotiation) {
-            const fresh = data.find(n => n.id === activeNegotiation.id)
-            if (fresh) setActiveNegotiation(fresh)
+
+          const targetId = forceSelectId || activeNegotiationIdRef.current
+          if (targetId) {
+            const fresh = data.find(n => n.id === targetId)
+            if (fresh) {
+              setActiveNegotiation(fresh)
+              activeNegotiationIdRef.current = fresh.id
+            }
           }
         }
       }
     } catch (_) {}
   }
 
-  // Polling for live updates when chat is active
+  // Polling for live updates when modal is open
   useEffect(() => {
     if (!isOpen) return
 
@@ -118,12 +130,34 @@ export default function NegotiationChatDrawer({
     }, 4000)
 
     return () => clearInterval(interval)
-  }, [isOpen, customerEmail, currentUser, activeNegotiation?.id])
+  }, [isOpen, customerEmail, currentUser])
 
-  // Scroll messages to bottom
+  // Select a negotiation safely (updates both state and ref)
+  const handleSelectNegotiation = (neg) => {
+    if (!neg) return
+    activeNegotiationIdRef.current = neg.id
+    setActiveNegotiation(neg)
+    setMsgInput('')
+    setView('chat')
+  }
+
+  // Switch tabs safely with auto-selection for chat
+  const handleSwitchTab = (tabName) => {
+    if (tabName === 'chat') {
+      if (!activeNegotiation && userNegotiations.length > 0) {
+        handleSelectNegotiation(userNegotiations[0])
+      } else {
+        setView('chat')
+      }
+    } else {
+      setView(tabName)
+    }
+  }
+
+  // Scroll messages to bottom without parent window displacement
   useEffect(() => {
     if (view === 'chat' && messagesEndRef.current) {
-      messagesEndRef.current.scrollIntoView({ behavior: 'smooth' })
+      messagesEndRef.current.scrollIntoView({ behavior: 'smooth', block: 'nearest' })
     }
   }, [activeNegotiation?.messages, view])
 
@@ -172,9 +206,8 @@ export default function NegotiationChatDrawer({
       const result = await res.json()
       
       toast.success('Negotiation request sent directly to Royal Admin Concierge!')
-      setActiveNegotiation(result.negotiation)
-      setView('chat')
-      loadMyNegotiations()
+      handleSelectNegotiation(result.negotiation)
+      loadMyNegotiations(result.negotiation?.id)
     } catch (err) {
       toast.error(err.message || 'Error starting negotiation')
     } finally {
@@ -204,8 +237,8 @@ export default function NegotiationChatDrawer({
 
       if (!res.ok) throw new Error('Failed to send message')
       const result = await res.json()
-      setActiveNegotiation(result.negotiation)
-      loadMyNegotiations()
+      handleSelectNegotiation(result.negotiation)
+      loadMyNegotiations(result.negotiation?.id)
     } catch (err) {
       toast.error('Could not send message: ' + err.message)
       setMsgInput(textToSend)
@@ -231,7 +264,7 @@ export default function NegotiationChatDrawer({
 
       if (res.ok) {
         const result = await res.json()
-        setActiveNegotiation(result.negotiation)
+        handleSelectNegotiation(result.negotiation)
         toast.success(`Deal Accepted at ₹${offerPrice.toLocaleString('en-IN')}!`)
         
         if (onApplyDeal) {
@@ -259,7 +292,7 @@ export default function NegotiationChatDrawer({
         <div className="bg-gradient-to-r from-[#2c0e17] via-[#4a1525] to-[#2c0e17] text-white p-4 sm:p-5 border-b border-[#c5a059]/40 relative shrink-0">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-[#c5a059] to-[#8c6b2d] flex items-center justify-center text-[#1c1917] shadow-lg border border-amber-300/40">
+              <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-[#c5a059] to-[#8c6b2d] flex items-center justify-center text-[#1c1917] shadow-lg border border-amber-300/40 shrink-0">
                 <MessageSquare className="w-5 h-5" />
               </div>
               <div>
@@ -279,17 +312,18 @@ export default function NegotiationChatDrawer({
 
             <button
               onClick={onClose}
-              className="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 text-stone-200 flex items-center justify-center transition-colors"
+              className="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 text-stone-200 flex items-center justify-center transition-colors shrink-0 cursor-pointer"
+              aria-label="Close negotiation drawer"
             >
               <X className="w-4 h-4" />
             </button>
           </div>
 
           {/* Sub Navigation Switcher */}
-          <div className="flex items-center gap-2 mt-4 pt-3 border-t border-white/10 text-xs">
+          <div className="flex items-center gap-2 mt-4 pt-3 border-t border-white/10 text-xs overflow-x-auto no-scrollbar">
             <button
-              onClick={() => setView('new')}
-              className={`px-3 py-1.5 rounded-xl font-semibold transition-all ${
+              onClick={() => handleSwitchTab('new')}
+              className={`px-3 py-1.5 rounded-xl font-semibold transition-all cursor-pointer whitespace-nowrap ${
                 view === 'new'
                   ? 'bg-[#c5a059] text-[#1c1917] font-bold shadow-sm'
                   : 'text-stone-300 hover:text-white hover:bg-white/10'
@@ -298,10 +332,10 @@ export default function NegotiationChatDrawer({
               + Make New Offer
             </button>
 
-            {activeNegotiation && (
+            {(activeNegotiation || userNegotiations.length > 0) && (
               <button
-                onClick={() => setView('chat')}
-                className={`px-3 py-1.5 rounded-xl font-semibold transition-all flex items-center gap-1.5 ${
+                onClick={() => handleSwitchTab('chat')}
+                className={`px-3 py-1.5 rounded-xl font-semibold transition-all flex items-center gap-1.5 cursor-pointer whitespace-nowrap ${
                   view === 'chat'
                     ? 'bg-[#c5a059] text-[#1c1917] font-bold shadow-sm'
                     : 'text-stone-300 hover:text-white hover:bg-white/10'
@@ -314,8 +348,8 @@ export default function NegotiationChatDrawer({
 
             {userNegotiations.length > 0 && (
               <button
-                onClick={() => setView('list')}
-                className={`px-3 py-1.5 rounded-xl font-semibold transition-all ml-auto ${
+                onClick={() => handleSwitchTab('list')}
+                className={`px-3 py-1.5 rounded-xl font-semibold transition-all ml-auto cursor-pointer whitespace-nowrap ${
                   view === 'list'
                     ? 'bg-[#c5a059] text-[#1c1917] font-bold shadow-sm'
                     : 'text-stone-300 hover:text-white hover:bg-white/10'
@@ -328,13 +362,13 @@ export default function NegotiationChatDrawer({
         </div>
 
         {/* 2. BODY CONTENT ACCORDING TO ACTIVE VIEW */}
-        <div className="flex-1 overflow-y-auto p-4 sm:p-5 flex flex-col">
+        <div className="flex-1 min-h-0 overflow-y-auto p-4 sm:p-5 flex flex-col">
 
           {/* ======================================================== */}
           {/* VIEW: NEW NEGOTIATION FORM */}
           {/* ======================================================== */}
           {view === 'new' && (
-            <form onSubmit={handleStartNegotiation} className="space-y-5 my-auto">
+            <form onSubmit={handleStartNegotiation} className="space-y-4 my-auto">
               {/* Selected Venue/Vendor Card */}
               {effectiveVendor && (
                 <div className="p-3.5 rounded-2xl bg-gradient-to-r from-[#faf6ee] to-[#f5ebd7] border-2 border-[#decfaa] flex items-center gap-3.5 shadow-sm">
@@ -365,16 +399,23 @@ export default function NegotiationChatDrawer({
                 </div>
               )}
 
-              {/* Vendor Selector if not preselected */}
-              {!targetVendor && allVendors.length > 0 && (
+              {/* Vendor Selector dropdown: always available so user can switch between venues */}
+              {allVendors.length > 0 && (
                 <div>
                   <label className="block text-xs font-bold text-stone-700 uppercase tracking-wider mb-1.5">
                     Select Venue or Service to Negotiate
                   </label>
                   <select
                     value={selectedVendorId}
-                    onChange={(e) => setSelectedVendorId(e.target.value)}
-                    className="w-full p-2.5 rounded-xl border border-[#decfaa] bg-white text-xs font-semibold text-stone-800 focus:outline-none focus:ring-2 focus:ring-[#c5a059]"
+                    onChange={(e) => {
+                      setSelectedVendorId(e.target.value)
+                      const matched = allVendors.find(v => v.id === e.target.value)
+                      if (matched) {
+                        const def = Math.round((matched.startingPrice || 200000) * 0.85 / 1000) * 1000
+                        setOfferedBudget(def)
+                      }
+                    }}
+                    className="w-full p-2.5 rounded-xl border border-[#decfaa] bg-white text-xs font-semibold text-stone-800 focus:outline-none focus:ring-2 focus:ring-[#c5a059] cursor-pointer"
                   >
                     {allVendors.map(v => (
                       <option key={v.id} value={v.id}>
@@ -426,7 +467,7 @@ export default function NegotiationChatDrawer({
                         key={i}
                         type="button"
                         onClick={() => setOfferedBudget(calc)}
-                        className={`px-2.5 py-1 rounded-lg text-xs font-bold transition-all border ${
+                        className={`px-2.5 py-1 rounded-lg text-xs font-bold transition-all border cursor-pointer ${
                           Number(offeredBudget) === calc
                             ? 'bg-[#4a1525] text-amber-200 border-[#4a1525]'
                             : 'bg-white hover:bg-amber-100 text-stone-800 border-amber-300/80'
@@ -453,7 +494,6 @@ export default function NegotiationChatDrawer({
                     required
                   />
                 </div>
-
                 <div>
                   <label className="block text-[11px] font-bold text-stone-700 uppercase tracking-wider mb-1">
                     Expected Guests
@@ -469,18 +509,14 @@ export default function NegotiationChatDrawer({
                 </div>
               </div>
 
-              {/* Customer Contact Details */}
-              <div className="space-y-3 pt-2 border-t border-[#f0e6d6]">
-                <h5 className="text-xs font-bold text-stone-900 uppercase tracking-wider">
-                  Your Contact Information
-                </h5>
-
+              {/* Customer Contact */}
+              <div className="space-y-3">
                 <div>
                   <input
                     type="text"
                     value={customerName}
                     onChange={(e) => setCustomerName(e.target.value)}
-                    placeholder="Full Name (e.g. Rohit &amp; Ananya Sharma)"
+                    placeholder="Full Name (e.g. Rohit & Ananya Sharma)"
                     className="w-full p-2.5 rounded-xl border border-[#decfaa] bg-white text-xs font-semibold text-stone-800"
                     required
                   />
@@ -520,7 +556,7 @@ export default function NegotiationChatDrawer({
               <button
                 type="submit"
                 disabled={submittingNew}
-                className="w-full py-3.5 rounded-2xl bg-gradient-to-r from-[#4a1525] via-[#6d1e35] to-[#4a1525] hover:from-[#3a101d] hover:to-[#581729] text-amber-200 font-bold text-sm shadow-xl flex items-center justify-center gap-2 border border-amber-400/40 transition-all hover:scale-[1.01] active:scale-[0.99] disabled:opacity-50"
+                className="w-full py-3.5 rounded-2xl bg-gradient-to-r from-[#4a1525] via-[#6d1e35] to-[#4a1525] hover:from-[#3a101d] hover:to-[#581729] text-amber-200 font-bold text-sm shadow-xl flex items-center justify-center gap-2 border border-amber-400/40 transition-all hover:scale-[1.01] active:scale-[0.99] disabled:opacity-50 cursor-pointer"
               >
                 {submittingNew ? (
                   <>
@@ -541,127 +577,195 @@ export default function NegotiationChatDrawer({
           {/* ======================================================== */}
           {/* VIEW: ACTIVE CHAT THREAD */}
           {/* ======================================================== */}
-          {view === 'chat' && activeNegotiation && (
-            <div className="flex-1 flex flex-col justify-between">
-              
-              {/* Active Deal Status Pill Header */}
-              <div className="p-3 rounded-2xl bg-gradient-to-r from-[#faf6ed] to-[#f4ead5] border border-[#e2d4bc] mb-4 flex items-center justify-between shadow-xs">
-                <div>
-                  <div className="flex items-center gap-2">
-                    <h4 className="font-serif font-bold text-sm text-stone-900 truncate">
-                      {activeNegotiation.vendorName}
-                    </h4>
-                    <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider ${
-                      activeNegotiation.status === 'OFFER_MADE'
-                        ? 'bg-amber-100 text-amber-900 border border-amber-400'
-                        : activeNegotiation.status === 'ACCEPTED'
-                        ? 'bg-emerald-100 text-emerald-900 border border-emerald-400'
-                        : 'bg-stone-200 text-stone-800'
-                    }`}>
-                      {activeNegotiation.status === 'OFFER_MADE' ? 'Special Offer Received!' : activeNegotiation.status}
-                    </span>
-                  </div>
-                  <div className="text-[11px] text-stone-600 mt-0.5 flex items-center gap-2">
-                    <span>Listed: <s className="text-stone-400">₹{activeNegotiation.originalPrice?.toLocaleString('en-IN')}</s></span>
-                    <span>•</span>
-                    <span className="font-bold text-[#4a1525]">Your Offer: ₹{activeNegotiation.offeredPrice?.toLocaleString('en-IN')}</span>
-                    {activeNegotiation.adminOfferPrice && (
-                      <>
-                        <span>•</span>
-                        <span className="font-bold text-emerald-800">Admin Offer: ₹{activeNegotiation.adminOfferPrice?.toLocaleString('en-IN')}</span>
-                      </>
+          {view === 'chat' && (
+            activeNegotiation ? (
+              <div className="flex-1 min-h-0 flex flex-col justify-between">
+                
+                {/* Active Deal Status Pill Header with Back & Switcher */}
+                <div className="p-3 rounded-2xl bg-gradient-to-r from-[#faf6ed] to-[#f4ead5] border border-[#e2d4bc] mb-3 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 shadow-xs shrink-0">
+                  <div className="flex items-center gap-2 min-w-0">
+                    {userNegotiations.length > 1 && (
+                      <button
+                        onClick={() => handleSwitchTab('list')}
+                        className="p-1.5 rounded-xl bg-white/90 hover:bg-white text-stone-700 border border-stone-300 text-xs font-bold flex items-center gap-1 transition-all cursor-pointer shadow-2xs shrink-0"
+                        title="View all negotiations"
+                      >
+                        <ChevronLeft className="w-3.5 h-3.5" />
+                        <span className="hidden sm:inline">All</span>
+                        <span>({userNegotiations.length})</span>
+                      </button>
                     )}
-                  </div>
-                </div>
 
-                <button
-                  onClick={() => setView('new')}
-                  className="text-[10px] text-stone-600 hover:text-stone-900 font-bold underline px-2 py-1"
-                >
-                  New Offer
-                </button>
-              </div>
+                    <div className="min-w-0">
+                      <div className="flex items-center gap-1.5 flex-wrap">
+                        {userNegotiations.length > 1 ? (
+                          <select
+                            value={activeNegotiation.id}
+                            onChange={(e) => {
+                              const found = userNegotiations.find(n => n.id === e.target.value)
+                              if (found) handleSelectNegotiation(found)
+                            }}
+                            className="font-serif font-bold text-xs sm:text-sm text-stone-900 bg-white/80 border border-amber-300/80 rounded-lg px-2 py-0.5 cursor-pointer max-w-[200px] truncate"
+                          >
+                            {userNegotiations.map(n => (
+                              <option key={n.id} value={n.id}>
+                                {n.vendorName}
+                              </option>
+                            ))}
+                          </select>
+                        ) : (
+                          <h4 className="font-serif font-bold text-sm text-stone-900 truncate">
+                            {activeNegotiation.vendorName}
+                          </h4>
+                        )}
 
-              {/* Chat Messages Stream */}
-              <div className="flex-1 space-y-3.5 overflow-y-auto pr-1 mb-4 max-h-[55vh]">
-                {(activeNegotiation.messages || []).map((m, idx) => {
-                  const isAdmin = m.senderRole === 'admin'
-                  return (
-                    <div
-                      key={m.id || idx}
-                      className={`flex flex-col ${isAdmin ? 'items-start' : 'items-end'}`}
-                    >
-                      <div className="flex items-center gap-1.5 mb-1 text-[10px] text-stone-400">
-                        <span>{isAdmin ? '👑 Royal Concierge (Admin)' : m.sender || 'You'}</span>
-                        <span>•</span>
-                        <span>{m.timestamp ? new Date(m.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : ''}</span>
+                        <span className={`px-2 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider ${
+                          activeNegotiation.status === 'OFFER_MADE'
+                            ? 'bg-amber-100 text-amber-900 border border-amber-400'
+                            : activeNegotiation.status === 'ACCEPTED'
+                            ? 'bg-emerald-100 text-emerald-900 border border-emerald-400'
+                            : 'bg-stone-200 text-stone-800'
+                        }`}>
+                          {activeNegotiation.status === 'OFFER_MADE' ? 'Special Offer!' : activeNegotiation.status}
+                        </span>
                       </div>
 
-                      {/* Message Bubble */}
-                      <div
-                        className={`max-w-[85%] p-3.5 rounded-2xl text-xs leading-relaxed shadow-sm ${
-                          isAdmin
-                            ? 'bg-gradient-to-br from-[#1c1917] to-[#292524] text-stone-100 border border-stone-700 rounded-tl-xs'
-                            : 'bg-gradient-to-r from-[#4a1525] to-[#6d1e35] text-[#fbf6ec] rounded-tr-xs'
-                        }`}
-                      >
-                        <p>{m.text}</p>
-
-                        {/* Special Admin Counter-Offer Card Inline */}
-                        {m.offerPrice && (
-                          <div className="mt-3 p-3 rounded-xl bg-gradient-to-r from-amber-500/20 to-amber-600/30 border border-amber-400/50 text-white space-y-2">
-                            <div className="flex items-center justify-between">
-                              <span className="text-[10px] font-bold uppercase tracking-wider text-amber-300 flex items-center gap-1">
-                                <Sparkles className="w-3.5 h-3.5 text-amber-300" /> Special Approved Rate
-                              </span>
-                              <span className="font-serif font-bold text-base text-amber-200">
-                                ₹{m.offerPrice.toLocaleString('en-IN')}
-                              </span>
-                            </div>
-
-                            {m.promoCode && (
-                              <div className="text-[10px] text-amber-100 font-mono bg-black/40 px-2 py-1 rounded border border-amber-300/30 flex items-center justify-between">
-                                <span>Promo: <b>{m.promoCode}</b></span>
-                                <span className="text-[9px] text-amber-300">Auto-Applied</span>
-                              </div>
-                            )}
-
-                            {activeNegotiation.status !== 'ACCEPTED' && (
-                              <button
-                                onClick={() => handleAcceptOffer(m.offerPrice, m.promoCode)}
-                                className="w-full mt-1 py-1.5 rounded-lg bg-[#c5a059] hover:bg-[#b08c47] text-[#1c1917] font-bold text-[11px] shadow-sm flex items-center justify-center gap-1 transition-colors"
-                              >
-                                <CheckCircle2 className="w-3.5 h-3.5" />
-                                <span>Accept Offer &amp; Book at ₹{m.offerPrice.toLocaleString('en-IN')}</span>
-                              </button>
-                            )}
-                          </div>
+                      <div className="text-[11px] text-stone-600 mt-0.5 flex flex-wrap items-center gap-1.5 sm:gap-2">
+                        <span>Listed: <s className="text-stone-400">₹{activeNegotiation.originalPrice?.toLocaleString('en-IN')}</s></span>
+                        <span>•</span>
+                        <span className="font-bold text-[#4a1525]">Your Offer: ₹{activeNegotiation.offeredPrice?.toLocaleString('en-IN')}</span>
+                        {activeNegotiation.adminOfferPrice && (
+                          <>
+                            <span>•</span>
+                            <span className="font-bold text-emerald-800">Admin: ₹{activeNegotiation.adminOfferPrice?.toLocaleString('en-IN')}</span>
+                          </>
                         )}
                       </div>
                     </div>
-                  )
-                })}
-                <div ref={messagesEndRef} />
-              </div>
+                  </div>
 
-              {/* Chat Input Bar */}
-              <form onSubmit={handleSendMessage} className="pt-3 border-t border-[#f0e6d6] flex items-center gap-2">
-                <input
-                  type="text"
-                  value={msgInput}
-                  onChange={(e) => setMsgInput(e.target.value)}
-                  placeholder="Type your reply to Admin Concierge..."
-                  className="flex-1 p-3 rounded-xl border border-[#decfaa] bg-white text-xs text-stone-900 focus:outline-none focus:ring-2 focus:ring-[#c5a059]"
-                />
-                <button
-                  type="submit"
-                  disabled={sendingMsg || !msgInput.trim()}
-                  className="p-3 rounded-xl bg-[#4a1525] hover:bg-[#38101c] text-amber-200 shadow-md transition-all disabled:opacity-40"
-                >
-                  <Send className="w-4 h-4" />
-                </button>
-              </form>
-            </div>
+                  <div className="flex items-center gap-1.5 self-end sm:self-center shrink-0">
+                    <button
+                      onClick={() => handleSwitchTab('new')}
+                      className="text-[11px] text-[#4a1525] hover:text-[#2c0e17] font-bold underline px-2 py-1 cursor-pointer"
+                    >
+                      + New Offer
+                    </button>
+                  </div>
+                </div>
+
+                {/* Chat Messages Stream: scrolls smoothly in available space */}
+                <div className="flex-1 min-h-0 space-y-3 overflow-y-auto pr-1 mb-3">
+                  {(activeNegotiation.messages || []).map((m, idx) => {
+                    const isAdmin = m.senderRole === 'admin'
+                    return (
+                      <div
+                        key={m.id || idx}
+                        className={`flex flex-col ${isAdmin ? 'items-start' : 'items-end'}`}
+                      >
+                        <div className="flex items-center gap-1.5 mb-1 text-[10px] text-stone-400">
+                          <span>{isAdmin ? '👑 Royal Concierge (Admin)' : m.sender || 'You'}</span>
+                          <span>•</span>
+                          <span>{m.timestamp ? new Date(m.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : ''}</span>
+                        </div>
+
+                        {/* Message Bubble */}
+                        <div
+                          className={`max-w-[85%] p-3.5 rounded-2xl text-xs leading-relaxed shadow-sm ${
+                            isAdmin
+                              ? 'bg-gradient-to-br from-[#1c1917] to-[#292524] text-stone-100 border border-stone-700 rounded-tl-xs'
+                              : 'bg-gradient-to-r from-[#4a1525] to-[#6d1e35] text-[#fbf6ec] rounded-tr-xs'
+                          }`}
+                        >
+                          <p>{m.text}</p>
+
+                          {/* Special Admin Counter-Offer Card Inline */}
+                          {m.offerPrice && (
+                            <div className="mt-3 p-3 rounded-xl bg-gradient-to-r from-amber-500/20 to-amber-600/30 border border-amber-400/50 text-white space-y-2">
+                              <div className="flex items-center justify-between">
+                                <span className="text-[10px] font-bold uppercase tracking-wider text-amber-300 flex items-center gap-1">
+                                  <Sparkles className="w-3.5 h-3.5 text-amber-300" /> Special Approved Rate
+                                </span>
+                                <span className="font-serif font-bold text-base text-amber-200">
+                                  ₹{m.offerPrice.toLocaleString('en-IN')}
+                                </span>
+                              </div>
+
+                              {m.promoCode && (
+                                <div className="text-[10px] text-amber-100 font-mono bg-black/40 px-2 py-1 rounded border border-amber-300/30 flex items-center justify-between">
+                                  <span>Promo: <b>{m.promoCode}</b></span>
+                                  <span className="text-[9px] text-amber-300">Auto-Applied</span>
+                                </div>
+                              )}
+
+                              {activeNegotiation.status !== 'ACCEPTED' && (
+                                <button
+                                  onClick={() => handleAcceptOffer(m.offerPrice, m.promoCode)}
+                                  className="w-full mt-1 py-1.5 rounded-lg bg-[#c5a059] hover:bg-[#b08c47] text-[#1c1917] font-bold text-[11px] shadow-sm flex items-center justify-center gap-1 transition-colors cursor-pointer"
+                                >
+                                  <CheckCircle2 className="w-3.5 h-3.5" />
+                                  <span>Accept Offer &amp; Book at ₹{m.offerPrice.toLocaleString('en-IN')}</span>
+                                </button>
+                              )}
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    )
+                  })}
+                  <div ref={messagesEndRef} />
+                </div>
+
+                {/* Chat Input Bar: Pinned at bottom */}
+                <form onSubmit={handleSendMessage} className="pt-2.5 border-t border-[#f0e6d6] flex items-center gap-2 shrink-0">
+                  <input
+                    type="text"
+                    value={msgInput}
+                    onChange={(e) => setMsgInput(e.target.value)}
+                    placeholder="Type your reply to Admin Concierge..."
+                    className="flex-1 p-3 rounded-xl border border-[#decfaa] bg-white text-xs text-stone-900 focus:outline-none focus:ring-2 focus:ring-[#c5a059]"
+                  />
+                  <button
+                    type="submit"
+                    disabled={sendingMsg || !msgInput.trim()}
+                    className="p-3 rounded-xl bg-[#4a1525] hover:bg-[#38101c] text-amber-200 shadow-md transition-all disabled:opacity-40 cursor-pointer"
+                  >
+                    <Send className="w-4 h-4" />
+                  </button>
+                </form>
+              </div>
+            ) : (
+              /* Fallback if in chat view but no conversation selected */
+              <div className="flex-1 flex flex-col items-center justify-center text-center p-6 space-y-4">
+                <div className="w-12 h-12 rounded-2xl bg-amber-100 flex items-center justify-center text-[#4a1525]">
+                  <MessageSquare className="w-6 h-6" />
+                </div>
+                <h4 className="font-serif font-bold text-base text-stone-800">
+                  No Conversation Selected
+                </h4>
+                <p className="text-xs text-stone-500 max-w-xs">
+                  {userNegotiations.length > 0 
+                    ? 'Select an existing negotiation or submit a new offer to start chatting with Admin.'
+                    : 'Submit an offer on any venue or vendor to open a direct negotiation thread with Royal Concierge.'}
+                </p>
+                <div className="flex gap-2 pt-2">
+                  {userNegotiations.length > 0 && (
+                    <button
+                      onClick={() => handleSwitchTab('list')}
+                      className="px-4 py-2 rounded-xl bg-white border border-stone-300 text-stone-800 font-bold text-xs hover:bg-stone-50 cursor-pointer"
+                    >
+                      View All Negotiations ({userNegotiations.length})
+                    </button>
+                  )}
+                  <button
+                    onClick={() => handleSwitchTab('new')}
+                    className="px-4 py-2 rounded-xl bg-[#4a1525] text-amber-200 font-bold text-xs hover:bg-[#38101c] cursor-pointer"
+                  >
+                    + Make New Offer
+                  </button>
+                </div>
+              </div>
+            )
           )}
 
           {/* ======================================================== */}
@@ -674,8 +778,8 @@ export default function NegotiationChatDrawer({
                   Your Past &amp; Active Negotiations
                 </h4>
                 <button
-                  onClick={() => setView('new')}
-                  className="text-xs font-bold text-[#4a1525] hover:underline"
+                  onClick={() => handleSwitchTab('new')}
+                  className="text-xs font-bold text-[#4a1525] hover:underline cursor-pointer"
                 >
                   + New Negotiation
                 </button>
@@ -689,11 +793,12 @@ export default function NegotiationChatDrawer({
                 userNegotiations.map((neg) => (
                   <div
                     key={neg.id}
-                    onClick={() => {
-                      setActiveNegotiation(neg)
-                      setView('chat')
-                    }}
-                    className="p-3.5 rounded-2xl bg-white border border-[#decfaa] hover:border-amber-500 shadow-xs hover:shadow-md cursor-pointer transition-all flex items-center justify-between group"
+                    onClick={() => handleSelectNegotiation(neg)}
+                    className={`p-3.5 rounded-2xl bg-white border transition-all flex items-center justify-between group cursor-pointer ${
+                      activeNegotiation?.id === neg.id
+                        ? 'border-[#c5a059] ring-2 ring-[#c5a059]/20 shadow-sm'
+                        : 'border-[#decfaa] hover:border-amber-500 shadow-2xs hover:shadow-md'
+                    }`}
                   >
                     <div>
                       <div className="flex items-center gap-2">
@@ -717,7 +822,7 @@ export default function NegotiationChatDrawer({
                       </div>
                     </div>
 
-                    <ChevronRight className="w-4 h-4 text-stone-400 group-hover:text-[#4a1525] transition-transform group-hover:translate-x-1" />
+                    <ChevronRight className="w-4 h-4 text-stone-400 group-hover:text-[#4a1525] transition-transform group-hover:translate-x-1 shrink-0" />
                   </div>
                 ))
               )}
@@ -727,7 +832,7 @@ export default function NegotiationChatDrawer({
         </div>
 
         {/* 3. FOOTER TRUST NOTE */}
-        <div className="p-3 bg-[#faf8f5] border-t border-[#e8dcc6] text-center text-[10px] text-stone-500 flex items-center justify-center gap-2">
+        <div className="p-3 bg-[#faf8f5] border-t border-[#e8dcc6] text-center text-[10px] text-stone-500 flex items-center justify-center gap-2 shrink-0">
           <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
           <span>Vows &amp; Venues Official Price Protection • Direct Admin Authority Guaranteed</span>
         </div>

@@ -4270,14 +4270,15 @@ export default function VowsAndVenuesApp() {
       )}
 
       {/* FLOATING NEGOTIATION & CONCIERGE CHAT BUTTON (Positioned above mobile bottom bar) */}
-      <div className="fixed bottom-20 right-4 sm:bottom-6 sm:right-6 z-40 flex flex-col items-end gap-2">
+      <div className="fixed bottom-18 right-3 sm:bottom-6 sm:right-6 z-40 flex flex-col items-end gap-2">
         <button
           onClick={() => handleOpenNegotiation(null)}
-          className="group relative flex items-center gap-2.5 px-4 py-3 rounded-full bg-gradient-to-r from-[#2c0e17] via-[#4a1525] to-[#2c0e17] hover:from-[#1f0910] hover:to-[#38101c] text-[#f7efdc] shadow-[0_8px_30px_rgba(74,21,37,0.35)] hover:shadow-[0_12px_40px_rgba(74,21,37,0.5)] border-2 border-[#c5a059] transition-all hover:scale-105 active:scale-95 cursor-pointer"
+          className="group relative flex items-center justify-center p-2.5 sm:px-4 sm:py-3 rounded-full bg-gradient-to-r from-[#2c0e17] via-[#4a1525] to-[#2c0e17] hover:from-[#1f0910] hover:to-[#38101c] text-[#f7efdc] shadow-[0_8px_30px_rgba(74,21,37,0.35)] hover:shadow-[0_12px_40px_rgba(74,21,37,0.5)] border-2 border-[#c5a059] transition-all hover:scale-105 active:scale-95 cursor-pointer"
           title="Think prices are high? Negotiate live with our Admin Concierge"
+          aria-label="Negotiate Price with Admin Concierge"
         >
-          <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[#c5a059] to-[#8c6b2d] flex items-center justify-center text-[#1c1917] font-bold shadow-sm shrink-0">
-            <MessageSquare className="w-4 h-4" />
+          <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-gradient-to-br from-[#c5a059] to-[#8c6b2d] flex items-center justify-center text-[#1c1917] font-bold shadow-sm shrink-0">
+            <MessageSquare className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
           </div>
           <div className="text-left hidden sm:block">
             <div className="text-xs font-serif font-bold tracking-wide flex items-center gap-1.5">
@@ -4288,7 +4289,8 @@ export default function VowsAndVenuesApp() {
               Live Chat with Admin
             </div>
           </div>
-          <span className="sm:hidden font-bold text-xs font-serif">Negotiate</span>
+          {/* Subtle pulsing live indicator on mobile */}
+          <span className="sm:hidden absolute top-0.5 right-0.5 w-2.5 h-2.5 rounded-full bg-emerald-400 border-2 border-[#2c0e17] animate-pulse" />
         </button>
       </div>
 

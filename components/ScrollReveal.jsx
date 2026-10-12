@@ -150,7 +150,7 @@ export function TextLineReveal({
       className={className}
     >
       {lines.map((line, idx) => (
-        <span key={idx} className="block overflow-hidden pb-1">
+        <span key={idx} className="block overflow-hidden pt-0.5 pb-2 -my-0.5">
           <motion.span variants={lineVariants} className={`block ${lineClassName}`}>
             {line}
           </motion.span>

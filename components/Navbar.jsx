@@ -42,7 +42,8 @@ export default function Navbar({
   const unreadCount = notifications.filter(n => !n.read).length
 
   return (
-    <header className="sticky top-0 z-50 bg-gradient-to-r from-[#fcf8ef]/95 via-[#fdfaf3]/95 to-[#faf4e9]/95 backdrop-blur-xl border-b-2 border-amber-300/60 shadow-[0_4px_30px_rgba(74,21,37,0.06)] transition-all">
+    <>
+      <header className="sticky top-0 z-50 bg-gradient-to-r from-[#fcf8ef]/95 via-[#fdfaf3]/95 to-[#faf4e9]/95 backdrop-blur-xl border-b-2 border-amber-300/60 shadow-[0_4px_30px_rgba(74,21,37,0.06)] transition-all">
       {/* 1. TOP ANNOUNCEMENT BANNER */}
       {announcement?.enabled && (
         <div className="bg-gradient-to-r from-[#380e1b] via-[#4a1525] to-[#380e1b] text-[#f5ebd7] text-[10px] sm:text-xs py-1.5 sm:py-2 px-3 sm:px-4 text-center font-medium tracking-wide flex items-center justify-center gap-1.5 sm:gap-2 border-b border-[#c5a059]/30 relative overflow-hidden">
@@ -456,78 +457,79 @@ export default function Navbar({
           )}
         </div>
       )}
-
-      {/* 3. MOBILE FIXED BOTTOM NAVIGATION BAR */}
-      <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-gradient-to-r from-[#fcf8ef]/95 via-[#fdfaf3]/95 to-[#faf4e9]/95 backdrop-blur-xl border-t border-amber-300/60 px-2 py-1.5 shadow-[0_-4px_25px_rgba(74,21,37,0.08)] flex items-center justify-around">
-        <button
-          onClick={() => { setActiveTab('home'); setMobileMenuOpen(false); }}
-          className={`flex flex-col items-center justify-center py-1 px-2.5 rounded-xl transition-colors ${
-            activeTab === 'home' ? 'text-[#4a1525] font-bold' : 'text-[#78716c] hover:text-[#1c1917]'
-          }`}
-        >
-          <Sparkles className={`w-5 h-5 ${activeTab === 'home' ? 'text-[#c5a059]' : ''}`} />
-          <span className="text-[10px] mt-0.5">Home</span>
-        </button>
-
-        <button
-          onClick={() => { setActiveTab('explore'); setMobileMenuOpen(false); }}
-          className={`flex flex-col items-center justify-center py-1 px-2.5 rounded-xl transition-colors ${
-            activeTab === 'explore' ? 'text-[#4a1525] font-bold' : 'text-[#78716c] hover:text-[#1c1917]'
-          }`}
-        >
-          <Compass className={`w-5 h-5 ${activeTab === 'explore' ? 'text-[#c5a059]' : ''}`} />
-          <span className="text-[10px] mt-0.5">Explore</span>
-        </button>
-
-        <button
-          onClick={() => { setActiveTab('builder'); setMobileMenuOpen(false); }}
-          className={`relative flex flex-col items-center justify-center py-1 px-2.5 rounded-xl transition-colors ${
-            activeTab === 'builder' ? 'text-[#4a1525] font-bold' : 'text-[#78716c] hover:text-[#1c1917]'
-          }`}
-        >
-          <CalendarDays className={`w-5 h-5 ${activeTab === 'builder' ? 'text-[#c5a059]' : ''}`} />
-          {budgetCount > 0 && (
-            <span className="absolute -top-1 right-2 bg-[#4a1525] text-white text-[9px] font-bold w-4 h-4 rounded-full flex items-center justify-center border border-white">
-              {budgetCount}
-            </span>
-          )}
-          <span className="text-[10px] mt-0.5">Builder</span>
-        </button>
-
-        <button
-          onClick={() => { setActiveTab('wishlist'); setMobileMenuOpen(false); }}
-          className={`relative flex flex-col items-center justify-center py-1 px-2.5 rounded-xl transition-colors ${
-            activeTab === 'wishlist' ? 'text-[#4a1525] font-bold' : 'text-[#78716c] hover:text-[#1c1917]'
-          }`}
-        >
-          <Heart className={`w-5 h-5 ${activeTab === 'wishlist' ? 'fill-rose-500 text-rose-500' : ''}`} />
-          {wishlistCount > 0 && (
-            <span className="absolute -top-1 right-2 bg-rose-600 text-white text-[9px] font-bold w-4 h-4 rounded-full flex items-center justify-center border border-white">
-              {wishlistCount}
-            </span>
-          )}
-          <span className="text-[10px] mt-0.5">Saved</span>
-        </button>
-
-        <button
-          onClick={() => {
-            if (currentUser) {
-              if (userRole === 'admin') setActiveTab('admin_portal')
-              else if (userRole === 'vendor') setActiveTab('vendor_portal')
-              else setActiveTab('bookings')
-            } else {
-              onOpenAuth()
-            }
-            setMobileMenuOpen(false)
-          }}
-          className={`flex flex-col items-center justify-center py-1 px-2.5 rounded-xl transition-colors ${
-            ['bookings', 'admin_portal', 'vendor_portal'].includes(activeTab) ? 'text-[#4a1525] font-bold' : 'text-[#78716c] hover:text-[#1c1917]'
-          }`}
-        >
-          <User className="w-5 h-5" />
-          <span className="text-[10px] mt-0.5">{currentUser ? (userRole === 'admin' ? 'Admin' : 'Account') : 'Sign In'}</span>
-        </button>
-      </nav>
     </header>
+
+    {/* 3. MOBILE FIXED BOTTOM NAVIGATION BAR (Rendered outside header to avoid stacking context / containing block clipping) */}
+    <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-gradient-to-r from-[#fcf8ef]/95 via-[#fdfaf3]/95 to-[#faf4e9]/95 backdrop-blur-xl border-t border-amber-300/60 px-2 py-2 shadow-[0_-4px_25px_rgba(74,21,37,0.08)] flex items-center justify-around pb-[max(0.5rem,env(safe-area-inset-bottom))]">
+      <button
+        onClick={() => { setActiveTab('home'); setMobileMenuOpen(false); }}
+        className={`flex flex-col items-center justify-center py-1 px-2.5 rounded-xl transition-colors ${
+          activeTab === 'home' ? 'text-[#4a1525] font-bold' : 'text-[#78716c] hover:text-[#1c1917]'
+        }`}
+      >
+        <Sparkles className={`w-5 h-5 ${activeTab === 'home' ? 'text-[#c5a059]' : ''}`} />
+        <span className="text-[10px] mt-0.5">Home</span>
+      </button>
+
+      <button
+        onClick={() => { setActiveTab('explore'); setMobileMenuOpen(false); }}
+        className={`flex flex-col items-center justify-center py-1 px-2.5 rounded-xl transition-colors ${
+          activeTab === 'explore' ? 'text-[#4a1525] font-bold' : 'text-[#78716c] hover:text-[#1c1917]'
+        }`}
+      >
+        <Compass className={`w-5 h-5 ${activeTab === 'explore' ? 'text-[#c5a059]' : ''}`} />
+        <span className="text-[10px] mt-0.5">Explore</span>
+      </button>
+
+      <button
+        onClick={() => { setActiveTab('builder'); setMobileMenuOpen(false); }}
+        className={`relative flex flex-col items-center justify-center py-1 px-2.5 rounded-xl transition-colors ${
+          activeTab === 'builder' ? 'text-[#4a1525] font-bold' : 'text-[#78716c] hover:text-[#1c1917]'
+        }`}
+      >
+        <CalendarDays className={`w-5 h-5 ${activeTab === 'builder' ? 'text-[#c5a059]' : ''}`} />
+        {budgetCount > 0 && (
+          <span className="absolute -top-1 right-2 bg-[#4a1525] text-white text-[9px] font-bold w-4 h-4 rounded-full flex items-center justify-center border border-white">
+            {budgetCount}
+          </span>
+        )}
+        <span className="text-[10px] mt-0.5">Builder</span>
+      </button>
+
+      <button
+        onClick={() => { setActiveTab('wishlist'); setMobileMenuOpen(false); }}
+        className={`relative flex flex-col items-center justify-center py-1 px-2.5 rounded-xl transition-colors ${
+          activeTab === 'wishlist' ? 'text-[#4a1525] font-bold' : 'text-[#78716c] hover:text-[#1c1917]'
+        }`}
+      >
+        <Heart className={`w-5 h-5 ${activeTab === 'wishlist' ? 'fill-rose-500 text-rose-500' : ''}`} />
+        {wishlistCount > 0 && (
+          <span className="absolute -top-1 right-2 bg-rose-600 text-white text-[9px] font-bold w-4 h-4 rounded-full flex items-center justify-center border border-white">
+            {wishlistCount}
+          </span>
+        )}
+        <span className="text-[10px] mt-0.5">Saved</span>
+      </button>
+
+      <button
+        onClick={() => {
+          if (currentUser) {
+            if (userRole === 'admin') setActiveTab('admin_portal')
+            else if (userRole === 'vendor') setActiveTab('vendor_portal')
+            else setActiveTab('bookings')
+          } else {
+            onOpenAuth()
+          }
+          setMobileMenuOpen(false)
+        }}
+        className={`flex flex-col items-center justify-center py-1 px-2.5 rounded-xl transition-colors ${
+          ['bookings', 'admin_portal', 'vendor_portal'].includes(activeTab) ? 'text-[#4a1525] font-bold' : 'text-[#78716c] hover:text-[#1c1917]'
+        }`}
+      >
+        <User className="w-5 h-5" />
+        <span className="text-[10px] mt-0.5">{currentUser ? (userRole === 'admin' ? 'Admin' : 'Account') : 'Sign In'}</span>
+      </button>
+    </nav>
+  </>
   )
 }
