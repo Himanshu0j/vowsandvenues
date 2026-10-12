@@ -24,8 +24,8 @@ async function runChatRegressionTests() {
     if (msg.type() === 'error') console.log('PAGE ERROR:', msg.text());
   });
 
-  await page.goto(TARGET_URL, { waitUntil: 'networkidle2', timeout: 60000 });
-  await new Promise(r => setTimeout(r, 2000));
+  await page.goto(TARGET_URL, { waitUntil: 'domcontentloaded', timeout: 60000 });
+  await new Promise(r => setTimeout(r, 4000));
 
   // TEST 1: Open from floating button with empty / initial state
   console.log('\n--- TEST 1: Open / Close / Reopen ---');
