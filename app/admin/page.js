@@ -16,6 +16,7 @@ import {
 } from 'lucide-react'
 import { toast } from 'sonner'
 import AdminOperationsSuite from '@/components/AdminOperationsSuite'
+import AdminLiveTicker from '@/components/admin/AdminLiveTicker'
 import ErrorBoundary from '@/components/ErrorBoundary'
 
 export default function DedicatedAdminPortalPage() {
@@ -378,6 +379,8 @@ export default function DedicatedAdminPortalPage() {
           </div>
 
           <div className="flex items-center gap-3">
+            <AdminLiveTicker />
+
             <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-full bg-stone-900 border border-stone-800 text-xs">
               <span className="w-2 h-2 rounded-full bg-emerald-400"></span>
               <span className="text-stone-300">{currentUser?.email}</span>

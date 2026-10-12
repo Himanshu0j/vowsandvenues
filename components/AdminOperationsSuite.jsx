@@ -36,10 +36,22 @@ import {
   Clock,
   MessageSquare,
   Sparkles,
-  Percent
+  Percent,
+  Award,
+  Sun,
+  Phone
 } from 'lucide-react'
 import { toast } from 'sonner'
 import { getOptimizedImageUrl } from '@/lib/imageUtils'
+import AdminLeadsKanban from '@/components/admin/AdminLeadsKanban'
+import AdminWhatsAppSuite from '@/components/admin/AdminWhatsAppSuite'
+import AdminRecceManager from '@/components/admin/AdminRecceManager'
+import AdminMilestoneEscrow from '@/components/admin/AdminMilestoneEscrow'
+import AdminPackageBuilder from '@/components/admin/AdminPackageBuilder'
+import AdminVendorSLAScorecard from '@/components/admin/AdminVendorSLAScorecard'
+import AdminMuhuratPricing from '@/components/admin/AdminMuhuratPricing'
+import AdminReviewUGC from '@/components/admin/AdminReviewUGC'
+import AdminGSTCompliance from '@/components/admin/AdminGSTCompliance'
 
 function exportToCSV(data, filename) {
   if (!data || !data.length) {
@@ -631,6 +643,15 @@ export default function AdminOperationsSuite({
         <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar pt-6 mt-6 border-t border-stone-800 text-xs">
           {[
             { id: 'overview', label: 'Overview & KPIs', icon: TrendingUp },
+            { id: 'leads', label: 'Wedding Leads CRM', icon: Users },
+            { id: 'whatsapp', label: 'WhatsApp Concierge', icon: Send },
+            { id: 'recces', label: 'Site Recces', icon: Building2 },
+            { id: 'milestones', label: 'Escrow & Milestones', icon: ShieldCheck },
+            { id: 'packages_builder', label: 'Package Builder', icon: Layers },
+            { id: 'vendor_sla', label: 'Vendor SLA Scorecard', icon: Award },
+            { id: 'muhurat', label: 'Muhurat & Peak Pricing', icon: Sun },
+            { id: 'ugc_reviews', label: 'Reviews & Stories', icon: Sparkles },
+            { id: 'gst_billing', label: 'GST & Compliance', icon: FileText },
             { id: 'vendors', label: `Vendors (${vendors.length})`, icon: Building2 },
             { id: 'bookings', label: `Bookings (${userBookings.length})`, icon: CalendarDays },
             { id: 'negotiations', label: `Price Negotiations (${negotiations.length})`, icon: MessageSquare },
@@ -2591,6 +2612,17 @@ export default function AdminOperationsSuite({
           </div>
         </div>
       )}
+
+      {/* NEW SUB-TABS (Indian Luxury Wedding Features) */}
+      {activeSubTab === 'leads' && <AdminLeadsKanban />}
+      {activeSubTab === 'whatsapp' && <AdminWhatsAppSuite />}
+      {activeSubTab === 'recces' && <AdminRecceManager />}
+      {activeSubTab === 'milestones' && <AdminMilestoneEscrow />}
+      {activeSubTab === 'packages_builder' && <AdminPackageBuilder />}
+      {activeSubTab === 'vendor_sla' && <AdminVendorSLAScorecard />}
+      {activeSubTab === 'muhurat' && <AdminMuhuratPricing />}
+      {activeSubTab === 'ugc_reviews' && <AdminReviewUGC />}
+      {activeSubTab === 'gst_billing' && <AdminGSTCompliance />}
 
     </div>
   )
