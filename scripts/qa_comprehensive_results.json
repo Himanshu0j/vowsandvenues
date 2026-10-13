@@ -1,0 +1,495 @@
+{
+  "total": 59,
+  "passed": 59,
+  "failed": 0,
+  "health": {
+    "status": "healthy",
+    "timestamp": "2026-10-13T22:43:17.419Z",
+    "service": "vowsandvenues-staging",
+    "environment": "staging",
+    "database": {
+      "connected": true,
+      "type": "mongodb",
+      "name": "vows_and_venues_staging"
+    },
+    "productionDatabaseIsolated": true,
+    "version": "2.0.0",
+    "commit": "a45a75cc4551a36b81b2bfb8fe1f895d18358b5a",
+    "branch": "staging",
+    "uptime": 37
+  },
+  "results": [
+    {
+      "category": "Preflight",
+      "testName": "GET /api/health (Service Status)",
+      "expected": 200,
+      "actual": 200,
+      "pass": true,
+      "details": "Service: vowsandvenues-staging, Uptime: 37s"
+    },
+    {
+      "category": "Preflight",
+      "testName": "Database Connectivity (MongoDB)",
+      "expected": true,
+      "actual": true,
+      "pass": true,
+      "details": "DB: vows_and_venues_staging"
+    },
+    {
+      "category": "Preflight",
+      "testName": "Production Database Isolation",
+      "expected": true,
+      "actual": true,
+      "pass": true,
+      "details": "vows_and_venues_staging cluster isolated from prod"
+    },
+    {
+      "category": "Preflight",
+      "testName": "Route HTTP status: /",
+      "expected": 200,
+      "actual": 200,
+      "pass": true,
+      "details": ""
+    },
+    {
+      "category": "Preflight",
+      "testName": "Route HTTP status: /admin",
+      "expected": 200,
+      "actual": 200,
+      "pass": true,
+      "details": ""
+    },
+    {
+      "category": "Preflight",
+      "testName": "Route HTTP status: /vendor",
+      "expected": 200,
+      "actual": 200,
+      "pass": true,
+      "details": ""
+    },
+    {
+      "category": "Preflight",
+      "testName": "Route HTTP status: /vendors",
+      "expected": 404,
+      "actual": 404,
+      "pass": true,
+      "details": ""
+    },
+    {
+      "category": "Preflight",
+      "testName": "Route HTTP status: /robots.txt",
+      "expected": 200,
+      "actual": 200,
+      "pass": true,
+      "details": ""
+    },
+    {
+      "category": "Preflight",
+      "testName": "Route HTTP status: /sitemap.xml",
+      "expected": 200,
+      "actual": 200,
+      "pass": true,
+      "details": ""
+    },
+    {
+      "category": "Preflight",
+      "testName": "Search Indexing Disallowed (robots.txt)",
+      "expected": true,
+      "actual": true,
+      "pass": true,
+      "details": "Staging protected from search engines"
+    },
+    {
+      "category": "Visitor",
+      "testName": "Homepage loads valid HTML structure",
+      "expected": true,
+      "actual": true,
+      "pass": true,
+      "details": ""
+    },
+    {
+      "category": "Visitor",
+      "testName": "GET /api/categories returns 11 categories",
+      "expected": 11,
+      "actual": 11,
+      "pass": true,
+      "details": ""
+    },
+    {
+      "category": "Visitor",
+      "testName": "GET /api/vendors returns listings",
+      "expected": true,
+      "actual": true,
+      "pass": true,
+      "details": "Total vendors: 41"
+    },
+    {
+      "category": "Visitor",
+      "testName": "Filter vendors by city (Lucknow)",
+      "expected": true,
+      "actual": true,
+      "pass": true,
+      "details": "Count: 18"
+    },
+    {
+      "category": "Visitor",
+      "testName": "Filter vendors by category (venues)",
+      "expected": true,
+      "actual": true,
+      "pass": true,
+      "details": "Count: 7"
+    },
+    {
+      "category": "Visitor",
+      "testName": "GET /api/vendors/:id (Venue detail view)",
+      "expected": 200,
+      "actual": 200,
+      "pass": true,
+      "details": "Starting price: ₹125000"
+    },
+    {
+      "category": "Visitor",
+      "testName": "Anonymous POST /api/inquiries requires auth (Expected 401)",
+      "expected": 401,
+      "actual": 401,
+      "pass": true,
+      "details": "Customer auth required to link inquiries"
+    },
+    {
+      "category": "Visitor",
+      "testName": "Non-existent API route returns 404",
+      "expected": 404,
+      "actual": 404,
+      "pass": true,
+      "details": ""
+    },
+    {
+      "category": "Customer Auth",
+      "testName": "POST /api/auth/signup (Valid customer)",
+      "expected": 201,
+      "actual": 201,
+      "pass": true,
+      "details": "User: qa_cust_1791931407933@vowsandvenues.test"
+    },
+    {
+      "category": "Customer Auth",
+      "testName": "POST /api/auth/signup (Duplicate email rejected)",
+      "expected": 409,
+      "actual": 409,
+      "pass": true,
+      "details": "Email already registered. Please login instead."
+    },
+    {
+      "category": "Customer Auth",
+      "testName": "POST /api/auth/signup (Missing password rejected)",
+      "expected": 400,
+      "actual": 400,
+      "pass": true,
+      "details": "Name, email and password are required"
+    },
+    {
+      "category": "Customer Auth",
+      "testName": "POST /api/auth/login (Correct credentials)",
+      "expected": 200,
+      "actual": 200,
+      "pass": true,
+      "details": ""
+    },
+    {
+      "category": "Customer Auth",
+      "testName": "POST /api/auth/login (Incorrect password rejected)",
+      "expected": 401,
+      "actual": 401,
+      "pass": true,
+      "details": ""
+    },
+    {
+      "category": "Customer Auth",
+      "testName": "GET /api/auth/me with Bearer token",
+      "expected": 200,
+      "actual": 200,
+      "pass": true,
+      "details": ""
+    },
+    {
+      "category": "Customer Auth",
+      "testName": "GET /api/auth/me with tampered token rejected",
+      "expected": 401,
+      "actual": 401,
+      "pass": true,
+      "details": ""
+    },
+    {
+      "category": "Bookings",
+      "testName": "POST /api/bookings (Create booking with 18% GST & 25% token)",
+      "expected": 201,
+      "actual": 201,
+      "pass": true,
+      "details": "Total: ₹235300, Advance: ₹58825"
+    },
+    {
+      "category": "Bookings",
+      "testName": "GET /api/bookings (Customer retrieves created booking)",
+      "expected": 200,
+      "actual": 200,
+      "pass": true,
+      "details": "Booking Ref: VV-2026-6433"
+    },
+    {
+      "category": "Double Booking Prevention",
+      "testName": "Reject 2nd booking for same venue on same date (Expected 409 Conflict)",
+      "expected": 409,
+      "actual": 409,
+      "pass": true,
+      "details": "Venue \"The Royal Nawabi Palace & Lawns\" is already reserved for a confirmed celebration on 2027-11-27. Please choose another date or venue."
+    },
+    {
+      "category": "RBAC & IDOR",
+      "testName": "Customer B cannot modify Customer A booking (Expected 403 Forbidden)",
+      "expected": 403,
+      "actual": 403,
+      "pass": true,
+      "details": ""
+    },
+    {
+      "category": "Vendor Portal",
+      "testName": "POST /api/vendors (Vendor 1 KYC onboarding)",
+      "expected": 201,
+      "actual": 201,
+      "pass": true,
+      "details": "Vendor ID: v_4b5244aa"
+    },
+    {
+      "category": "Vendor Portal",
+      "testName": "Initial vendor status is unverified (verified: false)",
+      "expected": false,
+      "actual": false,
+      "pass": true,
+      "details": ""
+    },
+    {
+      "category": "RBAC",
+      "testName": "Vendor cannot self-verify (Expected 403 Forbidden)",
+      "expected": 403,
+      "actual": 403,
+      "pass": true,
+      "details": ""
+    },
+    {
+      "category": "Admin Auth",
+      "testName": "POST /api/auth/login (SuperAdmin seeded credentials)",
+      "expected": 200,
+      "actual": 200,
+      "pass": true,
+      "details": ""
+    },
+    {
+      "category": "Admin Ops",
+      "testName": "PATCH /api/admin/vendors/:id/verify (SuperAdmin approves vendor)",
+      "expected": 200,
+      "actual": 200,
+      "pass": true,
+      "details": ""
+    },
+    {
+      "category": "Admin Ops",
+      "testName": "GET /api/admin/stats (Dashboard KPI retrieval)",
+      "expected": 200,
+      "actual": 200,
+      "pass": true,
+      "details": "Total Bookings: 27, Gross Volume: ₹49,90,300"
+    },
+    {
+      "category": "Audit Trail",
+      "testName": "GET /api/admin/audit-logs records sensitive admin actions",
+      "expected": 200,
+      "actual": 200,
+      "pass": true,
+      "details": "Total audit logs: 148"
+    },
+    {
+      "category": "RBAC",
+      "testName": "Customer accessing /api/admin/stats (Expected 403)",
+      "expected": 403,
+      "actual": 403,
+      "pass": true,
+      "details": ""
+    },
+    {
+      "category": "RBAC",
+      "testName": "Customer accessing /api/settlements (Expected 403)",
+      "expected": 403,
+      "actual": 403,
+      "pass": true,
+      "details": ""
+    },
+    {
+      "category": "Security & RBAC",
+      "testName": "Privilege escalation via unauthenticated x-demo-role blocked (Expected 401)",
+      "expected": 401,
+      "actual": 401,
+      "pass": true,
+      "details": "Got 401"
+    },
+    {
+      "category": "Payment Manager",
+      "testName": "UPI URI dynamic encoding for amount ₹25000",
+      "expected": true,
+      "actual": true,
+      "pass": true,
+      "details": "Payload: upi://pay?pa=vowsandvenues@icici&pn=Vows%20%26%20Venues%20Luxury%20Hospitality%20Pvt%20Ltd&am=25000&cu=INR&tn=Booking-Grand-Royal-Wedding"
+    },
+    {
+      "category": "Payment Manager",
+      "testName": "UPI URI dynamic encoding for amount ₹58825",
+      "expected": true,
+      "actual": true,
+      "pass": true,
+      "details": "Payload: upi://pay?pa=vowsandvenues@icici&pn=Vows%20%26%20Venues%20Luxury%20Hospitality%20Pvt%20Ltd&am=58825&cu=INR&tn=Booking-Grand-Royal-Wedding"
+    },
+    {
+      "category": "Payment Manager",
+      "testName": "UPI URI dynamic encoding for amount ₹235300",
+      "expected": true,
+      "actual": true,
+      "pass": true,
+      "details": "Payload: upi://pay?pa=vowsandvenues@icici&pn=Vows%20%26%20Venues%20Luxury%20Hospitality%20Pvt%20Ltd&am=235300&cu=INR&tn=Booking-Grand-Royal-Wedding"
+    },
+    {
+      "category": "Payment Manager",
+      "testName": "12-digit numeric UTR validation (Valid)",
+      "expected": true,
+      "actual": true,
+      "pass": true,
+      "details": ""
+    },
+    {
+      "category": "Payment Manager",
+      "testName": "Short UTR (<12 digits) rejection",
+      "expected": false,
+      "actual": false,
+      "pass": true,
+      "details": ""
+    },
+    {
+      "category": "Payment Manager",
+      "testName": "Non-numeric UTR rejection",
+      "expected": false,
+      "actual": false,
+      "pass": true,
+      "details": ""
+    },
+    {
+      "category": "Payment Manager",
+      "testName": "Empty UTR rejection",
+      "expected": false,
+      "actual": false,
+      "pass": true,
+      "details": ""
+    },
+    {
+      "category": "Payment Manager",
+      "testName": "UTR submission sets status to PENDING_VERIFICATION (Financial Safety)",
+      "expected": "PENDING_VERIFICATION",
+      "actual": "PENDING_VERIFICATION",
+      "pass": true,
+      "details": "Funds not marked confirmed without Admin verification"
+    },
+    {
+      "category": "Responsive UI",
+      "testName": "Viewport Mobile Mini (320x568) Zero Horizontal Overflow",
+      "expected": false,
+      "actual": false,
+      "pass": true,
+      "details": "scrollWidth vs innerWidth"
+    },
+    {
+      "category": "Responsive UI",
+      "testName": "Viewport Mobile Standard (360x740) Zero Horizontal Overflow",
+      "expected": false,
+      "actual": false,
+      "pass": true,
+      "details": "scrollWidth vs innerWidth"
+    },
+    {
+      "category": "Responsive UI",
+      "testName": "Viewport iPhone SE (375x667) Zero Horizontal Overflow",
+      "expected": false,
+      "actual": false,
+      "pass": true,
+      "details": "scrollWidth vs innerWidth"
+    },
+    {
+      "category": "Responsive UI",
+      "testName": "Viewport iPhone 14 (390x844) Zero Horizontal Overflow",
+      "expected": false,
+      "actual": false,
+      "pass": true,
+      "details": "scrollWidth vs innerWidth"
+    },
+    {
+      "category": "Responsive UI",
+      "testName": "Viewport Pixel 7 (412x915) Zero Horizontal Overflow",
+      "expected": false,
+      "actual": false,
+      "pass": true,
+      "details": "scrollWidth vs innerWidth"
+    },
+    {
+      "category": "Responsive UI",
+      "testName": "Viewport iPad Portrait (768x1024) Zero Horizontal Overflow",
+      "expected": false,
+      "actual": false,
+      "pass": true,
+      "details": "scrollWidth vs innerWidth"
+    },
+    {
+      "category": "Responsive UI",
+      "testName": "Viewport iPad Landscape (1024x768) Zero Horizontal Overflow",
+      "expected": false,
+      "actual": false,
+      "pass": true,
+      "details": "scrollWidth vs innerWidth"
+    },
+    {
+      "category": "Responsive UI",
+      "testName": "Viewport Laptop (1280x800) Zero Horizontal Overflow",
+      "expected": false,
+      "actual": false,
+      "pass": true,
+      "details": "scrollWidth vs innerWidth"
+    },
+    {
+      "category": "Responsive UI",
+      "testName": "Viewport Desktop Full HD (1440x900) Zero Horizontal Overflow",
+      "expected": false,
+      "actual": false,
+      "pass": true,
+      "details": "scrollWidth vs innerWidth"
+    },
+    {
+      "category": "Responsive UI",
+      "testName": "Viewport Ultra Wide (1920x1080) Zero Horizontal Overflow",
+      "expected": false,
+      "actual": false,
+      "pass": true,
+      "details": "scrollWidth vs innerWidth"
+    },
+    {
+      "category": "Admin UI",
+      "testName": "Admin Operations Suite renders successfully in browser",
+      "expected": true,
+      "actual": true,
+      "pass": true,
+      "details": ""
+    },
+    {
+      "category": "Vendor UI",
+      "testName": "Vendor Partner Suite renders successfully in browser",
+      "expected": true,
+      "actual": true,
+      "pass": true,
+      "details": ""
+    }
+  ]
+}
