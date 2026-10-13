@@ -365,9 +365,12 @@ function getAuthContext(request) {
       return { userId: payload.sub, role: payload.role || 'customer', email: payload.email }
     }
   }
-  const demoRole = request.headers.get('x-demo-role')
-  if (demoRole) {
-    return { userId: `demo_${demoRole}`, role: demoRole, email: `demo_${demoRole}@vowsandvenues.in` }
+  // Demo headers are strictly disabled in production / staging environments
+  if (process.env.NODE_ENV !== 'production' && process.env.ALLOW_DEMO_HEADER === 'true') {
+    const demoRole = request.headers.get('x-demo-role')
+    if (demoRole) {
+      return { userId: `demo_${demoRole}`, role: demoRole, email: `demo_${demoRole}@vowsandvenues.in` }
+    }
   }
   return null
 }

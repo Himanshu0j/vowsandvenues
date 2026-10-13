@@ -291,9 +291,6 @@ export default function VowsAndVenuesApp() {
           if (authTokenRef.current && !headers.has('Authorization')) {
             headers.set('Authorization', `Bearer ${authTokenRef.current}`)
           }
-          if (userRoleRef.current) {
-            headers.set('x-demo-role', userRoleRef.current)
-          }
           init.headers = headers
         }
       } catch (_) {}
