@@ -38,11 +38,16 @@ async function verifyPaymentGatewayManager() {
       }
     } catch (_) {}
 
-    // Find and click "Payment Gateway & UPI/QR" tab in Admin Operations Suite
+    // Wait for the operations bar to appear and click Payment Gateway tab
     console.log('Clicking Payment Gateway & UPI/QR tab in Admin operations bar...');
+    await page.waitForFunction(() => {
+      const btns = Array.from(document.querySelectorAll('button'));
+      return btns.some(b => b.textContent && b.textContent.includes('Payment Gateway'));
+    }, { timeout: 15000 });
+
     const clickedTab = await page.evaluate(() => {
       const btns = Array.from(document.querySelectorAll('button'));
-      const tab = btns.find(b => b.textContent.includes('Payment Gateway & UPI/QR') || b.textContent.includes('Payment Gateway'));
+      const tab = btns.find(b => b.textContent && b.textContent.includes('Payment Gateway'));
       if (tab) {
         tab.click();
         return true;
@@ -60,7 +65,7 @@ async function verifyPaymentGatewayManager() {
     console.log('Switching to Inbound UTR Verifications sub-tab...');
     await page.evaluate(() => {
       const btns = Array.from(document.querySelectorAll('button'));
-      const inboxBtn = btns.find(b => b.textContent.includes('Inbound UTR Verifications'));
+      const inboxBtn = btns.find(b => b.textContent && b.textContent.includes('Inbound UTR Verifications'));
       if (inboxBtn) inboxBtn.click();
     });
     await new Promise(r => setTimeout(r, 1500));
@@ -80,29 +85,46 @@ async function verifyPaymentGatewayManager() {
     console.log('Navigating to Build My Event...');
     await page.evaluate(() => {
       const btns = Array.from(document.querySelectorAll('button'));
-      const bBtn = btns.find(b => b.textContent.includes('Build My Event'));
+      const bBtn = btns.find(b => b.textContent && b.textContent.includes('Build My Event'));
       if (bBtn) bBtn.click();
     });
     await new Promise(r => setTimeout(r, 2000));
 
-    // Click Proceed to Booking / Instant Booking button
+    // Click Proceed to Booking / Book All Services button
     console.log('Opening Booking Modal...');
+    await page.waitForFunction(() => {
+      const btns = Array.from(document.querySelectorAll('button'));
+      return btns.some(b => b.textContent && (b.textContent.includes('Book All Services') || b.textContent.includes('Proceed to Booking')));
+    }, { timeout: 15000 });
+
     await page.evaluate(() => {
       const btns = Array.from(document.querySelectorAll('button'));
-      const bookBtn = btns.find(b => b.textContent.includes('Proceed to Booking') || b.textContent.includes('Book Event Now') || b.textContent.includes('Instant Royal Booking'));
-      if (bookBtn) bookBtn.click();
+      const bookBtn = btns.find(b => b.textContent && (b.textContent.includes('Book All Services') || b.textContent.includes('Proceed to Booking')));
+      if (bookBtn) {
+        bookBtn.scrollIntoView();
+        bookBtn.click();
+      }
     });
-    await new Promise(r => setTimeout(r, 1500));
+    await new Promise(r => setTimeout(r, 2000));
 
     // Fast-forward to Step 6 (Payment)
     console.log('Advancing through steps to Step 6...');
     for (let s = 1; s <= 5; s++) {
+      console.log(`Advancing Step ${s}...`);
+      await page.waitForFunction(() => {
+        const btns = Array.from(document.querySelectorAll('button'));
+        return btns.some(b => b.textContent && b.textContent.includes('Next:'));
+      }, { timeout: 5000 }).catch(() => {});
+
       await page.evaluate(() => {
         const btns = Array.from(document.querySelectorAll('button'));
-        const nextBtn = btns.find(b => b.textContent.includes('Next:'));
-        if (nextBtn) nextBtn.click();
+        const nextBtn = btns.find(b => b.textContent && b.textContent.includes('Next:'));
+        if (nextBtn) {
+          nextBtn.scrollIntoView();
+          nextBtn.click();
+        }
       });
-      await new Promise(r => setTimeout(r, 600));
+      await new Promise(r => setTimeout(r, 800));
     }
 
     // Wait on Step 6
