@@ -16,7 +16,8 @@ import {
   Compass,
   LogOut,
   Calendar,
-  ShoppingBag
+  ShoppingBag,
+  Calculator
 } from 'lucide-react'
 
 export default function Navbar({
@@ -154,6 +155,19 @@ export default function Navbar({
                 </span>
               )}
             </button>
+            <button
+              onClick={() => setActiveTab('planning_toolkit')}
+              className={`px-3.5 py-2 rounded-full relative transition-all duration-300 hover:-translate-y-0.5 flex items-center gap-1.5 ${
+                activeTab === 'planning_toolkit'
+                  ? 'text-[#4a1525] bg-gradient-to-r from-amber-100/70 via-rose-100/60 to-amber-100/70 font-bold border border-amber-300/80 shadow-sm'
+                  : 'hover:text-[#1c1917] hover:bg-[#f2ede4]'
+              }`}
+            >
+              <span>Wedding Toolkit</span>
+              <span className="bg-gradient-to-r from-amber-500 to-rose-600 text-white text-[9px] font-extrabold uppercase px-1.5 py-0.5 rounded-full shadow-xs">
+                Budget &amp; RSVP
+              </span>
+            </button>
           </nav>
 
           {/* RIGHT ACTION BUTTONS */}
@@ -259,6 +273,12 @@ export default function Navbar({
                       className="w-full text-left px-3 py-2 hover:bg-[#faf8f5] rounded-lg font-medium text-stone-800 flex items-center gap-2"
                     >
                       <CalendarDays className="w-4 h-4 text-stone-500" /> My Event Plan
+                    </button>
+                    <button
+                      onClick={() => { setShowProfileMenu(false); setActiveTab('planning_toolkit'); }}
+                      className="w-full text-left px-3 py-2 hover:bg-[#faf8f5] rounded-lg font-medium text-stone-800 flex items-center gap-2"
+                    >
+                      <Calculator className="w-4 h-4 text-stone-500" /> Wedding Toolkit (Budget &amp; RSVP)
                     </button>
                     <button
                       onClick={() => { setShowProfileMenu(false); setActiveTab('wishlist'); }}
@@ -406,6 +426,15 @@ export default function Navbar({
               ) : (
                 <Calendar className="w-4 h-4 opacity-70" />
               )}
+            </button>
+            <button
+              onClick={() => { setActiveTab('planning_toolkit'); setMobileMenuOpen(false); }}
+              className={`w-full text-left px-3.5 py-2.5 rounded-xl text-sm font-semibold transition-all flex items-center justify-between ${
+                activeTab === 'planning_toolkit' ? 'bg-[#4a1525] text-[#f5ebd7] shadow-sm' : 'text-stone-700 hover:bg-white'
+              }`}
+            >
+              <span>Wedding Toolkit (Budget &amp; RSVP)</span>
+              <Calculator className="w-4 h-4 opacity-70" />
             </button>
             <button
               onClick={() => { setActiveTab('wishlist'); setMobileMenuOpen(false); }}
