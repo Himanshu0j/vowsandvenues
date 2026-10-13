@@ -1168,6 +1168,27 @@ export default function VowsAndVenuesApp() {
     }
   }
 
+  // Update Active Event details
+  const handleUpdateEvent = async (updatedEvent) => {
+    if (!updatedEvent) return
+    setActiveEvent(updatedEvent)
+    if (updatedEvent.id && !String(updatedEvent.id).startsWith('evt_draft_')) {
+      try {
+        const res = await fetch(`/api/events/${updatedEvent.id}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(updatedEvent)
+        })
+        if (res.ok) {
+          const saved = await res.json()
+          setActiveEvent(saved)
+        }
+      } catch (err) {
+        console.error('Failed to sync event updates:', err)
+      }
+    }
+  }
+
   // Remove Service from Active Event
   const handleRemoveServiceFromEvent = async (category) => {
     if (!activeEvent) return
@@ -1319,6 +1340,12 @@ export default function VowsAndVenuesApp() {
     } else {
       toast.error('Invalid or expired coupon code. Try "ROYAL2026"')
     }
+  }
+
+  // Open Booking Modal for Active Event
+  const handleInitiateBookingFromEvent = () => {
+    setBookingStep(1)
+    setIsBookingModalOpen(true)
   }
 
   // Complete Booking Flow Submission
