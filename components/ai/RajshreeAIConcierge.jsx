@@ -177,6 +177,7 @@ export default function RajshreeAIConcierge({ onOpenNegotiation, onOpenRecce }) 
       {/* Floating Gold Pill / Button */}
       <button
         onClick={() => setIsOpen(true)}
+        aria-label="Ask Rajshree AI Concierge"
         className="fixed bottom-20 left-4 sm:bottom-6 sm:left-6 z-40 group flex items-center gap-2 px-4 py-2.5 rounded-full bg-gradient-to-r from-stone-900 via-burgundy to-stone-950 text-amber-200 border-2 border-amber-300/60 shadow-[0_10px_35px_rgba(74,21,37,0.4)] hover:scale-105 active:scale-95 transition-all"
         title="Ask Rajshree AI — Royal Wedding Matchmaker"
       >
