@@ -39,7 +39,9 @@ import {
   Percent,
   Award,
   Sun,
-  Phone
+  Phone,
+  QrCode,
+  CreditCard
 } from 'lucide-react'
 import { toast } from 'sonner'
 import { getOptimizedImageUrl } from '@/lib/imageUtils'
@@ -52,6 +54,7 @@ import AdminVendorSLAScorecard from '@/components/admin/AdminVendorSLAScorecard'
 import AdminMuhuratPricing from '@/components/admin/AdminMuhuratPricing'
 import AdminReviewUGC from '@/components/admin/AdminReviewUGC'
 import AdminGSTCompliance from '@/components/admin/AdminGSTCompliance'
+import AdminPaymentGatewayManager from '@/components/admin/AdminPaymentGatewayManager'
 
 function exportToCSV(data, filename) {
   if (!data || !data.length) {
@@ -647,6 +650,7 @@ export default function AdminOperationsSuite({
             { id: 'whatsapp', label: 'WhatsApp Concierge', icon: Send },
             { id: 'recces', label: 'Site Recces', icon: Building2 },
             { id: 'milestones', label: 'Escrow & Milestones', icon: ShieldCheck },
+            { id: 'payment_gateway', label: 'Payment Gateway & UPI/QR', icon: QrCode },
             { id: 'packages_builder', label: 'Package Builder', icon: Layers },
             { id: 'vendor_sla', label: 'Vendor SLA Scorecard', icon: Award },
             { id: 'muhurat', label: 'Muhurat & Peak Pricing', icon: Sun },
@@ -2623,6 +2627,7 @@ export default function AdminOperationsSuite({
       {activeSubTab === 'muhurat' && <AdminMuhuratPricing />}
       {activeSubTab === 'ugc_reviews' && <AdminReviewUGC />}
       {activeSubTab === 'gst_billing' && <AdminGSTCompliance />}
+      {activeSubTab === 'payment_gateway' && <AdminPaymentGatewayManager />}
 
     </div>
   )

@@ -54,7 +54,8 @@ import {
   Sliders,
   Scale,
   Percent,
-  Compass
+  Compass,
+  Copy
 } from 'lucide-react'
 import { toast } from 'sonner'
 import Navbar from '../components/Navbar'
@@ -78,6 +79,7 @@ import TrustAndConfidenceSection from '../components/TrustAndConfidenceSection'
 import CoupleWeddingToolkit from '../components/planning/CoupleWeddingToolkit'
 import RajshreeAIConcierge from '../components/ai/RajshreeAIConcierge'
 import VendorPartnerSuite from '../components/vendor/VendorPartnerSuite'
+import { DEFAULT_PAYMENT_CONFIG } from '../components/admin/AdminPaymentGatewayManager'
 import ScrollReveal, { TextLineReveal, ScrollStaggerContainer, ScrollStaggerItem } from '../components/ScrollReveal'
 import { getOptimizedImageUrl } from '@/lib/imageUtils'
 
@@ -204,6 +206,21 @@ export default function VowsAndVenuesApp() {
     isAdvanceOnly: true
   })
   const [confirmedBookingResult, setConfirmedBookingResult] = useState(null)
+  
+  // Payment Gateway & Admin Custom UPI Config State
+  const [paymentConfig, setPaymentConfig] = useState(DEFAULT_PAYMENT_CONFIG)
+  const [customerUtr, setCustomerUtr] = useState('')
+  const [customerReceiptNotes, setCustomerReceiptNotes] = useState('')
+  const [copiedUpi, setCopiedUpi] = useState(false)
+
+  useEffect(() => {
+    try {
+      const stored = localStorage.getItem('vv_payment_gateway_config')
+      if (stored) {
+        setPaymentConfig(JSON.parse(stored))
+      }
+    } catch (_) {}
+  }, [isBookingModalOpen])
 
   // Review Modal State
   const [reviewModalVendor, setReviewModalVendor] = useState(null)
@@ -1322,6 +1339,16 @@ export default function VowsAndVenuesApp() {
     const platformFee = 2500
     const discount = bookingDetails.discount || 0
     const totalAmount = Math.max(0, subtotal + tax + platformFee - discount)
+    const payableAmount = bookingDetails.isAdvanceOnly ? Math.round(totalAmount * 0.25) : totalAmount
+
+    // Validate UTR if paying via Admin UPI / QR or Bank Transfer
+    const isUpiPayment = bookingDetails.paymentMethod === 'upi' || paymentConfig.activeMode === 'CUSTOM_UPI_QR'
+    if (isUpiPayment && paymentConfig.upi?.requireUtr) {
+      if (!customerUtr.trim() || customerUtr.trim().length < 6) {
+        toast.error('Please enter your 12-digit UPI UTR / Transaction Reference Number from your payment receipt.')
+        return
+      }
+    }
 
     const payload = {
       userName: bookingDetails.name,
@@ -1338,8 +1365,17 @@ export default function VowsAndVenuesApp() {
       platformFee,
       discount,
       totalAmount,
+      advancePaid: payableAmount,
       isAdvanceOnly: bookingDetails.isAdvanceOnly,
-      paymentMethod: bookingDetails.paymentMethod === 'upi' ? 'UPI (Google Pay / PhonePe)' : 'Credit/Debit Card (Instant)',
+      paymentMethod: isUpiPayment
+        ? `Direct Admin UPI QR (${paymentConfig.upi?.upiId || 'vowsandvenues@icici'})`
+        : (paymentConfig.activeMode === 'BANK_NEFT_RTGS' ? 'Bank Escrow NEFT/RTGS Wire' : `${paymentConfig.gateway?.provider?.toUpperCase() || 'Razorpay'} Gateway`),
+      paymentDetails: {
+        mode: paymentConfig.activeMode,
+        utr: customerUtr.trim() || null,
+        payeeUpi: paymentConfig.upi?.upiId,
+        gatewayProvider: paymentConfig.gateway?.provider
+      },
       specialInstructions: bookingDetails.specialInstructions
     }
 
@@ -1353,6 +1389,25 @@ export default function VowsAndVenuesApp() {
       setConfirmedBookingResult(result)
       setBookingStep(7) // Go to confirmation step
       
+      // Log transaction in Admin's Payment Verification Queue
+      const newTx = {
+        id: `tx_pay_${Date.now()}`,
+        bookingId: result.bookingNumber || `BK-2026-${Math.floor(1000 + Math.random() * 9000)}`,
+        clientName: bookingDetails.name || 'Wedding Couple',
+        clientPhone: bookingDetails.phone || '+919876543210',
+        amount: payableAmount,
+        method: isUpiPayment ? 'CUSTOM_UPI_QR' : (paymentConfig.activeMode === 'BANK_NEFT_RTGS' ? 'BANK_NEFT_RTGS' : 'PAYMENT_GATEWAY'),
+        payeeUpi: paymentConfig.upi?.upiId || 'vowsandvenues@icici',
+        utr: customerUtr.trim() || (isUpiPayment ? '429188291042' : `RZP-${Math.floor(1000000000 + Math.random() * 9000000000)}`),
+        date: new Date().toLocaleString('en-IN', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' }),
+        status: isUpiPayment ? 'PENDING_VERIFICATION' : 'VERIFIED',
+        notes: customerReceiptNotes || `Advance payment for ${bookingDetails.eventName || 'Wedding celebration'}`
+      }
+      try {
+        const storedTxs = JSON.parse(localStorage.getItem('vv_payment_transactions') || '[]')
+        localStorage.setItem('vv_payment_transactions', JSON.stringify([newTx, ...storedTxs]))
+      } catch (_) {}
+
       // Refresh bookings list
       const updatedBkg = await fetch('/api/bookings').then(r => r.json())
       setUserBookings(updatedBkg)
@@ -2900,53 +2955,262 @@ export default function VowsAndVenuesApp() {
               </div>
             )}
 
-            {/* STEP 6: Payment Gateway Simulator */}
-            {bookingStep === 6 && (
-              <div className="space-y-4">
-                <h3 className="font-serif text-2xl font-bold text-emerald-950">Step 6: Secure Payment Gateway</h3>
-                <p className="text-xs text-stone-600">Choose your preferred Indian payment method to confirm booking.</p>
+            {/* STEP 6: Secure Payment Gateway & Admin UPI/QR Collection */}
+            {bookingStep === 6 && (() => {
+              const subtotal = activeEvent?.selectedServices?.reduce((sum, s) => sum + (Number(s.price) || 0), 0) || 0
+              const tax = Math.round(subtotal * 0.18)
+              const platformFee = 2500
+              const discount = bookingDetails.discount || 0
+              const grandTotal = Math.max(0, subtotal + tax + platformFee - discount)
+              const payable = bookingDetails.isAdvanceOnly ? Math.round(grandTotal * 0.25) : grandTotal
 
-                <div className="space-y-3">
-                  <div
-                    onClick={() => setBookingDetails({ ...bookingDetails, paymentMethod: 'upi' })}
-                    className={`p-4 rounded-2xl border cursor-pointer flex items-center justify-between ${bookingDetails.paymentMethod === 'upi' ? 'bg-emerald-50 border-emerald-900' : 'bg-white border-stone-200'}`}
-                  >
-                    <div className="flex items-center gap-3">
-                      <QrCode className="w-5 h-5 text-emerald-800" />
-                      <div>
-                        <div className="font-bold text-xs text-stone-900">UPI Instant QR (GPay / PhonePe / Paytm)</div>
-                        <div className="text-[11px] text-stone-500">Scan QR Code or enter UPI ID</div>
-                      </div>
+              const dynamicQrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(
+                `upi://pay?pa=${paymentConfig.upi?.upiId || 'vowsandvenues@icici'}&pn=${encodeURIComponent(paymentConfig.upi?.merchantName || 'Vows & Venues')}&am=${payable}&cu=INR&tn=Booking-${activeEvent?.name || 'Event'}`
+              )}`
+
+              const upiIntentUrl = `upi://pay?pa=${paymentConfig.upi?.upiId || 'vowsandvenues@icici'}&pn=${encodeURIComponent(paymentConfig.upi?.merchantName || 'Vows & Venues')}&am=${payable}&cu=INR&tn=Booking-${activeEvent?.name || 'Event'}`
+
+              const isUpiMode = paymentConfig.activeMode === 'CUSTOM_UPI_QR' || (paymentConfig.activeMode === 'HYBRID' && bookingDetails.paymentMethod === 'upi')
+              const isCardMode = paymentConfig.activeMode === 'PAYMENT_GATEWAY' || (paymentConfig.activeMode === 'HYBRID' && bookingDetails.paymentMethod === 'card')
+              const isBankMode = paymentConfig.activeMode === 'BANK_NEFT_RTGS'
+
+              return (
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between pb-2 border-b border-stone-200">
+                    <div>
+                      <h3 className="font-serif text-2xl font-bold text-emerald-950">Step 6: Secure Payment</h3>
+                      <p className="text-xs text-stone-600">
+                        Total Payable Now: <strong className="text-emerald-900 font-serif text-sm">₹{payable.toLocaleString('en-IN')}</strong> {bookingDetails.isAdvanceOnly ? '(25% Token Advance)' : '(Full 100% Payment)'}
+                      </p>
                     </div>
-                    <span className="text-xs font-bold text-emerald-900">Zero Surcharge</span>
+                    <span className="text-[10px] font-bold uppercase tracking-wider bg-amber-100 text-amber-900 px-2.5 py-1 rounded-full border border-amber-300">
+                      {paymentConfig.activeMode === 'CUSTOM_UPI_QR' && 'Direct UPI QR'}
+                      {paymentConfig.activeMode === 'PAYMENT_GATEWAY' && `${paymentConfig.gateway?.provider?.toUpperCase() || 'RAZORPAY'} Gateway`}
+                      {paymentConfig.activeMode === 'HYBRID' && 'Hybrid Payment'}
+                      {paymentConfig.activeMode === 'BANK_NEFT_RTGS' && 'Bank NEFT/RTGS'}
+                    </span>
                   </div>
 
-                  <div
-                    onClick={() => setBookingDetails({ ...bookingDetails, paymentMethod: 'card' })}
-                    className={`p-4 rounded-2xl border cursor-pointer flex items-center justify-between ${bookingDetails.paymentMethod === 'card' ? 'bg-emerald-50 border-emerald-900' : 'bg-white border-stone-200'}`}
-                  >
-                    <div className="flex items-center gap-3">
-                      <CreditCard className="w-5 h-5 text-emerald-800" />
-                      <div>
-                        <div className="font-bold text-xs text-stone-900">Credit / Debit Cards &amp; NetBanking</div>
-                        <div className="text-[11px] text-stone-500">Visa, MasterCard, RuPay, HDFC, ICICI</div>
+                  {/* Mode selection tabs if in HYBRID mode */}
+                  {paymentConfig.activeMode === 'HYBRID' && (
+                    <div className="grid grid-cols-2 gap-2 bg-stone-100 p-1 rounded-2xl text-xs font-bold">
+                      <button
+                        type="button"
+                        onClick={() => setBookingDetails({ ...bookingDetails, paymentMethod: 'upi' })}
+                        className={`py-2 px-3 rounded-xl flex items-center justify-center gap-1.5 transition-all ${
+                          bookingDetails.paymentMethod === 'upi'
+                            ? 'bg-white text-stone-900 shadow-sm'
+                            : 'text-stone-600 hover:text-stone-900'
+                        }`}
+                      >
+                        <QrCode className="w-4 h-4 text-emerald-700" />
+                        <span>Scan Admin UPI QR (0% Fee)</span>
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => setBookingDetails({ ...bookingDetails, paymentMethod: 'card' })}
+                        className={`py-2 px-3 rounded-xl flex items-center justify-center gap-1.5 transition-all ${
+                          bookingDetails.paymentMethod === 'card'
+                            ? 'bg-white text-stone-900 shadow-sm'
+                            : 'text-stone-600 hover:text-stone-900'
+                        }`}
+                      >
+                        <CreditCard className="w-4 h-4 text-indigo-700" />
+                        <span>Card / NetBanking Gateway</span>
+                      </button>
+                    </div>
+                  )}
+
+                  {/* 1. CUSTOM UPI & QR CODE FLOW */}
+                  {isUpiMode && (
+                    <div className="bg-gradient-to-br from-amber-50/60 to-rose-50/30 p-5 rounded-3xl border border-amber-200/80 space-y-4">
+                      <div className="flex flex-col sm:flex-row items-center gap-5">
+                        {/* Live QR Code Box */}
+                        <div className="p-2.5 bg-white rounded-2xl shadow-md border-2 border-amber-400 shrink-0 text-center">
+                          <img
+                            src={paymentConfig.upi?.qrImageUrl || dynamicQrUrl}
+                            alt="Admin UPI QR Code"
+                            className="w-40 h-40 object-contain mx-auto rounded-lg"
+                          />
+                          <span className="text-[10px] font-bold text-amber-900 block mt-1">
+                            Scan on any UPI App
+                          </span>
+                        </div>
+
+                        {/* Payment Details */}
+                        <div className="space-y-2.5 flex-1 w-full text-xs">
+                          <div>
+                            <span className="text-[10px] text-stone-500 uppercase font-bold tracking-wider block">
+                              Pay Directly To Merchant:
+                            </span>
+                            <span className="font-serif font-bold text-stone-900 text-sm block">
+                              {paymentConfig.upi?.merchantName || 'Vows & Venues Luxury Hospitality'}
+                            </span>
+                          </div>
+
+                          <div className="p-2.5 rounded-xl bg-white border border-stone-200 flex items-center justify-between">
+                            <div>
+                              <span className="text-[10px] text-stone-400 block font-mono">UPI ID / VPA:</span>
+                              <span className="font-mono font-bold text-stone-900 text-xs">
+                                {paymentConfig.upi?.upiId || 'vowsandvenues@icici'}
+                              </span>
+                            </div>
+                            <button
+                              type="button"
+                              onClick={() => {
+                                navigator.clipboard.writeText(paymentConfig.upi?.upiId || 'vowsandvenues@icici')
+                                setCopiedUpi(true)
+                                toast.success('UPI ID copied to clipboard!')
+                                setTimeout(() => setCopiedUpi(false), 2000)
+                              }}
+                              className="px-2.5 py-1 rounded-lg bg-stone-100 hover:bg-stone-200 text-stone-700 font-bold text-[11px] flex items-center gap-1"
+                            >
+                              {copiedUpi ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5" />}
+                              <span>{copiedUpi ? 'Copied' : 'Copy'}</span>
+                            </button>
+                          </div>
+
+                          {/* Quick Mobile Intent Buttons */}
+                          <div className="pt-1">
+                            <span className="text-[10px] text-stone-500 block mb-1">
+                              Quick Mobile Payment:
+                            </span>
+                            <a
+                              href={upiIntentUrl}
+                              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-800 hover:bg-emerald-900 text-amber-200 font-bold text-xs shadow-xs"
+                            >
+                              <Smartphone className="w-3.5 h-3.5" />
+                              <span>Open in GPay / PhonePe / Paytm</span>
+                            </a>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* UTR Input Field */}
+                      <div className="pt-3 border-t border-amber-200/60">
+                        <label className="text-xs font-bold text-stone-800 block mb-1">
+                          Enter 12-Digit UTR / Transaction Reference Number *
+                        </label>
+                        <input
+                          type="text"
+                          value={customerUtr}
+                          onChange={(e) => setCustomerUtr(e.target.value)}
+                          placeholder="e.g. 429188291042 (found in your UPI app payment receipt)"
+                          className="w-full px-3.5 py-2.5 bg-white border border-stone-300 rounded-xl text-xs font-mono font-bold text-stone-900 focus:outline-none focus:border-emerald-600"
+                        />
+                        <p className="text-[11px] text-stone-500 mt-1">
+                          After completing your UPI payment of ₹{payable.toLocaleString('en-IN')}, paste your 12-digit UTR number here for instant concierge verification.
+                        </p>
                       </div>
                     </div>
-                    <span className="text-xs font-bold text-stone-500">128-bit SSL</span>
+                  )}
+
+                  {/* 2. PAYMENT GATEWAY FLOW */}
+                  {isCardMode && (
+                    <div className="bg-stone-50 p-5 rounded-3xl border border-stone-200 space-y-4">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-3">
+                          <div className="w-10 h-10 rounded-xl bg-emerald-900 text-amber-200 flex items-center justify-center font-bold">
+                            <CreditCard className="w-5 h-5" />
+                          </div>
+                          <div>
+                            <span className="font-bold text-stone-900 text-sm block">
+                              {paymentConfig.gateway?.provider === 'razorpay' ? 'Razorpay Secure Payment' : `${paymentConfig.gateway?.provider?.toUpperCase() || 'RAZORPAY'} Gateway`}
+                            </span>
+                            <span className="text-[11px] text-stone-500">
+                              Instant checkout with Cards, NetBanking, and Wallets
+                            </span>
+                          </div>
+                        </div>
+                        <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
+                          paymentConfig.gateway?.isLive ? 'bg-rose-100 text-rose-800' : 'bg-amber-100 text-amber-800'
+                        }`}>
+                          {paymentConfig.gateway?.isLive ? 'Live Mode' : 'Test Sandbox'}
+                        </span>
+                      </div>
+
+                      <div className="p-3 rounded-2xl bg-white border border-stone-200 text-xs space-y-2">
+                        <div className="flex justify-between text-stone-600">
+                          <span>Payable Amount:</span>
+                          <span className="font-bold text-stone-900">₹{payable.toLocaleString('en-IN')}</span>
+                        </div>
+                        <div className="flex justify-between text-stone-600">
+                          <span>Gateway Encryption:</span>
+                          <span className="text-emerald-700 font-semibold">256-Bit SSL Encrypted</span>
+                        </div>
+                        <div className="flex justify-between text-stone-600">
+                          <span>Supported:</span>
+                          <span>Visa, MasterCard, RuPay, Amex, 50+ NetBanking</span>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* 3. BANK NEFT/RTGS FLOW */}
+                  {isBankMode && (
+                    <div className="bg-purple-50/70 p-5 rounded-3xl border border-purple-200 space-y-4 text-xs">
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-xl bg-purple-900 text-white flex items-center justify-center font-bold">
+                          <Building2 className="w-5 h-5" />
+                        </div>
+                        <div>
+                          <span className="font-bold text-stone-900 text-sm block">
+                            Corporate Escrow NEFT / RTGS Wire Transfer
+                          </span>
+                          <span className="text-[11px] text-stone-500">
+                            Transfer directly to our official corporate escrow account
+                          </span>
+                        </div>
+                      </div>
+
+                      <div className="bg-white p-3.5 rounded-2xl border border-stone-200 space-y-2 font-mono">
+                        <div className="flex justify-between">
+                          <span className="text-stone-500">Bank:</span>
+                          <span className="font-bold text-stone-900">{paymentConfig.bank?.bankName}</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-stone-500">Account Name:</span>
+                          <span className="font-bold text-stone-900">{paymentConfig.bank?.accountHolder}</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-stone-500">Account Number:</span>
+                          <span className="font-bold text-purple-900">{paymentConfig.bank?.accountNumber}</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-stone-500">IFSC Code:</span>
+                          <span className="font-bold text-stone-900">{paymentConfig.bank?.ifsc}</span>
+                        </div>
+                      </div>
+
+                      <div>
+                        <label className="text-xs font-bold text-stone-800 block mb-1">
+                          Bank Wire Transfer UTR Reference Number *
+                        </label>
+                        <input
+                          type="text"
+                          value={customerUtr}
+                          onChange={(e) => setCustomerUtr(e.target.value)}
+                          placeholder="e.g. HDFCR5202610120098"
+                          className="w-full px-3.5 py-2.5 bg-white border border-stone-300 rounded-xl text-xs font-mono font-bold text-stone-900 focus:outline-none focus:border-purple-600"
+                        />
+                      </div>
+                    </div>
+                  )}
+
+                  <div className="pt-4 flex justify-between">
+                    <button onClick={() => setBookingStep(5)} className="px-4 py-2 bg-stone-100 text-stone-700 font-semibold text-xs rounded-xl">← Back</button>
+                    <button
+                      onClick={handleCompleteBooking}
+                      className="px-8 py-3 bg-gradient-to-r from-emerald-900 to-emerald-800 text-amber-200 font-bold text-sm rounded-xl shadow-xl flex items-center gap-2 hover:brightness-110 active:scale-95 transition-all"
+                    >
+                      <ShieldCheck className="w-4 h-4 text-amber-300" />
+                      <span>{isUpiMode ? 'Submit UTR & Confirm Booking' : 'Complete & Confirm Booking'}</span>
+                    </button>
                   </div>
                 </div>
-
-                <div className="pt-4 flex justify-between">
-                  <button onClick={() => setBookingStep(5)} className="px-4 py-2 bg-stone-100 text-stone-700 font-semibold text-xs rounded-xl">← Back</button>
-                  <button
-                    onClick={handleCompleteBooking}
-                    className="px-8 py-3 bg-gradient-to-r from-emerald-900 to-emerald-800 text-amber-200 font-bold text-sm rounded-xl shadow-xl flex items-center gap-2 hover:brightness-110 active:scale-95 transition-all"
-                  >
-                    <ShieldCheck className="w-4 h-4 text-amber-300" /> Complete &amp; Confirm Booking
-                  </button>
-                </div>
-              </div>
-            )}
+              )
+            })()}
 
             {/* STEP 7: Booking Confirmation Screen */}
             {bookingStep === 7 && confirmedBookingResult && (
