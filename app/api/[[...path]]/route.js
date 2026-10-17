@@ -2448,15 +2448,24 @@ async function handleRoute(request, { params }) {
       return cors(NextResponse.json(newPackage, { status: 201 }))
     }
 
-    // VENDORS: GET /api/vendors
-    if (route === '/vendors' && method === 'GET') {
+    // VENDORS & VENUES CATALOG: GET /api/vendors or GET /api/venues
+    if ((route === '/vendors' || route === '/venues') && method === 'GET') {
       const filter = {}
 
       if (query.category && query.category !== 'all') {
         filter.category = query.category
+      } else if (route === '/venues') {
+        filter.category = 'venues'
       }
-      if (query.city && query.city !== 'all') {
-        filter.city = { $regex: new RegExp(query.city, 'i') }
+
+      const loc = query.location || query.city
+      if (loc && loc !== 'all') {
+        const regexLoc = new RegExp(loc, 'i')
+        filter.$or = [
+          { city: regexLoc },
+          { address: regexLoc },
+          { name: regexLoc }
+        ]
       }
       if (query.verified === 'true') {
         filter.verified = true
@@ -2471,13 +2480,19 @@ async function handleRoute(request, { params }) {
       }
       if (query.search) {
         const regex = new RegExp(query.search, 'i')
-        filter.$or = [
+        const searchConditions = [
           { name: regex },
           { categoryName: regex },
           { description: regex },
           { city: regex },
           { tags: regex }
         ]
+        if (filter.$or) {
+          filter.$and = [{ $or: filter.$or }, { $or: searchConditions }]
+          delete filter.$or
+        } else {
+          filter.$or = searchConditions
+        }
       }
 
       let sortObj = { rating: -1 }
@@ -2491,6 +2506,114 @@ async function handleRoute(request, { params }) {
       return cors(NextResponse.json(cleaned))
     }
 
+    // BOOKINGS AVAILABILITY CALENDAR: GET /api/bookings/availability/:id
+    if (route.match(/^\/bookings\/availability\/[^/]+$/) && method === 'GET') {
+      const venueId = route.split('/')[3]
+      const vendorDoc = await db.collection('vendors').findOne({ id: venueId })
+      if (!vendorDoc) return cors(NextResponse.json({ error: 'Venue not found' }, { status: 404 }))
+      const blackoutDates = Array.isArray(vendorDoc.blackoutDates) ? vendorDoc.blackoutDates : []
+      const bookings = await db.collection('bookings').find({
+        $or: [{ 'items.vendorId': venueId }, { venueId: venueId }, { vendorId: venueId }],
+        bookingStatus: { $in: ['confirmed', 'paid', 'pending_verification'] }
+      }).toArray()
+      const bookedDates = [...new Set(bookings.map(b => b.eventDate).filter(Boolean))]
+      return cors(NextResponse.json({
+        venueId,
+        vendorId: venueId,
+        name: vendorDoc.name,
+        blackoutDates,
+        bookedDates,
+        open: true
+      }))
+    }
+
+    // BOOKINGS BY USER: GET /api/bookings/user/:userId
+    if (route.startsWith('/bookings/user/') && method === 'GET') {
+      const targetUserId = route.split('/')[3]
+      const unauth = requireAuth(request)
+      if (unauth) return cors(unauth)
+      const ctx = getAuthContext(request)
+      if (ctx.role !== 'admin' && !ALL_ADMIN_ROLES.includes(ctx.role) && ctx.userId !== targetUserId) {
+        return cors(NextResponse.json({ error: 'Forbidden: cannot access another customer bookings' }, { status: 403 }))
+      }
+      const bookings = await db.collection('bookings').find({ userId: targetUserId }).sort({ createdAt: -1 }).toArray()
+      return cors(NextResponse.json(bookings.map(({ _id, ...r }) => r)))
+    }
+
+    // MEETINGS / CONSULTATIONS (1-to-1 Venue Owner Calls)
+    if (route === '/meetings/my' && method === 'GET') {
+      const unauth = requireAuth(request)
+      if (unauth) return cors(unauth)
+      const ctx = getAuthContext(request)
+      const list = await db.collection('meetings').find({ userId: ctx.userId }).sort({ createdAt: -1 }).toArray()
+      return cors(NextResponse.json(list.map(({ _id, ...r }) => r)))
+    }
+
+    if (route === '/meetings' && method === 'GET') {
+      const unauth = requireAuth(request)
+      if (unauth) return cors(unauth)
+      const ctx = getAuthContext(request)
+      let filter = {}
+      if (ctx.role === 'customer') {
+        filter.userId = ctx.userId
+      } else if (ctx.role === 'vendor') {
+        const myVendors = await db.collection('vendors').find({ userId: ctx.userId }).toArray()
+        const myIds = myVendors.map(v => v.id)
+        filter.$or = [{ vendorId: { $in: myIds } }, { venueId: { $in: myIds } }]
+      }
+      const list = await db.collection('meetings').find(filter).sort({ createdAt: -1 }).toArray()
+      return cors(NextResponse.json(list.map(({ _id, ...r }) => r)))
+    }
+
+    if (route === '/meetings' && method === 'POST') {
+      const unauth = requireAuth(request)
+      if (unauth) return cors(unauth)
+      const ctx = getAuthContext(request)
+      const body = await request.json()
+      if (!body.venueId || !body.date) {
+        return cors(NextResponse.json({ error: 'Venue ID and date are required' }, { status: 400 }))
+      }
+      const venue = await db.collection('vendors').findOne({ id: body.venueId })
+      const newMeeting = {
+        id: `mtg_${uuidv4().slice(0, 8)}`,
+        userId: ctx.userId,
+        customerName: body.customerName || ctx.name || 'Valued Customer',
+        customerEmail: body.customerEmail || ctx.email,
+        customerPhone: body.customerPhone || '+91 9876543210',
+        venueId: body.venueId,
+        vendorId: body.venueId,
+        venueName: venue ? venue.name : (body.venueName || 'Selected Venue'),
+        date: body.date,
+        time: body.time || '14:00',
+        durationMinutes: Number(body.durationMinutes) || 15,
+        message: body.message || '',
+        status: 'requested',
+        createdAt: new Date().toISOString()
+      }
+      await db.collection('meetings').insertOne(newMeeting)
+      return cors(NextResponse.json(newMeeting, { status: 201 }))
+    }
+
+    if (route.startsWith('/meetings/') && method === 'PATCH') {
+      const unauth = requireAuth(request)
+      if (unauth) return cors(unauth)
+      const meetingId = route.split('/')[2]
+      const body = await request.json()
+      const meeting = await db.collection('meetings').findOne({ id: meetingId })
+      if (!meeting) return cors(NextResponse.json({ error: 'Meeting not found' }, { status: 404 }))
+
+      const updateData = { updatedAt: new Date().toISOString() }
+      if (body.status) updateData.status = body.status
+      if (body.notes) updateData.adminNotes = body.notes
+      if (body.date) updateData.date = body.date
+      if (body.time) updateData.time = body.time
+
+      await db.collection('meetings').updateOne({ id: meetingId }, { $set: updateData })
+      const updated = await db.collection('meetings').findOne({ id: meetingId })
+      const { _id, ...cleanMeeting } = updated
+      return cors(NextResponse.json(cleanMeeting))
+    }
+
     // VENDOR BY LOGGED-IN USER: GET /api/vendors/mine (auth required, role: vendor)
     if (route === '/vendors/mine' && method === 'GET') {
       const unauth = requireAuth(request, ['vendor', 'admin'])
@@ -2502,12 +2625,21 @@ async function handleRoute(request, { params }) {
       return cors(NextResponse.json({ vendor: rest }))
     }
 
-    // VENDOR BY ID: GET /api/vendors/:id  (public)
-    if (route.startsWith('/vendors/') && method === 'GET') {
-      const vendorId = route.split('/')[2]
+    // VENUE / VENDOR REVIEWS: GET /api/venues/:id/reviews or /api/vendors/:id/reviews
+    if (route.match(/^\/(?:venues|vendors)\/[^/]+\/reviews$/) && method === 'GET') {
+      const parts = route.split('/')
+      const targetId = parts[2]
+      const reviews = await db.collection('reviews').find({ vendorId: targetId }).toArray()
+      return cors(NextResponse.json(reviews.map(({ _id, ...r }) => r)))
+    }
+
+    // VENDOR / VENUE BY ID: GET /api/vendors/:id or GET /api/venues/:id (public)
+    if ((route.startsWith('/vendors/') || route.startsWith('/venues/')) && method === 'GET' && !route.endsWith('/packages') && !route.endsWith('/reviews') && !route.endsWith('/blackout')) {
+      const parts = route.split('/')
+      const vendorId = parts[2]
       const vendor = await db.collection('vendors').findOne({ id: vendorId })
       if (!vendor) {
-        return cors(NextResponse.json({ error: 'Vendor not found' }, { status: 404 }))
+        return cors(NextResponse.json({ error: 'Venue or Vendor not found' }, { status: 404 }))
       }
       const { _id, ...rest } = vendor
       // Also fetch reviews for this vendor
@@ -2719,17 +2851,40 @@ async function handleRoute(request, { params }) {
       if (unauth) return cors(unauth)
       const ctx = getAuthContext(request)
       const body = await request.json()
-      const items = body.items || []
+      let items = body.items || []
+      if (items.length === 0 && (body.venueId || body.vendorId)) {
+        const targetId = body.venueId || body.vendorId
+        const vDoc = await db.collection('vendors').findOne({ id: targetId })
+        const vPrice = Number(body.subtotal) || Number(body.totalAmount) || (vDoc ? vDoc.startingPrice : 100000)
+        items = [{
+          vendorId: targetId,
+          name: vDoc ? vDoc.name : (body.venueName || 'Venue Reservation'),
+          category: 'venues',
+          price: vPrice
+        }]
+      }
+
       const subtotal = items.reduce((sum, item) => sum + (Number(item.price) || 0), 0)
       const tax = Math.round(subtotal * 0.18) // 18% GST
       const platformFee = 2500
       const discount = Number(body.discount) || 0
       const totalAmount = Math.max(0, subtotal + tax + platformFee - discount)
-      const advancePaid = body.isAdvanceOnly ? Math.round(totalAmount * 0.25) : totalAmount
+
+      const advancePercent = Number(body.advancePercent) || (body.isAdvanceOnly ? 25 : (body.advancePaid ? Math.round((Number(body.advancePaid) / totalAmount) * 100) : 100))
+      const advancePaid = advancePercent < 100 ? Math.round(totalAmount * (advancePercent / 100)) : totalAmount
       const remainingAmount = Math.max(0, totalAmount - advancePaid)
       const eventDate = body.eventDate || new Date().toISOString().split('T')[0]
 
-      // Availability and Double-Booking Collision Prevention Engine (Phase 13)
+      let balanceDueDate = null
+      if (remainingAmount > 0 && eventDate) {
+        try {
+          const d = new Date(eventDate)
+          d.setDate(d.getDate() - 15)
+          balanceDueDate = d.toISOString().split('T')[0]
+        } catch (_) {}
+      }
+
+      // Availability and Double-Booking Collision Prevention Engine (Phase 13 & Reference Parity)
       for (const item of items) {
         if (item.vendorId) {
           const vendorDoc = await db.collection('vendors').findOne({ id: item.vendorId })
@@ -2746,13 +2901,13 @@ async function handleRoute(request, { params }) {
             // Check double-booking for exclusive vendors (e.g. venues or banquet halls)
             if (vendorDoc.category === 'venues' || vendorDoc.singleBookingPerDay) {
               const conflict = await db.collection('bookings').findOne({
-                'items.vendorId': item.vendorId,
+                $or: [{ 'items.vendorId': item.vendorId }, { venueId: item.vendorId }, { vendorId: item.vendorId }],
                 eventDate: eventDate,
-                bookingStatus: { $in: ['confirmed', 'paid'] }
+                bookingStatus: { $in: ['confirmed', 'paid', 'pending_verification'] }
               })
               if (conflict) {
                 return cors(NextResponse.json({
-                  error: `Venue "${vendorDoc.name}" is already reserved for a confirmed celebration on ${eventDate}. Please choose another date or venue.`,
+                  error: `Venue "${vendorDoc.name}" is already reserved for a celebration on ${eventDate}. Please choose another date or venue.`,
                   code: 'SCHEDULE_CONFLICT',
                   vendorId: item.vendorId,
                   conflictDate: eventDate
@@ -2764,6 +2919,9 @@ async function handleRoute(request, { params }) {
       }
 
       const bookingNumber = `VV-${new Date().getFullYear()}-${Math.floor(1000 + Math.random() * 9000)}`
+      const isManualUpi = Boolean(body.utrNumber) || (body.paymentMethod === 'UPI' && body.paymentStatus === 'pending_verification')
+      const paymentStatus = isManualUpi ? 'pending_verification' : (advancePercent < 100 ? 'advance_paid' : 'paid')
+      const bookingStatus = isManualUpi ? 'pending_verification' : 'confirmed'
 
       const newBooking = {
         id: body.id || `bk_${uuidv4().slice(0, 8)}`,
@@ -2772,10 +2930,13 @@ async function handleRoute(request, { params }) {
         userName: body.userName || 'Valued Customer',
         userEmail: body.userEmail || ctx.email || 'customer@example.com',
         userPhone: body.userPhone || '+91 98765 43210',
+        venueId: body.venueId || (items[0] ? items[0].vendorId : null),
+        vendorId: body.vendorId || (items[0] ? items[0].vendorId : null),
         eventId: body.eventId || null,
-        eventName: body.eventName || 'Grand Celebration',
-        eventDate: body.eventDate || new Date().toISOString().split('T')[0],
-        city: body.city || 'Lucknow',
+        eventName: body.eventName || (items[0] ? `${items[0].name} Celebration` : 'Grand Celebration'),
+        eventDate: eventDate,
+        timeSlot: body.timeSlot || 'Full Day (7 AM - Next Day 7 AM)',
+        city: body.city || (items[0] ? items[0].city : 'Lucknow'),
         guestCount: Number(body.guestCount) || 150,
         items,
         subtotal,
@@ -2783,11 +2944,14 @@ async function handleRoute(request, { params }) {
         platformFee,
         discount,
         totalAmount,
+        advancePercent,
         advancePaid,
         remainingAmount,
+        balanceDueDate,
         paymentMethod: body.paymentMethod || 'UPI',
-        paymentStatus: body.isAdvanceOnly ? 'advance_paid' : 'paid',
-        bookingStatus: 'confirmed',
+        utrNumber: body.utrNumber || null,
+        paymentStatus,
+        bookingStatus,
         specialInstructions: body.specialInstructions || '',
         createdAt: new Date().toISOString()
       }

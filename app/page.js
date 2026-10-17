@@ -1585,13 +1585,11 @@ export default function VowsAndVenuesApp() {
               eventTypes={EVENT_TYPES}
               cities={CITIES}
               onExploreVendors={() => {
-                if (heroSearch.city && heroSearch.city !== 'All Cities') {
-                  setFilterCity(heroSearch.city)
-                }
-                if (heroSearch.eventType) {
-                  setFilterSearch(heroSearch.eventType)
-                }
-                setActiveTab('explore')
+                const params = new URLSearchParams()
+                if (heroSearch.city && heroSearch.city !== 'All Cities') params.set('location', heroSearch.city)
+                if (heroSearch.eventType) params.set('eventType', heroSearch.eventType)
+                if (heroSearch.guests) params.set('guests', heroSearch.guests)
+                window.location.href = `/venues?${params.toString()}`
               }}
               onStartPlanning={() => {
                 if (heroSearch.eventType || heroSearch.city) {

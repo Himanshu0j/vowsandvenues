@@ -1,6 +1,7 @@
 'use client'
 
 import React, { useState } from 'react'
+import Link from 'next/link'
 import {
   MapPin,
   Heart,
@@ -110,36 +111,24 @@ export default function Navbar({
             >
               Home
             </button>
-            <button
-              onClick={() => setActiveTab('explore')}
-              className={`px-3.5 py-2 rounded-full transition-all duration-300 hover:-translate-y-0.5 ${
-                activeTab === 'explore'
-                  ? 'text-[#4a1525] bg-gradient-to-r from-amber-100/70 via-rose-100/60 to-amber-100/70 font-bold border border-amber-300/80 shadow-sm'
-                  : 'hover:text-[#1c1917] hover:bg-[#f2ede4]'
-              }`}
+            <Link
+              href="/venues"
+              className="px-3.5 py-2 rounded-full transition-all duration-300 hover:-translate-y-0.5 hover:text-[#1c1917] hover:bg-[#f2ede4] font-medium"
             >
-              Explore Vendors
-            </button>
-            <button
-              onClick={() => setActiveTab('categories')}
-              className={`px-3.5 py-2 rounded-full transition-all duration-300 hover:-translate-y-0.5 ${
-                activeTab === 'categories'
-                  ? 'text-[#4a1525] bg-gradient-to-r from-amber-100/70 via-rose-100/60 to-amber-100/70 font-bold border border-amber-300/80 shadow-sm'
-                  : 'hover:text-[#1c1917] hover:bg-[#f2ede4]'
-              }`}
+              Browse Venues
+            </Link>
+            <Link
+              href="/how-it-works"
+              className="px-3.5 py-2 rounded-full transition-all duration-300 hover:-translate-y-0.5 hover:text-[#1c1917] hover:bg-[#f2ede4] font-medium"
             >
-              Categories
-            </button>
-            <button
-              onClick={() => setActiveTab('packages')}
-              className={`px-3.5 py-2 rounded-full transition-all duration-300 hover:-translate-y-0.5 ${
-                activeTab === 'packages'
-                  ? 'text-[#4a1525] bg-gradient-to-r from-amber-100/70 via-rose-100/60 to-amber-100/70 font-bold border border-amber-300/80 shadow-sm'
-                  : 'hover:text-[#1c1917] hover:bg-[#f2ede4]'
-              }`}
+              How it Works
+            </Link>
+            <Link
+              href="/pricing"
+              className="px-3.5 py-2 rounded-full transition-all duration-300 hover:-translate-y-0.5 hover:text-[#1c1917] hover:bg-[#f2ede4] font-medium"
             >
-              Ready Packages
-            </button>
+              Pricing
+            </Link>
             <button
               onClick={() => setActiveTab('builder')}
               className={`px-3.5 py-2 rounded-full relative transition-all duration-300 hover:-translate-y-0.5 flex items-center gap-1.5 ${
@@ -262,12 +251,13 @@ export default function Navbar({
                       </div>
                     </div>
 
-                    <button
-                      onClick={() => { setShowProfileMenu(false); setActiveTab('bookings'); }}
+                    <Link
+                      href="/dashboard"
+                      onClick={() => setShowProfileMenu(false)}
                       className="w-full text-left px-3 py-2 hover:bg-[#faf8f5] rounded-lg font-medium text-stone-800 flex items-center gap-2"
                     >
-                      <ShoppingBag className="w-4 h-4 text-stone-500" /> My Bookings
-                    </button>
+                      <ShoppingBag className="w-4 h-4 text-stone-500" /> Customer Dashboard &amp; Bookings
+                    </Link>
                     <button
                       onClick={() => { setShowProfileMenu(false); setActiveTab('builder'); }}
                       className="w-full text-left px-3 py-2 hover:bg-[#faf8f5] rounded-lg font-medium text-stone-800 flex items-center gap-2"
@@ -291,24 +281,27 @@ export default function Navbar({
                       <div className="px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-stone-400">
                         Switch View / Workspace
                       </div>
-                      <button
-                        onClick={() => { setUserRole('customer'); setActiveTab('home'); setShowProfileMenu(false); }}
-                        className={`w-full text-left px-3 py-1.5 rounded-lg text-xs font-semibold ${userRole === 'customer' ? 'text-[#4a1525] bg-[#ebd8de]/40' : 'text-stone-700 hover:bg-stone-50'}`}
+                      <Link
+                        href="/"
+                        onClick={() => { setUserRole('customer'); setShowProfileMenu(false); }}
+                        className={`block w-full text-left px-3 py-1.5 rounded-lg text-xs font-semibold ${userRole === 'customer' ? 'text-[#4a1525] bg-[#ebd8de]/40' : 'text-stone-700 hover:bg-stone-50'}`}
                       >
                         Customer Experience
-                      </button>
-                      <button
-                        onClick={() => { setUserRole('vendor'); setActiveTab('vendor_portal'); setShowProfileMenu(false); }}
-                        className={`w-full text-left px-3 py-1.5 rounded-lg text-xs font-semibold ${userRole === 'vendor' ? 'text-[#4a1525] bg-[#ebd8de]/40' : 'text-stone-700 hover:bg-stone-50'}`}
+                      </Link>
+                      <Link
+                        href="/vendor"
+                        onClick={() => { setUserRole('vendor'); setShowProfileMenu(false); }}
+                        className={`block w-full text-left px-3 py-1.5 rounded-lg text-xs font-semibold ${userRole === 'vendor' ? 'text-[#4a1525] bg-[#ebd8de]/40' : 'text-stone-700 hover:bg-stone-50'}`}
                       >
-                        Vendor Portal
-                      </button>
-                      <button
-                        onClick={() => { setUserRole('admin'); setActiveTab('admin_portal'); setShowProfileMenu(false); }}
-                        className={`w-full text-left px-3 py-1.5 rounded-lg text-xs font-semibold ${userRole === 'admin' ? 'text-[#4a1525] bg-[#ebd8de]/40' : 'text-stone-700 hover:bg-stone-50'}`}
+                        Vendor Partner Portal
+                      </Link>
+                      <Link
+                        href="/admin"
+                        onClick={() => { setUserRole('admin'); setShowProfileMenu(false); }}
+                        className={`block w-full text-left px-3 py-1.5 rounded-lg text-xs font-semibold ${userRole === 'admin' ? 'text-[#4a1525] bg-[#ebd8de]/40' : 'text-stone-700 hover:bg-stone-50'}`}
                       >
                         Operations Admin Console
-                      </button>
+                      </Link>
                     </div>
 
                     <div className="border-t border-stone-100 mt-1 pt-1">
@@ -385,33 +378,38 @@ export default function Navbar({
               <span>Home</span>
               <Sparkles className="w-4 h-4 opacity-70" />
             </button>
-            <button
-              onClick={() => { setActiveTab('explore'); setMobileMenuOpen(false); }}
-              className={`w-full text-left px-3.5 py-2.5 rounded-xl text-sm font-semibold transition-all flex items-center justify-between ${
-                activeTab === 'explore' ? 'bg-[#4a1525] text-[#f5ebd7] shadow-sm' : 'text-stone-700 hover:bg-white'
-              }`}
+            <Link
+              href="/venues"
+              onClick={() => setMobileMenuOpen(false)}
+              className="w-full text-left px-3.5 py-2.5 rounded-xl text-sm font-semibold transition-all flex items-center justify-between text-stone-700 hover:bg-white"
             >
-              <span>Explore Vendors</span>
+              <span>Browse Venues</span>
+              <Building2 className="w-4 h-4 opacity-70 text-amber-700" />
+            </Link>
+            <Link
+              href="/dashboard"
+              onClick={() => setMobileMenuOpen(false)}
+              className="w-full text-left px-3.5 py-2.5 rounded-xl text-sm font-semibold transition-all flex items-center justify-between text-stone-700 hover:bg-white"
+            >
+              <span>Customer Dashboard</span>
+              <ShoppingBag className="w-4 h-4 opacity-70 text-amber-700" />
+            </Link>
+            <Link
+              href="/how-it-works"
+              onClick={() => setMobileMenuOpen(false)}
+              className="w-full text-left px-3.5 py-2.5 rounded-xl text-sm font-semibold transition-all flex items-center justify-between text-stone-700 hover:bg-white"
+            >
+              <span>How it Works</span>
               <Compass className="w-4 h-4 opacity-70" />
-            </button>
-            <button
-              onClick={() => { setActiveTab('categories'); setMobileMenuOpen(false); }}
-              className={`w-full text-left px-3.5 py-2.5 rounded-xl text-sm font-semibold transition-all flex items-center justify-between ${
-                activeTab === 'categories' ? 'bg-[#4a1525] text-[#f5ebd7] shadow-sm' : 'text-stone-700 hover:bg-white'
-              }`}
+            </Link>
+            <Link
+              href="/pricing"
+              onClick={() => setMobileMenuOpen(false)}
+              className="w-full text-left px-3.5 py-2.5 rounded-xl text-sm font-semibold transition-all flex items-center justify-between text-stone-700 hover:bg-white"
             >
-              <span>Celebration Categories</span>
-              <Building2 className="w-4 h-4 opacity-70" />
-            </button>
-            <button
-              onClick={() => { setActiveTab('packages'); setMobileMenuOpen(false); }}
-              className={`w-full text-left px-3.5 py-2.5 rounded-xl text-sm font-semibold transition-all flex items-center justify-between ${
-                activeTab === 'packages' ? 'bg-[#4a1525] text-[#f5ebd7] shadow-sm' : 'text-stone-700 hover:bg-white'
-              }`}
-            >
-              <span>Ready Packages</span>
-              <CalendarDays className="w-4 h-4 opacity-70" />
-            </button>
+              <span>Pricing</span>
+              <Sparkles className="w-4 h-4 opacity-70 text-amber-600" />
+            </Link>
             <button
               onClick={() => { setActiveTab('builder'); setMobileMenuOpen(false); }}
               className={`w-full text-left px-3.5 py-2.5 rounded-xl text-sm font-semibold transition-all flex items-center justify-between ${
