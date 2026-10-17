@@ -105,7 +105,10 @@ async function runRegressionSuite() {
   // --- SCENARIO 2: Customer completes all valid booking steps in sandbox ---
   let createdBookingId = null;
   let testVenueId = 'v_royal_palace_lko';
-  const testDate = `2026-11-${Math.floor(10 + Math.random() * 15)}`;
+  const testYear = 2027 + Math.floor(Math.random() * 3);
+  const testMonth = String(Math.floor(1 + Math.random() * 12)).padStart(2, '0');
+  const testDay = String(Math.floor(1 + Math.random() * 28)).padStart(2, '0');
+  const testDate = `${testYear}-${testMonth}-${testDay}`;
   {
     const bookRes = await api('/api/bookings', {
       method: 'POST',
@@ -163,7 +166,10 @@ async function runRegressionSuite() {
 
   // --- SCENARIO 5: Simultaneous requests cannot double-book a slot (Atomic Race Safety) ---
   {
-    const raceDate = `2026-12-${Math.floor(10 + Math.random() * 15)}`;
+    const randomYear = 2028 + Math.floor(Math.random() * 5);
+    const randomMonth = String(Math.floor(1 + Math.random() * 12)).padStart(2, '0');
+    const randomDay = String(Math.floor(1 + Math.random() * 28)).padStart(2, '0');
+    const raceDate = `${randomYear}-${randomMonth}-${randomDay}`;
     const [req1, req2] = await Promise.all([
       api('/api/bookings', {
         method: 'POST',
@@ -319,7 +325,7 @@ async function runRegressionSuite() {
 
   // --- SCENARIO 16: Customer-entered UTR does not automatically prove payment ---
   {
-    const utrDate = `2026-11-${Math.floor(25 + Math.random() * 5)}`;
+    const utrDate = `2027-03-${String(Math.floor(1 + Math.random() * 25)).padStart(2, '0')}`;
     const utrRes = await api('/api/bookings', {
       method: 'POST',
       headers: { Authorization: `Bearer ${customerToken}` },
@@ -332,8 +338,8 @@ async function runRegressionSuite() {
       })
     });
     // MUST NOT be marked paid automatically
-    const isPending = utrRes.data?.paymentStatus === 'pending_verification' && utrRes.data?.bookingStatus === 'pending_verification';
-    record(16, 'Customer-entered UTR stays "pending_verification" until Admin verifies', isPending, `PaymentStatus: ${utrRes.data?.paymentStatus}, BookingStatus: ${utrRes.data?.bookingStatus}`);
+    const isPending = utrRes.status === 201 && utrRes.data?.paymentStatus === 'pending_verification' && utrRes.data?.bookingStatus === 'pending_verification';
+    record(16, 'Customer-entered UTR stays "pending_verification" until Admin verifies', isPending, `Status: ${utrRes.status}, PaymentStatus: ${utrRes.data?.paymentStatus}, BookingStatus: ${utrRes.data?.bookingStatus}`);
   }
 
   // --- SCENARIO 17: Payment settings update checkout as expected ---

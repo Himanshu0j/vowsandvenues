@@ -1,4 +1,4 @@
-const target = '836b654';
+const target = process.argv[2] || '8ff2292';
 
 async function poll() {
   for (let i = 0; i < 30; i++) {

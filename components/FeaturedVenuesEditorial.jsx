@@ -55,7 +55,7 @@ export default function FeaturedVenuesEditorial({
   const isHeroFavorite = wishlistIds.includes(heroVenue.id)
 
   return (
-    <section className="py-16 sm:py-24 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto select-none">
+    <section className="py-16 sm:py-24 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto select-none overflow-hidden">
       
       {/* SECTION HEADER */}
       <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-10 sm:mb-14 gap-4">
@@ -86,13 +86,13 @@ export default function FeaturedVenuesEditorial({
         </div>
 
         <ScrollReveal animation="fade-left" delay={0.25}>
-          <button
-            onClick={onViewAll}
+          <a
+            href="/venues"
             className="inline-flex items-center gap-2 text-xs font-bold text-burgundy hover:text-burgundy-dark transition-colors group cursor-pointer shrink-0"
           >
             <span className="underline underline-offset-4 decoration-champagne">View All Verified Venues ({venueVendors.length || vendors.length})</span>
             <ArrowRight className="w-4 h-4 text-champagne group-hover:translate-x-1 transition-transform" />
-          </button>
+          </a>
         </ScrollReveal>
       </div>
 
@@ -194,13 +194,13 @@ export default function FeaturedVenuesEditorial({
                     <MessageSquare className="w-4 h-4" />
                   </button>
                 )}
-                <button
-                  onClick={() => onSelectVendor(heroVenue)}
+                <a
+                  href={`/venues/${heroVenue.id}`}
                   className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-burgundy to-burgundy-dark hover:brightness-110 text-amber-100 font-bold text-xs flex items-center gap-2 shadow-lg transition-all hover:scale-105 active:scale-95 cursor-pointer border border-champagne/30"
                 >
                   <span>View Palace Details</span>
                   <ArrowRight className="w-4 h-4 text-champagne" />
-                </button>
+                </a>
               </div>
             </div>
           </div>
@@ -294,16 +294,13 @@ export default function FeaturedVenuesEditorial({
                       </span>
                     </div>
 
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation()
-                        onSelectVendor(v)
-                      }}
-                      className="px-3 py-1 rounded-lg bg-burgundy hover:bg-burgundy-dark text-amber-200 text-[11px] font-bold flex items-center gap-1 transition-all shadow-2xs"
+                    <a
+                      href={`/venues/${v.id}`}
+                      className="px-3 py-1 rounded-lg bg-burgundy hover:bg-burgundy-dark text-amber-200 text-[11px] font-bold flex items-center gap-1 transition-all shadow-2xs cursor-pointer"
                     >
                       <span>Explore</span>
                       <ArrowRight className="w-3 h-3 text-champagne" />
-                    </button>
+                    </a>
                   </div>
                 </div>
               </div>

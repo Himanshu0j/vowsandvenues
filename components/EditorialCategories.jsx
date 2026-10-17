@@ -85,7 +85,7 @@ export default function EditorialCategories({ categories = [], onSelectCategory,
   const dynamicCategoryImages = cmsContent?.categoryImages || {}
 
   return (
-    <section className="py-16 sm:py-20 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto select-none">
+    <section className="py-16 sm:py-20 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto select-none overflow-hidden">
       
       {/* SECTION HEADER */}
       <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-10 sm:mb-12 gap-4">

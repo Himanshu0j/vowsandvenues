@@ -17,7 +17,6 @@ import {
   Compass,
   LogOut,
   Calendar,
-  ShoppingBag,
   Calculator
 } from 'lucide-react'
 
@@ -100,7 +99,7 @@ export default function Navbar({
           </div>
 
           {/* DESKTOP NAV LINKS */}
-          <nav className="hidden md:flex items-center gap-1 lg:gap-1.5 text-[13px] font-medium text-[#44403c]">
+          <nav className="hidden lg:flex items-center gap-1 xl:gap-1.5 text-[13px] font-medium text-[#44403c]">
             <button
               onClick={() => setActiveTab('home')}
               className={`px-3.5 py-2 rounded-full transition-all duration-300 hover:-translate-y-0.5 ${
@@ -256,7 +255,7 @@ export default function Navbar({
                       onClick={() => setShowProfileMenu(false)}
                       className="w-full text-left px-3 py-2 hover:bg-[#faf8f5] rounded-lg font-medium text-stone-800 flex items-center gap-2"
                     >
-                      <ShoppingBag className="w-4 h-4 text-stone-500" /> Customer Dashboard &amp; Bookings
+                      <Building2 className="w-4 h-4 text-stone-500" /> Customer Dashboard &amp; Bookings
                     </Link>
                     <button
                       onClick={() => { setShowProfileMenu(false); setActiveTab('builder'); }}
@@ -328,7 +327,7 @@ export default function Navbar({
             {/* MOBILE MENU TOGGLE */}
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="md:hidden p-2 rounded-xl border border-amber-300/80 bg-gradient-to-b from-amber-50 to-amber-100/70 hover:bg-amber-200 text-[#4a1525] transition-all shadow-xs flex items-center justify-center shrink-0 active:scale-95"
+              className="lg:hidden p-2 rounded-xl border border-amber-300/80 bg-gradient-to-b from-amber-50 to-amber-100/70 hover:bg-amber-200 text-[#4a1525] transition-all shadow-xs flex items-center justify-center shrink-0 active:scale-95"
               aria-label="Toggle navigation menu"
             >
               {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
@@ -340,7 +339,7 @@ export default function Navbar({
 
       {/* MOBILE ACCORDION DRAWER */}
       {mobileMenuOpen && (
-        <div className="md:hidden bg-gradient-to-b from-[#fdfbf7] via-[#faf4ea] to-[#f7efe0] border-b-2 border-amber-300/70 px-4 py-4 space-y-3 animate-in slide-in-from-top-2 shadow-2xl">
+        <div className="lg:hidden bg-gradient-to-b from-[#fdfbf7] via-[#faf4ea] to-[#f7efe0] border-b-2 border-amber-300/70 px-4 py-4 space-y-3 animate-in slide-in-from-top-2 shadow-2xl">
           {/* City Selector */}
           <div className="p-2.5 rounded-xl bg-white/90 border border-amber-200/90 flex items-center justify-between shadow-xs">
             <span className="text-xs text-stone-600 font-semibold flex items-center gap-1.5">
@@ -392,7 +391,7 @@ export default function Navbar({
               className="w-full text-left px-3.5 py-2.5 rounded-xl text-sm font-semibold transition-all flex items-center justify-between text-stone-700 hover:bg-white"
             >
               <span>Customer Dashboard</span>
-              <ShoppingBag className="w-4 h-4 opacity-70 text-amber-700" />
+              <Building2 className="w-4 h-4 opacity-70 text-amber-700" />
             </Link>
             <Link
               href="/how-it-works"

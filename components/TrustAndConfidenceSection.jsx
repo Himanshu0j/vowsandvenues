@@ -50,7 +50,7 @@ export default function TrustAndConfidenceSection() {
   ]
 
   return (
-    <section className="py-16 sm:py-24 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto select-none border-t border-[#e8dfcf]">
+    <section className="py-16 sm:py-24 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto select-none border-t border-[#e8dfcf] overflow-hidden">
       {/* HEADER */}
       <div className="text-center max-w-3xl mx-auto mb-12 sm:mb-16">
         <ScrollReveal animation="fade-down" delay={0.05}>

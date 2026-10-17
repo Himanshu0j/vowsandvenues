@@ -20,14 +20,27 @@ export default function ScrollReveal({
   xOffset = 42
 }) {
   const shouldReduceMotion = useReducedMotion()
+  const [isMobile, setIsMobile] = React.useState(false)
+
+  React.useEffect(() => {
+    const updateSize = () => {
+      setIsMobile(window.innerWidth < 768)
+    }
+    updateSize()
+    window.addEventListener('resize', updateSize, { passive: true })
+    return () => window.removeEventListener('resize', updateSize)
+  }, [])
 
   if (shouldReduceMotion) {
     return <div className={className}>{children}</div>
   }
 
+  const safeX = isMobile ? 0 : xOffset
+  const safeY = isMobile ? Math.min(yOffset, 20) : yOffset
+
   const variantsMap = {
     'fade-up': {
-      hidden: { opacity: 0, y: yOffset },
+      hidden: { opacity: 0, y: safeY },
       visible: {
         opacity: 1,
         y: 0,
@@ -35,7 +48,7 @@ export default function ScrollReveal({
       }
     },
     'fade-down': {
-      hidden: { opacity: 0, y: -yOffset },
+      hidden: { opacity: 0, y: -safeY },
       visible: {
         opacity: 1,
         y: 0,
@@ -43,18 +56,20 @@ export default function ScrollReveal({
       }
     },
     'fade-left': {
-      hidden: { opacity: 0, x: -xOffset },
+      hidden: { opacity: 0, x: -safeX, y: isMobile ? safeY : 0 },
       visible: {
         opacity: 1,
         x: 0,
+        y: 0,
         transition: { duration, delay, ease: luxuryEasing }
       }
     },
     'fade-right': {
-      hidden: { opacity: 0, x: xOffset },
+      hidden: { opacity: 0, x: safeX, y: isMobile ? safeY : 0 },
       visible: {
         opacity: 1,
         x: 0,
+        y: 0,
         transition: { duration, delay, ease: luxuryEasing }
       }
     },

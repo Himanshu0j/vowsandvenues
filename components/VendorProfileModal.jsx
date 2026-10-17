@@ -122,12 +122,22 @@ export default function VendorProfileModal({
                 Request Quote
               </button>
 
-              <button
-                onClick={() => onBookNow(vendor)}
-                className="px-5 py-2.5 rounded-full bg-[#4a1525] hover:bg-[#3d111e] text-[#f5ebd7] font-bold text-xs shadow-lg transition-colors border border-[#5c1d2e]"
-              >
-                Book with 25% Advance
-              </button>
+              {vendor.category === 'venues' || vendor.categorySlug === 'venues' ? (
+                <a
+                  href={`/venues/${vendor.id}`}
+                  className="px-5 py-2.5 rounded-full bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-500 hover:to-amber-600 text-white font-bold text-xs shadow-lg transition-colors border border-amber-500 flex items-center gap-1.5"
+                >
+                  <Calendar className="w-3.5 h-3.5" />
+                  <span>Check Availability & Book (5% Advance)</span>
+                </a>
+              ) : (
+                <button
+                  onClick={() => onBookNow(vendor)}
+                  className="px-5 py-2.5 rounded-full bg-[#4a1525] hover:bg-[#3d111e] text-[#f5ebd7] font-bold text-xs shadow-lg transition-colors border border-[#5c1d2e]"
+                >
+                  Book with 25% Advance
+                </button>
+              )}
             </div>
           </div>
         </div>

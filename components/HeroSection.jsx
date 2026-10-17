@@ -252,16 +252,16 @@ export default function HeroSection({
             </div>
 
             {/* Bottom Actions & Quick Trending Filter Pills */}
-            <div className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-2.5 border-t border-amber-200/60">
-              <div className="flex items-center gap-2 overflow-x-auto no-scrollbar w-full sm:w-auto text-xs py-0.5">
-                <span className="font-bold text-stone-800 whitespace-nowrap text-[10px] uppercase tracking-wider">Trending:</span>
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 pt-2.5 border-t border-amber-200/60 max-w-full min-w-0">
+              <div className="flex items-center gap-2 overflow-x-auto no-scrollbar w-full sm:w-auto min-w-0 max-w-full text-xs py-0.5">
+                <span className="font-bold text-stone-800 whitespace-nowrap text-[10px] uppercase tracking-wider shrink-0">Trending:</span>
                 <button
                   type="button"
                   onClick={() => {
                     setHeroSearch({ ...heroSearch, eventType: 'Wedding' })
                     onExploreVendors()
                   }}
-                  className="bg-amber-100/90 hover:bg-amber-200 text-amber-900 border border-amber-300 px-2.5 py-0.5 rounded-full whitespace-nowrap font-semibold text-[11px] transition-colors cursor-pointer"
+                  className="bg-amber-100/90 hover:bg-amber-200 text-amber-900 border border-amber-300 px-2.5 py-0.5 rounded-full whitespace-nowrap font-semibold text-[11px] transition-colors cursor-pointer shrink-0"
                 >
                   🏰 Heritage Palaces
                 </button>
@@ -271,7 +271,7 @@ export default function HeroSection({
                     setHeroSearch({ ...heroSearch, eventType: 'Wedding' })
                     onExploreVendors()
                   }}
-                  className="bg-orange-100/90 hover:bg-orange-200 text-orange-900 border border-orange-300 px-2.5 py-0.5 rounded-full whitespace-nowrap font-semibold text-[11px] transition-colors cursor-pointer"
+                  className="bg-orange-100/90 hover:bg-orange-200 text-orange-900 border border-orange-300 px-2.5 py-0.5 rounded-full whitespace-nowrap font-semibold text-[11px] transition-colors cursor-pointer shrink-0"
                 >
                   🍲 Awadhi Feasts
                 </button>
@@ -281,7 +281,7 @@ export default function HeroSection({
                     setHeroSearch({ ...heroSearch, eventType: 'Sangeet' })
                     onExploreVendors()
                   }}
-                  className="bg-rose-100/90 hover:bg-rose-200 text-rose-900 border border-rose-300 px-2.5 py-0.5 rounded-full whitespace-nowrap font-semibold text-[11px] transition-colors cursor-pointer"
+                  className="bg-rose-100/90 hover:bg-rose-200 text-rose-900 border border-rose-300 px-2.5 py-0.5 rounded-full whitespace-nowrap font-semibold text-[11px] transition-colors cursor-pointer shrink-0"
                 >
                   🌸 Floral Mandaps
                 </button>
@@ -291,22 +291,22 @@ export default function HeroSection({
                     setHeroSearch({ ...heroSearch, eventType: 'Wedding' })
                     onExploreVendors()
                   }}
-                  className="bg-sky-100/90 hover:bg-sky-200 text-sky-900 border border-sky-300 px-2.5 py-0.5 rounded-full whitespace-nowrap font-semibold text-[11px] transition-colors cursor-pointer"
+                  className="bg-sky-100/90 hover:bg-sky-200 text-sky-900 border border-sky-300 px-2.5 py-0.5 rounded-full whitespace-nowrap font-semibold text-[11px] transition-colors cursor-pointer shrink-0"
                 >
                   📸 4K Candid Cinema
                 </button>
               </div>
 
-              <div className="flex items-center gap-2 w-full sm:w-auto">
+              <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 w-full sm:w-auto shrink-0">
                 <button
                   onClick={onExploreVendors}
-                  className="flex-1 sm:flex-none px-4 py-2.5 rounded-xl bg-white hover:bg-stone-50 text-stone-800 font-bold text-xs transition-all text-center border border-stone-300 hover:border-amber-500 shadow-2xs active:scale-95 cursor-pointer whitespace-nowrap"
+                  className="px-4 py-2.5 rounded-xl bg-white hover:bg-stone-50 text-stone-800 font-bold text-xs transition-all text-center border border-stone-300 hover:border-amber-500 shadow-2xs active:scale-95 cursor-pointer whitespace-nowrap"
                 >
                   Explore Directory
                 </button>
                 <button
                   onClick={onStartPlanning}
-                  className="flex-1 sm:flex-none px-5 py-2.5 rounded-xl bg-gradient-to-r from-[#6E2338] via-[#8E334B] to-[#6E2338] hover:brightness-110 text-amber-100 font-bold text-xs flex items-center justify-center gap-1.5 active:scale-95 shadow-md cursor-pointer whitespace-nowrap"
+                  className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-[#6E2338] via-[#8E334B] to-[#6E2338] hover:brightness-110 text-amber-100 font-bold text-xs flex items-center justify-center gap-1.5 active:scale-95 shadow-md cursor-pointer whitespace-nowrap"
                 >
                   <Search className="w-3.5 h-3.5 text-amber-300" />
                   <span>Search Verified Masters</span>

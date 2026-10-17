@@ -174,21 +174,21 @@ export default function RoyalVenueRevealSection({
               </div>
 
               <div className="flex flex-col sm:flex-row gap-2.5 pt-1">
-                <button
-                  onClick={onCheckAvailability}
+                <a
+                  href="/venues/v_royal_palace_lko"
                   className="flex-1 px-5 py-3 rounded-xl bg-gradient-to-r from-[#e6ca65] via-[#ffd700] to-[#c5a059] hover:brightness-105 text-stone-950 font-bold text-xs uppercase tracking-wider transition-all shadow-md active:scale-95 cursor-pointer text-center flex items-center justify-center gap-2"
                 >
                   <CalendarDays className="w-4 h-4 text-stone-900" />
                   <span>Check Availability</span>
-                </button>
+                </a>
 
-                <button
-                  onClick={onExploreVenues}
+                <a
+                  href="/venues"
                   className="flex-1 px-4 py-3 rounded-xl bg-stone-100 hover:bg-stone-200 text-stone-800 font-semibold text-xs tracking-wider border border-stone-300 transition-all active:scale-95 cursor-pointer text-center flex items-center justify-center gap-1.5"
                 >
                   <span>Explore Sanctuaries</span>
                   <ArrowRight className="w-3.5 h-3.5 text-burgundy" />
-                </button>
+                </a>
               </div>
             </div>
           </ScrollReveal>

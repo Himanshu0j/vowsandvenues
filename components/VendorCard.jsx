@@ -153,12 +153,22 @@ export default function VendorCard({
             >
               Details
             </button>
-            <button
-              onClick={() => onAddToEvent(vendor)}
-              className="btn-3d-wine px-3.5 py-1.5 rounded-full bg-gradient-to-r from-[#4a1525] to-[#6d1e35] hover:from-[#3a101d] hover:to-[#581729] text-[#f5ebd7] text-xs font-bold transition-all shadow-md flex items-center gap-1 hover:scale-105 active:scale-95"
-            >
-              <span>Add to Plan</span>
-            </button>
+            {vendor.category === 'venues' || vendor.categorySlug === 'venues' ? (
+              <a
+                href={`/venues/${vendor.id}`}
+                className="btn-3d-wine px-3.5 py-1.5 rounded-full bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-500 hover:to-amber-600 text-white text-xs font-bold transition-all shadow-md flex items-center gap-1 hover:scale-105 active:scale-95 cursor-pointer"
+              >
+                <span>Book Venue</span>
+                <ArrowRight className="w-3 h-3" />
+              </a>
+            ) : (
+              <button
+                onClick={() => onAddToEvent(vendor)}
+                className="btn-3d-wine px-3.5 py-1.5 rounded-full bg-gradient-to-r from-[#4a1525] to-[#6d1e35] hover:from-[#3a101d] hover:to-[#581729] text-[#f5ebd7] text-xs font-bold transition-all shadow-md flex items-center gap-1 hover:scale-105 active:scale-95"
+              >
+                <span>Add to Plan</span>
+              </button>
+            )}
           </div>
         </div>
 
