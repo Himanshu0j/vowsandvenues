@@ -4260,6 +4260,48 @@ async function handleRoute(request, { params }) {
     }
 
     // ========================================================
+    // PAYMENT SETTINGS & CONFIGURATION APIS: GET /api/payments/config, POST /api/payments/config
+    // ========================================================
+    if ((route === '/payments/config' || route === '/api/payments/config') && method === 'GET') {
+      const cfg = await db.collection('payment_settings').findOne({ id: 'active_config' })
+      const result = cfg ? { ...cfg } : {
+        id: 'active_config',
+        activeMode: 'HYBRID',
+        upiId: 'vowsandvenues@okhdfcbank',
+        payeeName: 'Vows and Venues Luxury Hospitality Pvt Ltd',
+        qrImageUrl: 'https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=upi://pay?pa=vowsandvenues@okhdfcbank&pn=Vows%20and%20Venues&cu=INR',
+        requireUtr: true,
+        gateway: {
+          provider: 'razorpay',
+          isLive: false,
+          keyId: 'rzp_test_9A2bKx89mQpL4z'
+        }
+      }
+      if (result._id) delete result._id
+      return cors(NextResponse.json(result))
+    }
+
+    if ((route === '/payments/config' || route === '/api/payments/config') && (method === 'POST' || method === 'PUT')) {
+      const unauth = requireAuth(request, ['admin', 'super_admin', 'finance_manager'])
+      if (unauth) return cors(unauth)
+      const ctx = getAuthContext(request)
+      const body = await request.json()
+      const updateData = {
+        ...body,
+        id: 'active_config',
+        updatedAt: new Date().toISOString(),
+        updatedBy: ctx.email
+      }
+      if (updateData._id) delete updateData._id
+      await db.collection('payment_settings').updateOne(
+        { id: 'active_config' },
+        { $set: updateData },
+        { upsert: true }
+      )
+      return cors(NextResponse.json({ success: true, config: updateData }))
+    }
+
+    // ========================================================
     // PAYMENT WEBHOOK (SANDBOX / TEST MODE ONLY - Phase 7 & 9)
     // Supports Razorpay / Cashfree / Stripe sandbox payload signatures & idempotency
     // ========================================================
