@@ -44,7 +44,7 @@ export default function Navbar({
 
   return (
     <>
-      <header className="sticky top-0 z-50 bg-gradient-to-r from-[#fcf8ef]/95 via-[#fdfaf3]/95 to-[#faf4e9]/95 backdrop-blur-xl border-b-2 border-amber-300/60 shadow-[0_4px_30px_rgba(74,21,37,0.06)] transition-all">
+      <header className="sticky top-0 z-50 bg-gradient-to-r from-[#fcf8ef]/95 via-[#fdfaf3]/95 to-[#faf4e9]/95 backdrop-blur-xl border-b-2 border-amber-300/60 shadow-[0_4px_30px_rgba(74,21,37,0.06)] transition-all overflow-x-clip">
       {/* 1. TOP ANNOUNCEMENT BANNER */}
       {announcement?.enabled && (
         <div className="bg-gradient-to-r from-[#380e1b] via-[#4a1525] to-[#380e1b] text-[#f5ebd7] text-[10px] sm:text-xs py-1.5 sm:py-2 px-3 sm:px-4 text-center font-medium tracking-wide flex items-center justify-center gap-1.5 sm:gap-2 border-b border-[#c5a059]/30 relative overflow-hidden">
@@ -61,7 +61,7 @@ export default function Navbar({
       )}
 
       {/* 2. MAIN NAVIGATION BAR */}
-      <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
+      <div className="max-w-7xl mx-auto px-3 sm:px-4 lg:px-6 xl:px-8">
         <div className="flex items-center justify-between h-16 sm:h-20">
           
           {/* BRAND LOGO */}
@@ -99,10 +99,10 @@ export default function Navbar({
           </div>
 
           {/* DESKTOP NAV LINKS */}
-          <nav className="hidden lg:flex items-center gap-1 xl:gap-1.5 text-[13px] font-medium text-[#44403c]">
+          <nav className="hidden lg:flex items-center gap-1 xl:gap-2 text-[12px] xl:text-[13px] font-medium text-[#44403c]">
             <button
               onClick={() => setActiveTab('home')}
-              className={`px-3.5 py-2 rounded-full transition-all duration-300 hover:-translate-y-0.5 ${
+              className={`px-2.5 xl:px-3.5 py-1.5 xl:py-2 rounded-full transition-all duration-300 hover:-translate-y-0.5 ${
                 activeTab === 'home'
                   ? 'text-[#4a1525] bg-gradient-to-r from-amber-100/70 via-rose-100/60 to-amber-100/70 font-bold border border-amber-300/80 shadow-sm'
                   : 'hover:text-[#1c1917] hover:bg-[#f2ede4]'
@@ -112,25 +112,25 @@ export default function Navbar({
             </button>
             <Link
               href="/venues"
-              className="px-3.5 py-2 rounded-full transition-all duration-300 hover:-translate-y-0.5 hover:text-[#1c1917] hover:bg-[#f2ede4] font-medium"
+              className="px-2.5 xl:px-3.5 py-1.5 xl:py-2 rounded-full transition-all duration-300 hover:-translate-y-0.5 hover:text-[#1c1917] hover:bg-[#f2ede4] font-medium"
             >
               Browse Venues
             </Link>
             <Link
               href="/how-it-works"
-              className="px-3.5 py-2 rounded-full transition-all duration-300 hover:-translate-y-0.5 hover:text-[#1c1917] hover:bg-[#f2ede4] font-medium"
+              className="px-2.5 xl:px-3.5 py-1.5 xl:py-2 rounded-full transition-all duration-300 hover:-translate-y-0.5 hover:text-[#1c1917] hover:bg-[#f2ede4] font-medium"
             >
               How it Works
             </Link>
             <Link
               href="/pricing"
-              className="px-3.5 py-2 rounded-full transition-all duration-300 hover:-translate-y-0.5 hover:text-[#1c1917] hover:bg-[#f2ede4] font-medium"
+              className="px-2.5 xl:px-3.5 py-1.5 xl:py-2 rounded-full transition-all duration-300 hover:-translate-y-0.5 hover:text-[#1c1917] hover:bg-[#f2ede4] font-medium"
             >
               Pricing
             </Link>
             <button
               onClick={() => setActiveTab('builder')}
-              className={`px-3.5 py-2 rounded-full relative transition-all duration-300 hover:-translate-y-0.5 flex items-center gap-1.5 ${
+              className={`px-2.5 xl:px-3.5 py-1.5 xl:py-2 rounded-full relative transition-all duration-300 hover:-translate-y-0.5 flex items-center gap-1.5 ${
                 activeTab === 'builder'
                   ? 'text-[#4a1525] bg-gradient-to-r from-amber-100/70 via-rose-100/60 to-amber-100/70 font-bold border border-amber-300/80 shadow-sm'
                   : 'hover:text-[#1c1917] hover:bg-[#f2ede4]'
@@ -145,21 +145,21 @@ export default function Navbar({
             </button>
             <button
               onClick={() => setActiveTab('planning_toolkit')}
-              className={`px-3.5 py-2 rounded-full relative transition-all duration-300 hover:-translate-y-0.5 flex items-center gap-1.5 ${
+              className={`px-2.5 xl:px-3.5 py-1.5 xl:py-2 rounded-full relative transition-all duration-300 hover:-translate-y-0.5 flex items-center gap-1.5 ${
                 activeTab === 'planning_toolkit'
                   ? 'text-[#4a1525] bg-gradient-to-r from-amber-100/70 via-rose-100/60 to-amber-100/70 font-bold border border-amber-300/80 shadow-sm'
                   : 'hover:text-[#1c1917] hover:bg-[#f2ede4]'
               }`}
             >
               <span>Wedding Toolkit</span>
-              <span className="bg-gradient-to-r from-amber-500 to-rose-600 text-white text-[9px] font-extrabold uppercase px-1.5 py-0.5 rounded-full shadow-xs">
+              <span className="hidden xl:inline bg-gradient-to-r from-amber-500 to-rose-600 text-white text-[9px] font-extrabold uppercase px-1.5 py-0.5 rounded-full shadow-xs">
                 Budget &amp; RSVP
               </span>
             </button>
           </nav>
 
           {/* RIGHT ACTION BUTTONS */}
-          <div className="flex items-center gap-1.5 sm:gap-3 shrink-0">
+          <div className="flex items-center gap-1.5 sm:gap-2 xl:gap-3 shrink-0">
             {/* Wishlist Button (Desktop/Tablet - hidden on mobile as it is pinned in bottom nav) */}
             <button
               onClick={() => setActiveTab('wishlist')}
