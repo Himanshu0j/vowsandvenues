@@ -2913,6 +2913,26 @@ async function handleRoute(request, { params }) {
                   conflictDate: eventDate
                 }, { status: 409 }))
               }
+
+              // Atomic Slot Reservation to prevent simultaneous double-booking race condition
+              const slotLockKey = `slot_${item.vendorId}_${eventDate}`
+              try {
+                await db.collection('slot_reservations').insertOne({
+                  _id: slotLockKey,
+                  vendorId: item.vendorId,
+                  eventDate: eventDate,
+                  createdAt: new Date().toISOString()
+                })
+              } catch (lockErr) {
+                if (lockErr.code === 11000 || lockErr.message?.includes('duplicate key') || lockErr.message?.includes('E11000')) {
+                  return cors(NextResponse.json({
+                    error: `Venue "${vendorDoc.name}" is already reserved for a celebration on ${eventDate}. Please choose another date or venue.`,
+                    code: 'SCHEDULE_CONFLICT',
+                    vendorId: item.vendorId,
+                    conflictDate: eventDate
+                  }, { status: 409 }))
+                }
+              }
             }
           }
         }
@@ -3304,7 +3324,16 @@ async function handleRoute(request, { params }) {
         totalSupportTickets,
         totalAuditLogs,
         cityBreakdown,
-        categoryBreakdown
+        categoryBreakdown,
+        counts: {
+          vendors: totalVendors,
+          verifiedVendors: totalVerifiedVendors,
+          bookings: totalBookings,
+          inquiries: totalInquiries,
+          events: totalEvents,
+          disputes: totalDisputes,
+          supportTickets: totalSupportTickets
+        }
       }))
     }
 
@@ -3911,14 +3940,15 @@ async function handleRoute(request, { params }) {
         if (!hasItem) return cors(NextResponse.json({ error: 'Forbidden: not your booking' }, { status: 403 }))
       }
       const body = await request.json()
-      const { status, note } = body || {}
+      const status = body?.status || body?.bookingStatus
+      const note = body?.note || body?.vendorNote || ''
       const allowed = ['pending', 'confirmed', 'declined', 'completed', 'cancelled']
       if (!allowed.includes(status)) {
         return cors(NextResponse.json({ error: 'Invalid status' }, { status: 400 }))
       }
       await db.collection('bookings').updateOne(
         { id: bookingId },
-        { $set: { status, vendorNote: note || '', updatedAt: new Date().toISOString() } }
+        { $set: { status, bookingStatus: status, vendorNote: note, updatedAt: new Date().toISOString() } }
       )
       // create a notification for the booking user
       const bkg = await db.collection('bookings').findOne({ id: bookingId })

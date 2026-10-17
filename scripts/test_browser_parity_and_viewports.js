@@ -95,10 +95,11 @@ async function runBrowserTests() {
     await new Promise(r => setTimeout(r, 2000));
 
     const venuePageData = await page.evaluate(() => {
+      const allButtons = Array.from(document.querySelectorAll('button')).map(b => b.innerText.trim()).filter(Boolean);
       return {
         title: document.title,
-        hasBookingCard: !!document.querySelector('button:has-text("Pay 5%"), [class*="border-amber"]'),
-        buttons: Array.from(document.querySelectorAll('button')).map(b => b.innerText.trim()).filter(Boolean).slice(0, 15)
+        hasBookingCard: allButtons.some(t => t.includes('Pay 5%') || t.includes('Reserve') || t.includes('Request')) || !!document.querySelector('[class*="border-amber"]'),
+        buttons: allButtons.slice(0, 15)
       };
     });
     console.log('Venue Page Data:', venuePageData);

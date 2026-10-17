@@ -274,8 +274,9 @@ async function runRegressionSuite() {
     const statsRes = await api('/api/admin/stats', {
       headers: { Authorization: `Bearer ${adminToken}` }
     });
-    const pass = statsRes.status === 200 && statsRes.data?.counts;
-    record(12, 'Admin can view operations dashboard stats and manage bookings', pass, `Bookings: ${statsRes.data?.counts?.bookings}`);
+    const totalB = statsRes.data?.totalBookings ?? statsRes.data?.counts?.bookings;
+    const pass = statsRes.status === 200 && totalB !== undefined;
+    record(12, 'Admin can view operations dashboard stats and manage bookings', pass, `Bookings: ${totalB}`);
   }
 
   // --- SCENARIO 13: Unauthorized users cannot access admin APIs ---
@@ -293,12 +294,12 @@ async function runRegressionSuite() {
     const patch1 = await api(`/api/bookings/${fakeBookingId}/status`, {
       method: 'PATCH',
       headers: { Authorization: `Bearer ${adminToken}` },
-      body: JSON.stringify({ bookingStatus: 'confirmed' })
+      body: JSON.stringify({ status: 'confirmed' })
     });
     const patch2 = await api(`/api/bookings/${fakeBookingId}/status`, {
       method: 'PATCH',
       headers: { Authorization: `Bearer ${adminToken}` },
-      body: JSON.stringify({ bookingStatus: 'confirmed' })
+      body: JSON.stringify({ status: 'confirmed' })
     });
     const pass = patch1.status === 200 && patch2.status === 200;
     record(14, 'Payment and booking status update is idempotent (repeated call succeeds safely)', pass, `Patch1: ${patch1.status}, Patch2: ${patch2.status}`);
