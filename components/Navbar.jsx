@@ -316,7 +316,7 @@ export default function Navbar({
               </div>
             ) : (
               <button
-                onClick={onOpenAuth}
+                onClick={onOpenAuth || (() => { window.location.href = '/login' })}
                 className="btn-3d-wine px-3 sm:px-5 py-1.5 sm:py-2 rounded-full bg-gradient-to-r from-[#4a1525] via-[#5c1a2e] to-[#4a1525] hover:brightness-110 text-[#f5ebd7] text-xs font-bold transition-all shadow-md border border-[#c5a059]/40 hover:scale-105 active:scale-95 flex items-center gap-1 sm:gap-1.5 shrink-0"
               >
                 <Sparkles className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-amber-300 shrink-0" />
@@ -544,7 +544,8 @@ export default function Navbar({
             else if (userRole === 'vendor') setActiveTab('vendor_portal')
             else setActiveTab('bookings')
           } else {
-            onOpenAuth()
+            if (typeof onOpenAuth === 'function') onOpenAuth()
+            else window.location.href = '/login'
           }
           setMobileMenuOpen(false)
         }}

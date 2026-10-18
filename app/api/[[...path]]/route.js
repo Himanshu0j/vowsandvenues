@@ -566,8 +566,8 @@ const SEED_VENDORS = [
     image: 'https://images.unsplash.com/photo-1587271407850-8d438ca9fdf2',
     gallery: [
       'https://images.unsplash.com/photo-1587271407850-8d438ca9fdf2',
-      'https://images.unsplash.com/photo-1761472606347-bfebc5a3e546',
-      'https://images.unsplash.com/photo-1744805624954-a6686543c3ff'
+      'https://images.unsplash.com/photo-1519167758481-83f550bb49b3',
+      'https://images.unsplash.com/photo-1544077960-604201fe74bc'
     ],
     description: 'Sprawling 4-acre royal heritage estate in Lucknow featuring a regal air-conditioned grand banquet hall (800 pax) and a lush manicured lawn (1200 pax). Equipped with 12 luxury bridal and guest suites, in-house generator backup, and valet parking for 300+ cars.',
     highlights: ['AC Banquet + Lawn', 'Valet Parking (300 Cars)', '12 Bridal Suites', 'Soundproof up to 11 PM'],
@@ -607,10 +607,11 @@ const SEED_VENDORS = [
     capacity: 800,
     verified: true,
     featured: true,
-    image: 'https://images.unsplash.com/photo-1761472606347-bfebc5a3e546',
+    image: 'https://images.unsplash.com/photo-1519741497674-611481863552',
     gallery: [
-      'https://images.unsplash.com/photo-1761472606347-bfebc5a3e546',
-      'https://images.unsplash.com/photo-1587271407850-8d438ca9fdf2'
+      'https://images.unsplash.com/photo-1519741497674-611481863552',
+      'https://images.unsplash.com/photo-1520854221256-17451cc331bf',
+      'https://images.unsplash.com/photo-1464366400600-7168b8af9bc3'
     ],
     description: 'Ultra-modern luxury banquet in South Delhi with state-of-the-art Italian crystal chandeliers, centralized climate control, premium acoustic dampening, and attached cocktail lounge.',
     highlights: ['Crystal Chandeliers', 'Central AC', 'Acoustic Sound', 'Prime Delhi Location'],
@@ -650,10 +651,11 @@ const SEED_VENDORS = [
     capacity: 1500,
     verified: true,
     featured: true,
-    image: 'https://images.unsplash.com/photo-1744805624954-a6686543c3ff',
+    image: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c',
     gallery: [
-      'https://images.unsplash.com/photo-1744805624954-a6686543c3ff',
-      'https://images.unsplash.com/photo-1587271407850-8d438ca9fdf2'
+      'https://images.unsplash.com/photo-1600585154340-be6161a56a0c',
+      'https://images.unsplash.com/photo-1590381105924-c72589b9ef3f',
+      'https://images.unsplash.com/photo-1599818491823-74b88ba978e8'
     ],
     description: 'Authentic Rajasthani palatial fortress resort in Jaipur. Features jharokha arches, central courtyard pool, sheesh mahal banquet and vast starlit lawns for royal destination weddings.',
     highlights: ['Palace Courtyard', 'Royal Architecture', 'Poolside Sangeet', 'Destination Wedding Specialist'],
@@ -686,8 +688,12 @@ const SEED_VENDORS = [
     capacity: 700,
     verified: true,
     featured: false,
-    image: 'https://images.unsplash.com/photo-1587271407850-8d438ca9fdf2',
-    gallery: ['https://images.unsplash.com/photo-1587271407850-8d438ca9fdf2'],
+    image: 'https://images.unsplash.com/photo-1511285560929-80b456fea0bc',
+    gallery: [
+      'https://images.unsplash.com/photo-1511285560929-80b456fea0bc',
+      'https://images.unsplash.com/photo-1507525428034-b723cf961d3e',
+      'https://images.unsplash.com/photo-1545232979-8bf68ee9b1af'
+    ],
     description: 'Breathtaking beach-facing lawn in Juhu overlooking the Arabian Sea, ideal for sundowner weddings and cocktail receptions.',
     highlights: ['Beach-Facing', 'Sunset Views', 'Celebrity Preferred', 'Juhu Prime Location'],
     contactPhone: '+91 98200 11223',
@@ -1282,8 +1288,11 @@ const SEED_VENDORS = [
     capacity: 1000,
     verified: true,
     featured: false,
-    image: 'https://images.unsplash.com/photo-1587271407850-8d438ca9fdf2',
-    gallery: ['https://images.unsplash.com/photo-1587271407850-8d438ca9fdf2'],
+    image: 'https://images.unsplash.com/photo-1519225429980-715cb0215aed',
+    gallery: [
+      'https://images.unsplash.com/photo-1519225429980-715cb0215aed',
+      'https://images.unsplash.com/photo-1465495976277-4387d4b0b4c6'
+    ],
     description: 'Victorian-inspired glasshouse pavilion surrounded by tropical rain trees in Bengaluru, featuring sustainable solar lighting and bespoke sound staging.',
     highlights: ['Glasshouse Architecture', 'Tropical Lawn', 'Palace Grounds Access'],
     contactPhone: '+91 80 4455 6677',
@@ -1349,8 +1358,11 @@ const SEED_VENDORS = [
     capacity: 900,
     verified: true,
     featured: true,
-    image: 'https://images.unsplash.com/photo-1744805624954-a6686543c3ff',
-    gallery: ['https://images.unsplash.com/photo-1744805624954-a6686543c3ff'],
+    image: 'https://images.unsplash.com/photo-1566073771259-6a8506099945',
+    gallery: [
+      'https://images.unsplash.com/photo-1566073771259-6a8506099945',
+      'https://images.unsplash.com/photo-1582719478250-c89cae4dc85b'
+    ],
     description: 'Iconic Lake Pichola heritage venue offering royal boat arrivals, candlelit terraces, and palatial marble courtyards for destination weddings.',
     highlights: ['Lake Pichola Boat Entry', 'Heritage Courtyard', 'Royal Mewari Welcome'],
     contactPhone: '+91 94140 11229',

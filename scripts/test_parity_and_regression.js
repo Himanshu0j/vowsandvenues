@@ -325,7 +325,10 @@ async function runRegressionSuite() {
 
   // --- SCENARIO 16: Customer-entered UTR does not automatically prove payment ---
   {
-    const utrDate = `2027-03-${String(Math.floor(1 + Math.random() * 25)).padStart(2, '0')}`;
+    const yearRand = 2028 + Math.floor(Math.random() * 3);
+    const monthRand = String(Math.floor(1 + Math.random() * 12)).padStart(2, '0');
+    const dayRand = String(Math.floor(1 + Math.random() * 28)).padStart(2, '0');
+    const utrDate = `${yearRand}-${monthRand}-${dayRand}`;
     const utrRes = await api('/api/bookings', {
       method: 'POST',
       headers: { Authorization: `Bearer ${customerToken}` },

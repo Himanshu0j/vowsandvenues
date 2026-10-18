@@ -25,8 +25,8 @@ export default function DedicatedAdminPortalPage() {
   const [loading, setLoading] = useState(true)
 
   // Login form state
-  const [loginEmail, setLoginEmail] = useState('admin@vowsandvenues.in')
-  const [loginPassword, setLoginPassword] = useState('Vows#Stg2026!SecureKey')
+  const [loginEmail, setLoginEmail] = useState('')
+  const [loginPassword, setLoginPassword] = useState('')
   const [loginBusy, setLoginBusy] = useState(false)
 
   // Admin Data State

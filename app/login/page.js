@@ -17,6 +17,14 @@ function LoginContent() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [submitting, setSubmitting] = useState(false)
+  const [draft, setDraft] = useState(null)
+
+  React.useEffect(() => {
+    try {
+      const d = sessionStorage.getItem('vv_booking_draft')
+      if (d) setDraft(JSON.parse(d))
+    } catch (_) {}
+  }, [])
 
   const handleLogin = async (e) => {
     e.preventDefault()
@@ -77,6 +85,18 @@ function LoginContent() {
           <h1 className="text-2xl font-serif font-bold text-stone-900 mt-2">Sign In</h1>
           <p className="text-xs text-stone-600 mt-1">Access your bookings, invoices, and royal venue consultations.</p>
         </div>
+
+        {draft && (
+          <div className="mb-5 p-3.5 bg-amber-50 border border-amber-300 rounded-xl flex items-start gap-2.5 text-xs text-amber-900">
+            <Sparkles className="w-4 h-4 text-amber-700 shrink-0 mt-0.5" />
+            <div>
+              <span className="font-bold">Pending Reservation Draft:</span>
+              <p className="text-[11px] text-amber-800 mt-0.5">
+                Sign in to complete your reservation for <strong>{draft.venueName}</strong> {draft.selectedDate ? `on ${draft.selectedDate}` : ''}.
+              </p>
+            </div>
+          </div>
+        )}
 
         <form onSubmit={handleLogin} className="space-y-4">
           <div>

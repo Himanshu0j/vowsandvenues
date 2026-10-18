@@ -49,44 +49,45 @@ export default function CustomerDashboardPage() {
       if (isManualRefresh) setRefreshing(true)
       else setLoading(true)
 
-      const token = localStorage.getItem('vv_auth_token') || localStorage.getItem('auth_token')
-      const storedUser = localStorage.getItem('vv_current_user')
+      const token = typeof window !== 'undefined' ? (localStorage.getItem('vv_auth_token') || localStorage.getItem('auth_token')) : null
+      const storedUser = typeof window !== 'undefined' ? localStorage.getItem('vv_current_user') : null
+
+      if (!token) {
+        setUser(null)
+        setBookings([])
+        setMeetings([])
+        setLoading(false)
+        return
+      }
 
       let currentUser = storedUser ? JSON.parse(storedUser) : null
 
       // Fetch user profile from /api/auth/me if token exists
-      if (token) {
-        try {
-          const meRes = await fetch('/api/auth/me', {
-            headers: { Authorization: `Bearer ${token}` }
-          })
-          if (meRes.ok) {
-            const meData = await meRes.json()
-            currentUser = meData.user || meData
-            setUser(currentUser)
-            setProfileName(currentUser.name || '')
-            setProfilePhone(currentUser.phone || '')
-          }
-        } catch (_) {}
-      } else {
-        // Fallback demo user if not logged in
-        if (!currentUser) {
-          currentUser = {
-            id: 'c_demo_couple',
-            name: 'Devika Sharma',
-            email: 'devika.wedding@example.com',
-            phone: '+91 98765 01234',
-            role: 'customer'
-          }
+      try {
+        const meRes = await fetch('/api/auth/me', {
+          headers: { Authorization: `Bearer ${token}` }
+        })
+        if (meRes.ok) {
+          const meData = await meRes.json()
+          currentUser = meData.user || meData
+        } else if (meRes.status === 401) {
+          localStorage.removeItem('vv_auth_token')
+          localStorage.removeItem('auth_token')
+          localStorage.removeItem('vv_current_user')
+          setUser(null)
+          setLoading(false)
+          return
         }
-      }
+      } catch (_) {}
 
       setUser(currentUser)
-      setProfileName(currentUser?.name || 'Devika Sharma')
-      setProfilePhone(currentUser?.phone || '+91 98765 01234')
+      setProfileName(currentUser?.name || '')
+      setProfilePhone(currentUser?.phone || '')
 
-      const headers = { 'Content-Type': 'application/json' }
-      if (token) headers['Authorization'] = `Bearer ${token}`
+      const headers = {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`
+      }
 
       // Fetch Bookings
       try {
@@ -153,16 +154,60 @@ export default function CustomerDashboardPage() {
       <div className="min-h-screen bg-[#faf7f2] text-stone-900 font-sans selection:bg-amber-200 selection:text-amber-900 flex flex-col justify-between">
         <Navbar />
 
-        {/* Dashboard Header Bar */}
-        <div className="bg-gradient-to-r from-[#3b0f1c] via-[#4a1525] to-[#2a0b14] text-white pt-28 pb-10 px-4 sm:px-6 lg:px-8 border-b border-amber-900/30">
-          <div className="max-w-7xl mx-auto flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-            <div>
-              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-400/30 text-amber-300 text-xs font-semibold uppercase tracking-wider mb-2">
-                <ShieldCheck className="w-3.5 h-3.5" /> Customer Account Portal
+        {loading ? (
+          <div className="flex-1 flex flex-col items-center justify-center py-32">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-amber-600 mb-4" />
+            <p className="text-stone-600 font-serif text-sm">Loading your celebration dashboard...</p>
+          </div>
+        ) : !user ? (
+          <div className="flex-1 flex items-center justify-center pt-28 pb-16 px-4 sm:px-6">
+            <div className="max-w-md w-full bg-white rounded-3xl border border-stone-200/90 shadow-2xl p-8 sm:p-10 text-center">
+              <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-[#4a1525] to-[#20050e] text-amber-300 flex items-center justify-center mx-auto mb-5 shadow-md border border-amber-300/40">
+                <ShieldCheck className="w-8 h-8" />
               </div>
-              <h1 className="text-2xl sm:text-3xl md:text-4xl font-serif font-bold text-amber-50">
-                Welcome, {user?.name || 'Devika Sharma'}
-              </h1>
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-100 text-amber-900 text-[11px] font-bold uppercase tracking-wider mb-3">
+                <Sparkles className="w-3.5 h-3.5 text-amber-700" /> Private Celebration Dashboard
+              </span>
+              <h2 className="text-2xl font-serif font-bold text-stone-900 mb-2">
+                Authentication Required
+              </h2>
+              <p className="text-stone-600 text-xs sm:text-sm max-w-sm mx-auto mb-6 font-light leading-relaxed">
+                Please sign in or create an account to view your confirmed palace bookings, consultation appointments, and milestone payments.
+              </p>
+              <div className="space-y-2.5">
+                <Link
+                  href="/login?redirect=/dashboard"
+                  className="w-full inline-flex items-center justify-center gap-2 bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-500 hover:to-amber-600 text-white text-xs font-bold py-3 px-4 rounded-xl shadow-md transition-all cursor-pointer"
+                >
+                  <User className="w-4 h-4" /> Sign In to Your Account
+                </Link>
+                <Link
+                  href="/register?redirect=/dashboard"
+                  className="w-full inline-flex items-center justify-center gap-2 bg-white hover:bg-stone-50 text-stone-800 text-xs font-bold py-3 px-4 rounded-xl border border-stone-300 shadow-xs transition-colors cursor-pointer"
+                >
+                  Create New Account
+                </Link>
+                <Link
+                  href="/venues"
+                  className="w-full inline-flex items-center justify-center gap-1 text-xs font-semibold text-amber-800 hover:text-amber-900 pt-2 cursor-pointer"
+                >
+                  Explore Luxury Venues <ArrowRight className="w-3.5 h-3.5" />
+                </Link>
+              </div>
+            </div>
+          </div>
+        ) : (
+          <>
+            {/* Dashboard Header Bar */}
+            <div className="bg-gradient-to-r from-[#3b0f1c] via-[#4a1525] to-[#2a0b14] text-white pt-28 pb-10 px-4 sm:px-6 lg:px-8 border-b border-amber-900/30">
+              <div className="max-w-7xl mx-auto flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div>
+                  <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-400/30 text-amber-300 text-xs font-semibold uppercase tracking-wider mb-2">
+                    <ShieldCheck className="w-3.5 h-3.5" /> Customer Account Portal
+                  </div>
+                  <h1 className="text-2xl sm:text-3xl md:text-4xl font-serif font-bold text-amber-50">
+                    Welcome, {user?.name || 'Valued Couple'}
+                  </h1>
               <p className="text-stone-300 text-xs sm:text-sm mt-1 font-light">
                 Manage your confirmed palace bookings, milestone payments, and 1-to-1 venue owner consultations.
               </p>
@@ -540,6 +585,8 @@ export default function CustomerDashboardPage() {
             </div>
           )}
         </main>
+          </>
+        )}
 
         <FooterSection />
       </div>

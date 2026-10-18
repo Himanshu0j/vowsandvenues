@@ -322,8 +322,12 @@ function VenuesContent() {
                   {/* Image container */}
                   <div className="relative h-56 sm:h-60 w-full overflow-hidden bg-stone-100">
                     <img
-                      src={mainImg}
+                      src={getOptimizedImageUrl(mainImg, { width: 800, quality: 80 })}
                       alt={v.name}
+                      onError={(e) => {
+                        e.currentTarget.onerror = null
+                        e.currentTarget.src = 'https://images.unsplash.com/photo-1519167758481-83f550bb49b3?auto=format&fit=crop&w=800&q=80'
+                      }}
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                       loading="lazy"
                     />

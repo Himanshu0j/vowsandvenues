@@ -30,12 +30,15 @@ import {
   Utensils,
   Camera,
   Music,
-  ArrowLeft
+  ArrowLeft,
+  Lock,
+  User
 } from 'lucide-react'
 import { toast } from 'sonner'
 import Navbar from '@/components/Navbar'
 import FooterSection from '@/components/FooterSection'
 import ErrorBoundary from '@/components/ErrorBoundary'
+import { getOptimizedImageUrl } from '@/lib/imageUtils'
 
 export default function VenueDetailPage({ params }) {
   // Unwrap params using React.use for Next.js 15
@@ -81,6 +84,45 @@ export default function VenueDetailPage({ params }) {
 
   // Current calendar month for wizard
   const [calendarMonth, setCalendarMonth] = useState(new Date())
+
+  // In-context Auth Modal & Booking Draft State
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false)
+  const [authModalTab, setAuthModalTab] = useState('login') // 'login' | 'register'
+  const [authEmail, setAuthEmail] = useState('')
+  const [authPassword, setAuthPassword] = useState('')
+  const [authName, setAuthName] = useState('')
+  const [authPhone, setAuthPhone] = useState('')
+  const [authSubmitting, setAuthSubmitting] = useState(false)
+  const [postAuthAction, setPostAuthAction] = useState('booking') // 'booking' | 'meeting'
+
+  const getAuthToken = () => {
+    if (typeof window === 'undefined') return null
+    return localStorage.getItem('vv_auth_token') || localStorage.getItem('auth_token')
+  }
+
+  const saveBookingDraft = (actionType = 'booking') => {
+    if (typeof window === 'undefined') return
+    const draft = {
+      actionType,
+      venueId: venueId,
+      venueName: venue?.name || 'Exclusive Royal Palace',
+      venueCity: venue?.city || '',
+      selectedDate,
+      selectedSlot,
+      guestCount,
+      specialInstructions,
+      paymentMode,
+      advancePayNow,
+      meetingDate,
+      meetingTime,
+      meetingDuration,
+      meetingMessage,
+      timestamp: Date.now()
+    }
+    try {
+      sessionStorage.setItem('vv_booking_draft', JSON.stringify(draft))
+    } catch (_) {}
+  }
 
   // Fetch venue, reviews, and availability
   useEffect(() => {
@@ -148,6 +190,154 @@ export default function VenueDetailPage({ params }) {
     loadData()
   }, [venueId])
 
+  // Restore draft if user just signed in or returned
+  useEffect(() => {
+    if (!venueId) return
+    try {
+      const draftStr = sessionStorage.getItem('vv_booking_draft')
+      if (draftStr) {
+        const draft = JSON.parse(draftStr)
+        if (draft.venueId === venueId) {
+          if (draft.selectedDate) setSelectedDate(draft.selectedDate)
+          if (draft.selectedSlot) setSelectedSlot(draft.selectedSlot)
+          if (draft.guestCount) setGuestCount(draft.guestCount)
+          if (draft.specialInstructions) setSpecialInstructions(draft.specialInstructions)
+          if (draft.paymentMode) setPaymentMode(draft.paymentMode)
+          if (draft.meetingDate) setMeetingDate(draft.meetingDate)
+          if (draft.meetingTime) setMeetingTime(draft.meetingTime)
+          if (draft.meetingDuration) setMeetingDuration(draft.meetingDuration)
+          if (draft.meetingMessage) setMeetingMessage(draft.meetingMessage)
+
+          const token = getAuthToken()
+          if (token) {
+            sessionStorage.removeItem('vv_booking_draft')
+            if (draft.actionType === 'meeting') {
+              setIsMeetingModalOpen(true)
+              toast.success(`Resumed consultation request for ${draft.venueName}.`)
+            } else {
+              setIsBookingModalOpen(true)
+              toast.success(`Resumed reservation draft for ${draft.venueName}.`)
+            }
+          }
+        }
+      }
+    } catch (_) {}
+  }, [venueId])
+
+  // Handle in-context authentication submission
+  const handleAuthModalSubmit = async (e) => {
+    e.preventDefault()
+    try {
+      setAuthSubmitting(true)
+      if (authModalTab === 'login') {
+        const res = await fetch('/api/auth/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email: authEmail, password: authPassword })
+        })
+        const data = await res.json()
+        if (!res.ok) {
+          toast.error(data.error || 'Invalid email or password.')
+          return
+        }
+        if (data.token) {
+          localStorage.setItem('vv_auth_token', data.token)
+          localStorage.setItem('auth_token', data.token)
+        }
+        if (data.user) {
+          localStorage.setItem('vv_current_user', JSON.stringify(data.user))
+          if (data.user.name) setCustomerName(data.user.name)
+          if (data.user.email) setCustomerEmail(data.user.email)
+          if (data.user.phone) setCustomerPhone(data.user.phone)
+        }
+        toast.success(`Welcome back, ${data.user?.name || 'Customer'}!`)
+      } else {
+        const res = await fetch('/api/auth/signup', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            name: authName,
+            email: authEmail,
+            phone: authPhone,
+            password: authPassword,
+            role: 'customer'
+          })
+        })
+        const data = await res.json()
+        if (!res.ok) {
+          toast.error(data.error || 'Registration failed.')
+          return
+        }
+        if (data.token) {
+          localStorage.setItem('vv_auth_token', data.token)
+          localStorage.setItem('auth_token', data.token)
+        }
+        if (data.user) {
+          localStorage.setItem('vv_current_user', JSON.stringify(data.user))
+          if (data.user.name) setCustomerName(data.user.name)
+          if (data.user.email) setCustomerEmail(data.user.email)
+          if (data.user.phone) setCustomerPhone(data.user.phone)
+        }
+        toast.success(`Account created! Welcome, ${authName}.`)
+      }
+
+      // Revalidate availability with server
+      try {
+        const availRes = await fetch(`/api/bookings/availability/${venue.id}`)
+        if (availRes.ok) {
+          const availData = await availRes.json()
+          setAvailability(availData)
+        }
+      } catch (_) {}
+
+      // Close auth modal and open requested action
+      setIsAuthModalOpen(false)
+      sessionStorage.removeItem('vv_booking_draft')
+
+      if (postAuthAction === 'meeting') {
+        setIsMeetingModalOpen(true)
+      } else {
+        setIsBookingModalOpen(true)
+      }
+    } catch (err) {
+      console.error('In-context auth error:', err)
+      toast.error('Authentication error. Please try again.')
+    } finally {
+      setAuthSubmitting(false)
+    }
+  }
+
+  const fillAuthCustomerDemo = () => {
+    setAuthEmail('devika.wedding@example.com')
+    setAuthPassword('Customer2026!')
+  }
+
+  const handleOpenBookingWizard = () => {
+    const token = getAuthToken()
+    if (!token) {
+      saveBookingDraft('booking')
+      setPostAuthAction('booking')
+      setIsAuthModalOpen(true)
+      toast.info('Please sign in or create an account to book this palace.')
+      return
+    }
+    setBookingSuccess(null)
+    setIsBookingModalOpen(true)
+  }
+
+  const handleOpenMeetingModal = () => {
+    const token = getAuthToken()
+    if (!token) {
+      saveBookingDraft('meeting')
+      setPostAuthAction('meeting')
+      setIsAuthModalOpen(true)
+      toast.info('Please sign in or create an account to schedule a consultation.')
+      return
+    }
+    setMeetingSuccess(null)
+    setIsMeetingModalOpen(true)
+  }
+
   // Advance percentage (5% as discovered in reference, or config)
   const advancePercent = 5
   const basePrice = Number(venue?.startingPrice || venue?.price || 130000)
@@ -175,6 +365,16 @@ export default function VenueDetailPage({ params }) {
   // Handle Booking Submission
   const handleConfirmBooking = async (e) => {
     if (e) e.preventDefault()
+    const token = getAuthToken()
+    if (!token) {
+      saveBookingDraft('booking')
+      setPostAuthAction('booking')
+      setIsBookingModalOpen(false)
+      setIsAuthModalOpen(true)
+      toast.info('Please sign in or create an account to reserve your slot.')
+      return
+    }
+
     if (!selectedDate) {
       toast.error('Please select an OPEN celebration date on the calendar.')
       return
@@ -186,8 +386,6 @@ export default function VenueDetailPage({ params }) {
 
     try {
       setBookingSubmitting(true)
-      const token = localStorage.getItem('vv_auth_token') || localStorage.getItem('auth_token')
-
       const bookingPayload = {
         venueId: venue.id,
         venueName: venue.name,
@@ -215,8 +413,10 @@ export default function VenueDetailPage({ params }) {
         ]
       }
 
-      const headers = { 'Content-Type': 'application/json' }
-      if (token) headers['Authorization'] = `Bearer ${token}`
+      const headers = {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`
+      }
 
       const res = await fetch('/api/bookings', {
         method: 'POST',
@@ -230,8 +430,11 @@ export default function VenueDetailPage({ params }) {
         if (res.status === 409) {
           toast.error(data.error || 'This date was just reserved by another couple. Please pick another date.')
         } else if (res.status === 401) {
-          toast.info('Please sign in to confirm and record your booking in your dashboard.')
-          router.push(`/login?redirect=/venues/${venue.id}`)
+          saveBookingDraft('booking')
+          setPostAuthAction('booking')
+          setIsBookingModalOpen(false)
+          setIsAuthModalOpen(true)
+          toast.info('Session expired. Please sign in to confirm and record your booking.')
         } else {
           toast.error(data.error || 'Booking submission failed. Please try again.')
         }
@@ -252,6 +455,16 @@ export default function VenueDetailPage({ params }) {
   // Handle Meeting Submission
   const handleRequestMeeting = async (e) => {
     if (e) e.preventDefault()
+    const token = getAuthToken()
+    if (!token) {
+      saveBookingDraft('meeting')
+      setPostAuthAction('meeting')
+      setIsMeetingModalOpen(false)
+      setIsAuthModalOpen(true)
+      toast.info('Please sign in or create an account to schedule a consultation.')
+      return
+    }
+
     if (!meetingDate) {
       toast.error('Please choose a preferred meeting date.')
       return
@@ -259,10 +472,10 @@ export default function VenueDetailPage({ params }) {
 
     try {
       setMeetingSubmitting(true)
-      const token = localStorage.getItem('vv_auth_token') || localStorage.getItem('auth_token')
-
-      const headers = { 'Content-Type': 'application/json' }
-      if (token) headers['Authorization'] = `Bearer ${token}`
+      const headers = {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`
+      }
 
       const res = await fetch('/api/meetings', {
         method: 'POST',
@@ -284,8 +497,11 @@ export default function VenueDetailPage({ params }) {
 
       if (!res.ok) {
         if (res.status === 401) {
+          saveBookingDraft('meeting')
+          setPostAuthAction('meeting')
+          setIsMeetingModalOpen(false)
+          setIsAuthModalOpen(true)
           toast.info('Please sign in to schedule a 1-to-1 consultation with the owner.')
-          router.push(`/login?redirect=/venues/${venue.id}`)
         } else {
           toast.error(data.error || 'Could not schedule meeting.')
         }
@@ -409,8 +625,12 @@ export default function VenueDetailPage({ params }) {
               {/* Main Large Image */}
               <div className="lg:col-span-3 relative h-72 sm:h-96 md:h-[460px] overflow-hidden group">
                 <img
-                  src={images[activeImageIndex]}
+                  src={getOptimizedImageUrl(images[activeImageIndex], { width: 1200, quality: 85 })}
                   alt={venue.name}
+                  onError={(e) => {
+                    e.currentTarget.onerror = null
+                    e.currentTarget.src = 'https://images.unsplash.com/photo-1519167758481-83f550bb49b3?auto=format&fit=crop&w=1200&q=80'
+                  }}
                   className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-102"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent opacity-60" />
@@ -430,7 +650,15 @@ export default function VenueDetailPage({ params }) {
                       activeImageIndex === idx ? 'border-amber-600 shadow-md ring-2 ring-amber-400' : 'border-transparent opacity-80 hover:opacity-100'
                     }`}
                   >
-                    <img src={img} alt="Thumbnail" className="w-full h-full object-cover" />
+                    <img
+                      src={getOptimizedImageUrl(img, { width: 400, quality: 75 })}
+                      alt="Thumbnail"
+                      onError={(e) => {
+                        e.currentTarget.onerror = null
+                        e.currentTarget.src = 'https://images.unsplash.com/photo-1519167758481-83f550bb49b3?auto=format&fit=crop&w=400&q=75'
+                      }}
+                      className="w-full h-full object-cover"
+                    />
                   </button>
                 ))}
               </div>
@@ -446,7 +674,15 @@ export default function VenueDetailPage({ params }) {
                     activeImageIndex === idx ? 'border-amber-600 ring-2 ring-amber-400' : 'border-transparent opacity-75'
                   }`}
                 >
-                  <img src={img} alt="Thumbnail" className="w-full h-full object-cover" />
+                  <img
+                    src={getOptimizedImageUrl(img, { width: 160, quality: 70 })}
+                    alt="Thumbnail"
+                    onError={(e) => {
+                      e.currentTarget.onerror = null
+                      e.currentTarget.src = 'https://images.unsplash.com/photo-1519167758481-83f550bb49b3?auto=format&fit=crop&w=160&q=70'
+                    }}
+                    className="w-full h-full object-cover"
+                  />
                 </button>
               ))}
             </div>
@@ -669,10 +905,7 @@ export default function VenueDetailPage({ params }) {
                 <div className="space-y-3">
                   <button
                     type="button"
-                    onClick={() => {
-                      setBookingSuccess(null)
-                      setIsBookingModalOpen(true)
-                    }}
+                    onClick={handleOpenBookingWizard}
                     className="w-full bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-500 hover:to-amber-600 text-white font-semibold text-sm py-3.5 px-4 rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 flex items-center justify-center gap-2 cursor-pointer"
                   >
                     <CheckCircle2 className="w-4 h-4" />
@@ -681,10 +914,7 @@ export default function VenueDetailPage({ params }) {
 
                   <button
                     type="button"
-                    onClick={() => {
-                      setMeetingSuccess(null)
-                      setIsMeetingModalOpen(true)
-                    }}
+                    onClick={handleOpenMeetingModal}
                     className="w-full bg-stone-100 hover:bg-stone-200 text-stone-800 font-semibold text-xs py-2.5 px-4 rounded-xl border border-stone-300 transition-colors flex items-center justify-center gap-2 cursor-pointer"
                   >
                     <Phone className="w-3.5 h-3.5 text-amber-700" />
@@ -1086,6 +1316,158 @@ export default function VenueDetailPage({ params }) {
                       Close
                     </button>
                   </div>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* ------------------------------------------------------------- */}
+        {/* IN-CONTEXT AUTH MODAL (Login / Register Before Booking)         */}
+        {/* ------------------------------------------------------------- */}
+        {isAuthModalOpen && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4 overflow-y-auto">
+            <div className="bg-white rounded-2xl max-w-md w-full p-6 sm:p-8 shadow-2xl border border-stone-200 relative my-8 animate-in fade-in zoom-in-95">
+              <button
+                type="button"
+                onClick={() => setIsAuthModalOpen(false)}
+                className="absolute top-4 right-4 text-stone-400 hover:text-stone-700 p-1 rounded-full hover:bg-stone-100 cursor-pointer"
+              >
+                <X className="w-5 h-5" />
+              </button>
+
+              <div className="text-center mb-5">
+                <span className="inline-flex items-center gap-1 bg-amber-100 text-amber-900 text-[11px] font-bold px-2.5 py-0.5 rounded-full uppercase">
+                  <ShieldCheck className="w-3.5 h-3.5 text-amber-700" /> Authentication Required
+                </span>
+                <h3 className="text-xl sm:text-2xl font-serif font-bold text-stone-900 mt-2">
+                  {authModalTab === 'login' ? 'Sign In to Proceed' : 'Create Your Account'}
+                </h3>
+                <p className="text-xs text-stone-600 mt-1">
+                  Reserving <span className="font-semibold text-stone-800">{venue.name}</span>
+                  {selectedDate ? ` for ${selectedDate}` : ''}
+                </p>
+              </div>
+
+              {/* Tabs Switcher */}
+              <div className="grid grid-cols-2 gap-2 mb-5 p-1 bg-stone-100 rounded-xl">
+                <button
+                  type="button"
+                  onClick={() => setAuthModalTab('login')}
+                  className={`py-2 text-xs font-semibold rounded-lg transition-all cursor-pointer ${
+                    authModalTab === 'login'
+                      ? 'bg-white text-stone-900 shadow-xs'
+                      : 'text-stone-600 hover:text-stone-900'
+                  }`}
+                >
+                  Sign In
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setAuthModalTab('register')}
+                  className={`py-2 text-xs font-semibold rounded-lg transition-all cursor-pointer ${
+                    authModalTab === 'register'
+                      ? 'bg-white text-stone-900 shadow-xs'
+                      : 'text-stone-600 hover:text-stone-900'
+                  }`}
+                >
+                  Create Account
+                </button>
+              </div>
+
+              {/* Auth Form */}
+              <form onSubmit={handleAuthModalSubmit} className="space-y-3.5">
+                {authModalTab === 'register' && (
+                  <div>
+                    <label className="text-xs font-semibold text-stone-700 block mb-1">Full Name</label>
+                    <div className="relative">
+                      <User className="w-4 h-4 text-stone-400 absolute left-3 top-3" />
+                      <input
+                        type="text"
+                        required
+                        placeholder="e.g. Devika Sharma"
+                        value={authName}
+                        onChange={(e) => setAuthName(e.target.value)}
+                        className="w-full bg-stone-50 border border-stone-300 rounded-xl pl-9 pr-3 py-2.5 text-xs focus:outline-none focus:bg-white focus:ring-2 focus:ring-amber-500"
+                      />
+                    </div>
+                  </div>
+                )}
+
+                <div>
+                  <label className="text-xs font-semibold text-stone-700 block mb-1">Email Address</label>
+                  <div className="relative">
+                    <Mail className="w-4 h-4 text-stone-400 absolute left-3 top-3" />
+                    <input
+                      type="email"
+                      required
+                      placeholder="couple@example.com"
+                      value={authEmail}
+                      onChange={(e) => setAuthEmail(e.target.value)}
+                      className="w-full bg-stone-50 border border-stone-300 rounded-xl pl-9 pr-3 py-2.5 text-xs focus:outline-none focus:bg-white focus:ring-2 focus:ring-amber-500"
+                    />
+                  </div>
+                </div>
+
+                {authModalTab === 'register' && (
+                  <div>
+                    <label className="text-xs font-semibold text-stone-700 block mb-1">Phone Number</label>
+                    <div className="relative">
+                      <Phone className="w-4 h-4 text-stone-400 absolute left-3 top-3" />
+                      <input
+                        type="tel"
+                        required
+                        placeholder="+91 9876543210"
+                        value={authPhone}
+                        onChange={(e) => setAuthPhone(e.target.value)}
+                        className="w-full bg-stone-50 border border-stone-300 rounded-xl pl-9 pr-3 py-2.5 text-xs focus:outline-none focus:bg-white focus:ring-2 focus:ring-amber-500"
+                      />
+                    </div>
+                  </div>
+                )}
+
+                <div>
+                  <label className="text-xs font-semibold text-stone-700 block mb-1">Password</label>
+                  <div className="relative">
+                    <Lock className="w-4 h-4 text-stone-400 absolute left-3 top-3" />
+                    <input
+                      type="password"
+                      required
+                      placeholder="••••••••"
+                      value={authPassword}
+                      onChange={(e) => setAuthPassword(e.target.value)}
+                      className="w-full bg-stone-50 border border-stone-300 rounded-xl pl-9 pr-3 py-2.5 text-xs focus:outline-none focus:bg-white focus:ring-2 focus:ring-amber-500"
+                    />
+                  </div>
+                </div>
+
+                <button
+                  type="submit"
+                  disabled={authSubmitting}
+                  className="w-full bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-500 hover:to-amber-600 text-white font-semibold text-xs py-3 rounded-xl shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
+                >
+                  {authSubmitting ? (
+                    'Authenticating...'
+                  ) : (
+                    <>
+                      <span>{authModalTab === 'login' ? 'Sign In & Continue' : 'Create Account & Continue'}</span>
+                      <ArrowRight className="w-3.5 h-3.5" />
+                    </>
+                  )}
+                </button>
+              </form>
+
+              {/* Quick Demo Autofill */}
+              {authModalTab === 'login' && (
+                <div className="mt-5 pt-4 border-t border-stone-100 text-center">
+                  <span className="text-[11px] text-stone-500 block mb-2 font-medium">Quick Staging Fill:</span>
+                  <button
+                    type="button"
+                    onClick={fillAuthCustomerDemo}
+                    className="inline-flex items-center gap-1.5 bg-stone-100 hover:bg-stone-200 text-stone-700 text-[11px] font-semibold py-1.5 px-3 rounded-lg border border-stone-200 transition-colors cursor-pointer"
+                  >
+                    Customer Demo Fill
+                  </button>
                 </div>
               )}
             </div>
