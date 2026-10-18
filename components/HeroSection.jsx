@@ -2,25 +2,17 @@
 
 import React from 'react'
 import {
-  Sparkles,
   MapPin,
   Calendar,
   Users,
   Search,
   ArrowRight,
-  ShieldCheck,
-  Crown,
-  Compass
+  Sparkles,
+  Building2
 } from 'lucide-react'
 import { getOptimizedImageUrl } from '@/lib/imageUtils'
-import dynamic from 'next/dynamic'
 import { motion } from 'framer-motion'
 import { luxuryEasing } from './ScrollReveal'
-
-const ThreeWeddingHeroScene = dynamic(() => import('./ThreeWeddingHeroScene'), {
-  ssr: false,
-  loading: () => null
-})
 
 export default function HeroSection({
   cmsContent,
@@ -34,174 +26,149 @@ export default function HeroSection({
   onStartPlanning
 }) {
   const heroData = cmsContent?.hero || {
-    headline: "Curating India’s Most Breathtaking Celebrations",
+    headline: "Where Timeless Heritage Meets Unforgettable Celebrations",
     subheadline: "From illuminated island palaces in Udaipur to authentic Awadhi banquets in Lucknow — discover and book India's most distinguished verified event creators.",
     badge: "The Royal Wedding & Celebration Concierge",
     heroImage: "https://images.unsplash.com/photo-1519741497674-611481863552",
-    locationTag: "The Royal Jagmandir Island Palace · Lake Pichola, Udaipur",
-    stats: [
-      { label: "Verified Heritage Venues & Masters", value: "850+" },
-      { label: "Celebrations Curated", value: "14,200+" },
-      { label: "Discerning Client Rating", value: "4.98 / 5" },
-      { label: "Direct Pricing Guarantee", value: "100%" }
-    ]
+    locationTag: "Lake Pichola, Udaipur"
   }
 
-  // 4K Ultra-HD Indian Royal Palace Celebration Backdrop
+  // Authentic 4K Photography (sharp, natural, un-blurred)
   const backdrop4K = getOptimizedImageUrl(
     heroData.heroImage || 'https://images.unsplash.com/photo-1519741497674-611481863552',
     { width: 2560, quality: 85 }
   )
 
   return (
-    <div className="relative w-full overflow-hidden">
+    <div className="relative w-full overflow-hidden bg-stone-950">
       
       {/* ============================================================== */}
-      {/* 1. CINEMATIC 4K HERO BANNER (Vibrant, Majestic, Full-Bleed)     */}
+      {/* 1. EDITORIAL FULL-BLEED HERO VIEWPORT                           */}
+      {/* Clean architectural framing with authentic photography         */}
       {/* ============================================================== */}
-      <section className="relative min-h-[82vh] sm:min-h-[88vh] lg:min-h-[92vh] flex flex-col justify-between py-8 sm:py-12 px-4 sm:px-6 lg:px-8 select-none">
+      <section className="relative min-h-[78vh] sm:min-h-[82vh] lg:min-h-[86vh] flex flex-col justify-between pt-6 sm:pt-10 pb-8 sm:pb-12 px-4 sm:px-6 lg:px-8 select-none">
         
-        {/* 4K Background Photography (Subtle 35mm lens blur & slow ambient zoom) */}
+        {/* Authentic High-Resolution Photography (No artificial blur, natural lighting) */}
         <div 
-          className="absolute inset-0 bg-cover bg-center transition-transform ease-out scale-105 pointer-events-none"
+          className="absolute inset-0 bg-cover bg-center transition-transform duration-1000 ease-out scale-100 pointer-events-none"
           style={{ 
             backgroundImage: `url('${backdrop4K}')`,
-            filter: 'blur(1.5px) brightness(0.82)',
-            transitionDuration: '25s'
+            backgroundPosition: 'center 45%'
           }}
         />
 
-        {/* Real Interactive 3D WebGL Palace Colonnade & Petal Drift */}
-        <ThreeWeddingHeroScene />
+        {/* Refined Photographic Scrim: deep warm espresso/wine gradient for pristine text contrast */}
+        <div className="absolute inset-0 bg-gradient-to-t from-[#14080D]/95 via-[#180A12]/50 to-black/35 pointer-events-none" />
+        <div className="absolute inset-0 bg-radial-at-c from-transparent via-[#14080D]/20 to-[#14080D]/75 pointer-events-none" />
 
-        {/* Multi-tier Cinematic Scrim: deep royal wine & espresso vignette */}
-        <div className="absolute inset-0 bg-gradient-to-t from-[#14060b] via-[#1a070f]/45 to-black/35 pointer-events-none" />
-        <div className="absolute inset-0 bg-radial-at-c from-transparent via-[#120509]/25 to-[#120509]/80 pointer-events-none" />
+        {/* Fine Antique Gold Header Accent Line */}
+        <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-[#C5A059]/40 to-transparent" />
 
-        {/* Top Champagne Gold Accent Border */}
-        <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-[#e6ca65] to-transparent opacity-90" />
-
-        {/* TOP STATUS / LOCATION PILL */}
+        {/* SUBTLE TOP OVERLINE / LOCATION IDENTIFIER */}
         <motion.div
-          initial={{ opacity: 0, y: -16 }}
+          initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.7, ease: luxuryEasing }}
-          className="relative z-20 max-w-6xl mx-auto w-full flex items-center justify-between text-white/90 pt-2"
+          transition={{ duration: 0.6, ease: luxuryEasing }}
+          className="relative z-20 max-w-5xl mx-auto w-full flex items-center justify-between text-white/90"
         >
-          <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-black/50 backdrop-blur-md border border-amber-300/35 text-amber-200 text-[11px] font-semibold tracking-wide shadow-md">
-            <Crown className="w-3.5 h-3.5 text-amber-300 shrink-0" />
-            <span>{heroData.badge || "The Royal Wedding & Celebration Concierge"}</span>
+          <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-black/40 backdrop-blur-md border border-white/15 text-amber-200/90 text-[11px] font-medium tracking-[0.2em] uppercase shadow-sm">
+            <span className="w-1.5 h-1.5 rounded-full bg-[#C5A059]" />
+            <span>{heroData.badge || "Curated Heritage Venues & Masters"}</span>
           </div>
 
-          <div className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-black/50 backdrop-blur-md border border-white/20 text-stone-200 text-[11px] font-medium shadow-md">
-            <MapPin className="w-3.5 h-3.5 text-amber-300" />
-            <span>{heroData.locationTag || "Jagmandir Island Palace · Udaipur"}</span>
+          <div className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-black/40 backdrop-blur-md border border-white/15 text-stone-300 text-[11px] font-light shadow-sm">
+            <MapPin className="w-3.5 h-3.5 text-[#C5A059]" />
+            <span>{heroData.locationTag || "Lake Pichola · Udaipur"}</span>
           </div>
         </motion.div>
 
-        {/* CENTER TYPOGRAPHY & EDITORIAL STATEMENTS */}
+        {/* EDITORIAL HEADLINE, SUBHEADING & PRIMARY ACTIONS */}
         <div className="relative max-w-4xl mx-auto w-full text-center z-20 my-auto py-6 sm:py-8">
           
-          {/* Master Headline with Reference-Matched Staggered Line Reveal */}
-          <h1 className="font-serif text-[clamp(2.1rem,5.8vw,4.6rem)] font-bold tracking-tight text-white mb-4 leading-[1.12] drop-shadow-[0_4px_30px_rgba(0,0,0,0.85)]">
-            <span className="block overflow-hidden pb-1">
-              <motion.span
-                initial={{ y: "115%", opacity: 0 }}
-                animate={{ y: "0%", opacity: 1 }}
-                transition={{ duration: 0.85, ease: luxuryEasing }}
-                className="inline-block"
-              >
-                Curating India’s Most
-              </motion.span>
-            </span>
-            <span className="block overflow-hidden pt-0.5">
-              <motion.span
-                initial={{ y: "115%", opacity: 0 }}
-                animate={{ y: "0%", opacity: 1 }}
-                transition={{ duration: 0.85, delay: 0.14, ease: luxuryEasing }}
-                className="inline-block italic font-normal text-amber-200 drop-shadow-[0_2px_20px_rgba(230,202,101,0.55)]"
-              >
-                Breathtaking Celebrations
-              </motion.span>
-            </span>
-          </h1>
-
-          {/* Editorial Subtitle */}
-          <motion.p
-            initial={{ opacity: 0, y: 20 }}
+          {/* Main Editorial Headline */}
+          <motion.h1
+            initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.28, ease: luxuryEasing }}
-            className="max-w-2xl mx-auto text-xs sm:text-sm md:text-base text-amber-50/95 font-light mb-6 sm:mb-8 leading-relaxed drop-shadow-[0_2px_12px_rgba(0,0,0,0.8)] px-2"
+            transition={{ duration: 0.75, ease: luxuryEasing }}
+            className="font-serif text-3xl sm:text-5xl md:text-6xl font-normal tracking-tight text-white mb-4 leading-[1.14]"
           >
-            {heroData.subheadline}
+            Where Timeless Royalty Meets{' '}
+            <span className="italic font-normal text-amber-100">
+              Distinguished Celebrations
+            </span>
+          </motion.h1>
+
+          {/* Graceful Editorial Subtitle */}
+          <motion.p
+            initial={{ opacity: 0, y: 14 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.7, delay: 0.15, ease: luxuryEasing }}
+            className="max-w-2xl mx-auto text-xs sm:text-sm md:text-base text-stone-200/90 font-light mb-6 sm:mb-8 leading-relaxed px-2"
+          >
+            {heroData.subheadline || "From illuminated island palaces in Udaipur to authentic Awadhi banquets in Lucknow — discover and book India's most distinguished verified event creators."}
           </motion.p>
 
-          {/* Quick Metrics Strip */}
+          {/* Direct, Refined Action CTAs */}
           <motion.div
-            initial={{ opacity: 0, y: 18 }}
+            initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.75, delay: 0.38, ease: luxuryEasing }}
-            className="inline-flex flex-wrap items-center justify-center gap-3 sm:gap-8 px-5 sm:px-6 py-2 sm:py-2.5 rounded-full bg-black/55 backdrop-blur-md border border-amber-300/30 text-amber-100 text-xs shadow-xl"
+            transition={{ duration: 0.65, delay: 0.25, ease: luxuryEasing }}
+            className="flex flex-wrap items-center justify-center gap-3 sm:gap-4"
           >
-            <div className="flex items-center gap-1.5 sm:gap-2">
-              <span className="font-serif font-bold text-amber-300 text-sm sm:text-base">850+</span>
-              <span className="text-stone-300 text-[11px]">Verified Masters</span>
-            </div>
-            <span className="w-1 h-1 rounded-full bg-amber-400 hidden sm:inline-block" />
-            <div className="flex items-center gap-1.5 sm:gap-2">
-              <span className="font-serif font-bold text-amber-300 text-sm sm:text-base">14,200+</span>
-              <span className="text-stone-300 text-[11px]">Celebrations</span>
-            </div>
-            <span className="w-1 h-1 rounded-full bg-amber-400 hidden sm:inline-block" />
-            <div className="flex items-center gap-1.5 sm:gap-2">
-              <span className="font-serif font-bold text-amber-300 text-sm sm:text-base">4.98 ★</span>
-              <span className="text-stone-300 text-[11px]">Client Rating</span>
-            </div>
-            <span className="w-1 h-1 rounded-full bg-amber-400 hidden sm:inline-block" />
-            <div className="flex items-center gap-1.5 text-emerald-300 text-[11px] font-semibold">
-              <ShieldCheck className="w-3.5 h-3.5" />
-              <span>Zero Markup Guarantee</span>
-            </div>
+            <button
+              type="button"
+              onClick={onExploreVendors}
+              className="px-6 py-2.5 sm:py-3 rounded-full bg-[#C5A059] hover:bg-[#B89047] text-[#1A0B13] font-semibold text-xs sm:text-sm flex items-center gap-2 shadow-lg transition-all active:scale-95 cursor-pointer"
+            >
+              <span>Explore Venues</span>
+              <ArrowRight className="w-4 h-4" />
+            </button>
+            <button
+              type="button"
+              onClick={onStartPlanning}
+              className="px-5 py-2.5 sm:py-3 rounded-full bg-white/10 hover:bg-white/20 text-white font-medium text-xs sm:text-sm backdrop-blur-md border border-white/25 transition-all active:scale-95 cursor-pointer"
+            >
+              <span>Plan Your Event</span>
+            </button>
           </motion.div>
         </div>
 
         {/* ============================================================== */}
-        {/* 2. FLOATING FROSTED-GLASS QUICK DISCOVERY CONSOLE              */}
-        {/* Docked neatly inside the hero with high contrast and ease of use */}
+        {/* 2. REFINED DOCKED DISCOVERY CONSOLE                            */}
+        {/* Understated luxury, high contrast, seamless usability          */}
         {/* ============================================================== */}
         <motion.div
-          initial={{ opacity: 0, y: 28 }}
+          initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.85, delay: 0.48, ease: luxuryEasing }}
-          className="relative z-20 max-w-5xl mx-auto w-full pb-2"
+          transition={{ duration: 0.75, delay: 0.35, ease: luxuryEasing }}
+          className="relative z-20 max-w-4xl mx-auto w-full pt-2"
         >
-          <div className="bg-gradient-to-br from-[#ffffff]/98 via-[#fefdfa]/95 to-[#fbf7f0]/95 backdrop-blur-2xl rounded-2xl sm:rounded-3xl p-3.5 sm:p-5 shadow-[0_25px_60px_rgba(20,5,10,0.35)] border-2 border-amber-300/80 ring-4 ring-amber-400/20 text-stone-900 transition-all">
+          {/* Main Discovery Bar Card */}
+          <div className="bg-white/95 sm:bg-white/98 backdrop-blur-xl rounded-2xl sm:rounded-full p-2 sm:p-2.5 shadow-[0_20px_50px_rgba(20,8,13,0.3)] border border-stone-200/90 text-stone-900 transition-all">
             
-            {/* Inline 4-Field Search Grid with 44px minimum touch targets */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-3.5 mb-3">
+            {/* Desktop: Horizontal 3-Segment Pill + Search Button */}
+            <div className="hidden sm:flex items-center justify-between gap-2">
               
-              {/* Field 1: Event Type */}
-              <div className="bg-stone-50/90 hover:bg-white rounded-xl p-2.5 border border-stone-200 hover:border-amber-400 transition-all shadow-2xs min-h-[48px] flex flex-col justify-center">
-                <label className="block text-[10px] font-bold text-[#6E2338] uppercase tracking-wider mb-0.5 flex items-center gap-1.5">
-                  <span className="w-2 h-2 rounded-full bg-rose-500" />
-                  <span>Celebration Type</span>
+              {/* Segment 1: Celebration Type */}
+              <div className="flex-1 px-4 py-1.5 border-r border-stone-200/80 min-w-0">
+                <label className="block text-[10px] font-bold text-[#6E2338] uppercase tracking-wider mb-0.5">
+                  Celebration
                 </label>
                 <select
                   value={heroSearch.eventType}
                   onChange={(e) => setHeroSearch({ ...heroSearch, eventType: e.target.value })}
-                  className="w-full bg-transparent font-semibold text-stone-900 text-xs sm:text-sm focus:outline-none cursor-pointer py-1"
+                  className="w-full bg-transparent font-medium text-stone-900 text-xs sm:text-sm focus:outline-none cursor-pointer truncate pr-1"
                 >
                   {eventTypes.map(t => (
-                    <option key={t.id} value={t.name}>{t.icon} {t.name}</option>
+                    <option key={t.id} value={t.name}>{t.name}</option>
                   ))}
                 </select>
               </div>
 
-              {/* Field 2: Location */}
-              <div className="bg-stone-50/90 hover:bg-white rounded-xl p-2.5 border border-stone-200 hover:border-amber-400 transition-all shadow-2xs min-h-[48px] flex flex-col justify-center">
-                <label className="block text-[10px] font-bold text-[#6E2338] uppercase tracking-wider mb-0.5 flex items-center gap-1.5">
-                  <MapPin className="w-3 h-3 text-amber-600" />
-                  <span>Destination City</span>
+              {/* Segment 2: Destination City */}
+              <div className="flex-1 px-4 py-1.5 border-r border-stone-200/80 min-w-0">
+                <label className="block text-[10px] font-bold text-[#6E2338] uppercase tracking-wider mb-0.5">
+                  Destination
                 </label>
                 <select
                   value={heroSearch.city}
@@ -209,7 +176,7 @@ export default function HeroSection({
                     setHeroSearch({ ...heroSearch, city: e.target.value })
                     setSelectedCity(e.target.value)
                   }}
-                  className="w-full bg-transparent font-semibold text-stone-900 text-xs sm:text-sm focus:outline-none cursor-pointer py-1"
+                  className="w-full bg-transparent font-medium text-stone-900 text-xs sm:text-sm focus:outline-none cursor-pointer truncate pr-1"
                 >
                   {cities.filter(c => c !== 'All Cities').map(c => (
                     <option key={c} value={c}>{c}</option>
@@ -217,30 +184,15 @@ export default function HeroSection({
                 </select>
               </div>
 
-              {/* Field 3: Event Date */}
-              <div className="bg-stone-50/90 hover:bg-white rounded-xl p-2.5 border border-stone-200 hover:border-amber-400 transition-all shadow-2xs min-h-[48px] flex flex-col justify-center">
-                <label className="block text-[10px] font-bold text-[#6E2338] uppercase tracking-wider mb-0.5 flex items-center gap-1.5">
-                  <Calendar className="w-3 h-3 text-emerald-600" />
-                  <span>Event Date</span>
-                </label>
-                <input
-                  type="date"
-                  value={heroSearch.date}
-                  onChange={(e) => setHeroSearch({ ...heroSearch, date: e.target.value })}
-                  className="w-full bg-transparent font-semibold text-stone-900 text-xs sm:text-sm focus:outline-none cursor-pointer py-1"
-                />
-              </div>
-
-              {/* Field 4: Guests & Target Budget */}
-              <div className="bg-stone-50/90 hover:bg-white rounded-xl p-2.5 border border-stone-200 hover:border-amber-400 transition-all shadow-2xs min-h-[48px] flex flex-col justify-center">
-                <label className="block text-[10px] font-bold text-[#6E2338] uppercase tracking-wider mb-0.5 flex items-center gap-1.5">
-                  <Users className="w-3 h-3 text-purple-600" />
-                  <span>Guests &amp; Scale</span>
+              {/* Segment 3: Guests & Scale */}
+              <div className="flex-1 px-4 py-1.5 min-w-0">
+                <label className="block text-[10px] font-bold text-[#6E2338] uppercase tracking-wider mb-0.5">
+                  Scale &amp; Guests
                 </label>
                 <select
                   value={heroSearch.guests}
                   onChange={(e) => setHeroSearch({ ...heroSearch, guests: e.target.value })}
-                  className="w-full bg-transparent font-semibold text-stone-900 text-xs sm:text-sm focus:outline-none cursor-pointer py-1"
+                  className="w-full bg-transparent font-medium text-stone-900 text-xs sm:text-sm focus:outline-none cursor-pointer truncate pr-1"
                 >
                   <option value="50">50 – 100 Guests (Intimate)</option>
                   <option value="250">200 – 350 Guests (Grand)</option>
@@ -249,71 +201,129 @@ export default function HeroSection({
                 </select>
               </div>
 
+              {/* Segment 4: Search Action Button */}
+              <button
+                type="button"
+                onClick={onExploreVendors}
+                className="px-6 py-3 rounded-full bg-[#2D0B16] hover:bg-[#3D101E] text-amber-100 font-semibold text-xs sm:text-sm flex items-center justify-center gap-2 shadow-md transition-all active:scale-95 shrink-0 cursor-pointer"
+              >
+                <Search className="w-4 h-4 text-[#C5A059]" />
+                <span>Search Venues</span>
+              </button>
+
             </div>
 
-            {/* Bottom Actions & Quick Trending Filter Pills */}
-            <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 pt-2.5 border-t border-amber-200/60 max-w-full min-w-0">
-              <div className="flex items-center gap-2 overflow-x-auto no-scrollbar w-full sm:w-auto min-w-0 max-w-full text-xs py-0.5">
-                <span className="font-bold text-stone-800 whitespace-nowrap text-[10px] uppercase tracking-wider shrink-0">Trending:</span>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setHeroSearch({ ...heroSearch, eventType: 'Wedding' })
-                    onExploreVendors()
-                  }}
-                  className="bg-amber-100/90 hover:bg-amber-200 text-amber-900 border border-amber-300 px-2.5 py-0.5 rounded-full whitespace-nowrap font-semibold text-[11px] transition-colors cursor-pointer shrink-0"
+            {/* Mobile: Clean Stacked Form with 44px min touch targets */}
+            <div className="sm:hidden space-y-2 p-1">
+              <div className="bg-stone-50 rounded-xl p-2.5 border border-stone-200">
+                <label className="block text-[10px] font-bold text-[#6E2338] uppercase tracking-wider mb-0.5">
+                  Celebration
+                </label>
+                <select
+                  value={heroSearch.eventType}
+                  onChange={(e) => setHeroSearch({ ...heroSearch, eventType: e.target.value })}
+                  className="w-full bg-transparent font-medium text-stone-900 text-xs focus:outline-none cursor-pointer"
                 >
-                  🏰 Heritage Palaces
-                </button>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setHeroSearch({ ...heroSearch, eventType: 'Wedding' })
-                    onExploreVendors()
-                  }}
-                  className="bg-orange-100/90 hover:bg-orange-200 text-orange-900 border border-orange-300 px-2.5 py-0.5 rounded-full whitespace-nowrap font-semibold text-[11px] transition-colors cursor-pointer shrink-0"
-                >
-                  🍲 Awadhi Feasts
-                </button>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setHeroSearch({ ...heroSearch, eventType: 'Sangeet' })
-                    onExploreVendors()
-                  }}
-                  className="bg-rose-100/90 hover:bg-rose-200 text-rose-900 border border-rose-300 px-2.5 py-0.5 rounded-full whitespace-nowrap font-semibold text-[11px] transition-colors cursor-pointer shrink-0"
-                >
-                  🌸 Floral Mandaps
-                </button>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setHeroSearch({ ...heroSearch, eventType: 'Wedding' })
-                    onExploreVendors()
-                  }}
-                  className="bg-sky-100/90 hover:bg-sky-200 text-sky-900 border border-sky-300 px-2.5 py-0.5 rounded-full whitespace-nowrap font-semibold text-[11px] transition-colors cursor-pointer shrink-0"
-                >
-                  📸 4K Candid Cinema
-                </button>
+                  {eventTypes.map(t => (
+                    <option key={t.id} value={t.name}>{t.name}</option>
+                  ))}
+                </select>
               </div>
 
-              <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 w-full sm:w-auto shrink-0">
-                <button
-                  onClick={onExploreVendors}
-                  className="px-4 py-2.5 rounded-xl bg-white hover:bg-stone-50 text-stone-800 font-bold text-xs transition-all text-center border border-stone-300 hover:border-amber-500 shadow-2xs active:scale-95 cursor-pointer whitespace-nowrap"
-                >
-                  Explore Directory
-                </button>
-                <button
-                  onClick={onStartPlanning}
-                  className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-[#6E2338] via-[#8E334B] to-[#6E2338] hover:brightness-110 text-amber-100 font-bold text-xs flex items-center justify-center gap-1.5 active:scale-95 shadow-md cursor-pointer whitespace-nowrap"
-                >
-                  <Search className="w-3.5 h-3.5 text-amber-300" />
-                  <span>Search Verified Masters</span>
-                </button>
+              <div className="grid grid-cols-2 gap-2">
+                <div className="bg-stone-50 rounded-xl p-2.5 border border-stone-200">
+                  <label className="block text-[10px] font-bold text-[#6E2338] uppercase tracking-wider mb-0.5">
+                    Destination
+                  </label>
+                  <select
+                    value={heroSearch.city}
+                    onChange={(e) => {
+                      setHeroSearch({ ...heroSearch, city: e.target.value })
+                      setSelectedCity(e.target.value)
+                    }}
+                    className="w-full bg-transparent font-medium text-stone-900 text-xs focus:outline-none cursor-pointer"
+                  >
+                    {cities.filter(c => c !== 'All Cities').map(c => (
+                      <option key={c} value={c}>{c}</option>
+                    ))}
+                  </select>
+                </div>
+
+                <div className="bg-stone-50 rounded-xl p-2.5 border border-stone-200">
+                  <label className="block text-[10px] font-bold text-[#6E2338] uppercase tracking-wider mb-0.5">
+                    Guests
+                  </label>
+                  <select
+                    value={heroSearch.guests}
+                    onChange={(e) => setHeroSearch({ ...heroSearch, guests: e.target.value })}
+                    className="w-full bg-transparent font-medium text-stone-900 text-xs focus:outline-none cursor-pointer"
+                  >
+                    <option value="50">50–100</option>
+                    <option value="250">200–350</option>
+                    <option value="500">500–800</option>
+                    <option value="1200">1000+</option>
+                  </select>
+                </div>
               </div>
+
+              <button
+                type="button"
+                onClick={onExploreVendors}
+                className="w-full py-3 rounded-xl bg-[#2D0B16] hover:bg-[#3D101E] text-amber-100 font-semibold text-xs flex items-center justify-center gap-2 shadow-md transition-all active:scale-95 cursor-pointer mt-1"
+              >
+                <Search className="w-3.5 h-3.5 text-[#C5A059]" />
+                <span>Search Venues</span>
+              </button>
             </div>
 
+          </div>
+
+          {/* Understated Curated Quick Links */}
+          <div className="flex items-center justify-center gap-2 sm:gap-3 mt-3 text-[11px] text-stone-300 overflow-x-auto no-scrollbar py-0.5 px-2">
+            <span className="font-medium text-amber-200/90 whitespace-nowrap">Curated:</span>
+            <button
+              type="button"
+              onClick={() => {
+                setHeroSearch({ ...heroSearch, eventType: 'Wedding' })
+                onExploreVendors()
+              }}
+              className="text-stone-300 hover:text-white transition-colors cursor-pointer whitespace-nowrap"
+            >
+              Heritage Palaces
+            </button>
+            <span className="text-stone-500">·</span>
+            <button
+              type="button"
+              onClick={() => {
+                setHeroSearch({ ...heroSearch, eventType: 'Wedding' })
+                onExploreVendors()
+              }}
+              className="text-stone-300 hover:text-white transition-colors cursor-pointer whitespace-nowrap"
+            >
+              Awadhi Feasts
+            </button>
+            <span className="text-stone-500">·</span>
+            <button
+              type="button"
+              onClick={() => {
+                setHeroSearch({ ...heroSearch, eventType: 'Sangeet' })
+                onExploreVendors()
+              }}
+              className="text-stone-300 hover:text-white transition-colors cursor-pointer whitespace-nowrap"
+            >
+              Floral Mandaps
+            </button>
+            <span className="text-stone-500">·</span>
+            <button
+              type="button"
+              onClick={() => {
+                setHeroSearch({ ...heroSearch, eventType: 'Wedding' })
+                onExploreVendors()
+              }}
+              className="text-stone-300 hover:text-white transition-colors cursor-pointer whitespace-nowrap"
+            >
+              Candid Cinema
+            </button>
           </div>
         </motion.div>
 

@@ -178,17 +178,17 @@ export default function RajshreeAIConcierge({ onOpenNegotiation, onOpenRecce }) 
       <button
         onClick={() => setIsOpen(true)}
         aria-label="Ask Rajshree AI Concierge"
-        className="fixed bottom-20 left-4 sm:bottom-6 sm:left-6 z-40 group flex items-center gap-2 px-4 py-2.5 rounded-full bg-gradient-to-r from-stone-900 via-burgundy to-stone-950 text-amber-200 border-2 border-amber-300/60 shadow-[0_10px_35px_rgba(74,21,37,0.4)] hover:scale-105 active:scale-95 transition-all"
+        className="fixed bottom-18 left-3 sm:bottom-6 sm:left-6 z-40 group flex items-center gap-2 p-2.5 sm:px-4 sm:py-2.5 rounded-full bg-[#1C0E13] text-amber-200 border border-[#C5A059]/40 shadow-lg hover:scale-105 active:scale-95 transition-all cursor-pointer"
         title="Ask Rajshree AI — Royal Wedding Matchmaker"
       >
-        <div className="w-6 h-6 rounded-full bg-gradient-to-tr from-amber-400 to-amber-200 text-stone-900 flex items-center justify-center font-bold text-xs shadow shrink-0">
-          <Sparkles className="w-3.5 h-3.5 text-stone-950 animate-spin" style={{ animationDuration: '6s' }} />
+        <div className="w-6 h-6 rounded-full bg-[#C5A059] text-[#1c1917] flex items-center justify-center font-bold text-xs shadow shrink-0">
+          <Sparkles className="w-3.5 h-3.5 text-[#1c1917]" />
         </div>
-        <div className="text-left">
+        <div className="text-left hidden sm:block">
           <span className="block text-[11px] font-bold tracking-wide text-white leading-tight">
             Rajshree AI Concierge
           </span>
-          <span className="block text-[9px] text-amber-300 uppercase tracking-widest font-mono font-bold">
+          <span className="block text-[9px] text-amber-300 uppercase tracking-widest font-mono font-medium">
             Smart Matchmaker
           </span>
         </div>

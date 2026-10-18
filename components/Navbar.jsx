@@ -44,16 +44,14 @@ export default function Navbar({
 
   return (
     <>
-      <header className="sticky top-0 z-50 bg-gradient-to-r from-[#fcf8ef]/95 via-[#fdfaf3]/95 to-[#faf4e9]/95 backdrop-blur-xl border-b-2 border-amber-300/60 shadow-[0_4px_30px_rgba(74,21,37,0.06)] transition-all overflow-x-clip">
-      {/* 1. TOP ANNOUNCEMENT BANNER */}
+      <header className="sticky top-0 z-50 bg-[#FAF7F2]/95 backdrop-blur-md border-b border-stone-200/80 shadow-xs transition-all overflow-x-clip">
+      {/* 1. TOP EDITORIAL ANNOUNCEMENT BANNER */}
       {announcement?.enabled && (
-        <div className="bg-gradient-to-r from-[#380e1b] via-[#4a1525] to-[#380e1b] text-[#f5ebd7] text-[10px] sm:text-xs py-1.5 sm:py-2 px-3 sm:px-4 text-center font-medium tracking-wide flex items-center justify-center gap-1.5 sm:gap-2 border-b border-[#c5a059]/30 relative overflow-hidden">
-          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-amber-200/10 to-transparent -translate-x-full animate-[shimmer-sweep_3.5s_infinite]" />
-          <Sparkles className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-amber-300 animate-pulse shrink-0" />
-          <span className="font-serif tracking-wide truncate max-w-[210px] sm:max-w-none">{announcement.text}</span>
+        <div className="bg-[#1C0E13] text-[#FAF5EB] text-[11px] sm:text-xs py-1.5 px-4 text-center font-normal tracking-wide flex items-center justify-center gap-2 border-b border-white/10">
+          <span className="truncate max-w-[240px] sm:max-w-none">{announcement.text}</span>
           <button
             onClick={() => setActiveTab('explore')}
-            className="underline underline-offset-2 hover:text-amber-200 font-bold ml-1 cursor-pointer transition-colors shrink-0 whitespace-nowrap"
+            className="text-amber-200 hover:text-white font-medium underline underline-offset-2 ml-1 cursor-pointer transition-colors shrink-0 whitespace-nowrap"
           >
             Explore &rarr;
           </button>
@@ -61,36 +59,35 @@ export default function Navbar({
       )}
 
       {/* 2. MAIN NAVIGATION BAR */}
-      <div className="max-w-7xl mx-auto px-3 sm:px-4 lg:px-6 xl:px-8">
-        <div className="flex items-center justify-between h-16 sm:h-20">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex items-center justify-between h-16 sm:h-18">
           
           {/* BRAND LOGO */}
           <div
             onClick={() => { setActiveTab('home'); setMobileMenuOpen(false); }}
-            className="flex items-center gap-2 sm:gap-3 cursor-pointer group select-none shrink-0"
+            className="flex items-center gap-2.5 sm:gap-3 cursor-pointer group select-none shrink-0"
           >
-            <div className="w-9 h-9 sm:w-11 sm:h-11 rounded-xl sm:rounded-2xl bg-gradient-to-br from-[#4a1525] via-[#370e1b] to-[#20050e] text-[#c5a059] flex items-center justify-center border border-[#c5a059]/40 shadow-md group-hover:scale-105 group-hover:rotate-2 transition-all duration-300 ring-2 ring-amber-400/20 shrink-0">
-              <span className="font-serif font-bold text-lg sm:text-xl leading-none text-amber-200">V</span>
+            <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-[#2D0B16] text-[#C5A059] flex items-center justify-center border border-[#C5A059]/30 shadow-xs group-hover:scale-105 transition-all shrink-0">
+              <span className="font-serif font-bold text-base sm:text-lg leading-none text-amber-200">V</span>
             </div>
             <div>
-              <div className="font-serif text-lg sm:text-2xl font-bold tracking-tight text-[#1c1917] flex items-center gap-1 sm:gap-1.5">
+              <div className="font-serif text-lg sm:text-xl font-bold tracking-tight text-[#1c1917] flex items-center gap-1.5">
                 <span>Vows &amp; Venues</span>
-                <span className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-[#c5a059] inline-block animate-pulse"></span>
               </div>
-              <div className="hidden sm:block text-[9px] uppercase font-bold tracking-[0.22em] text-[#78716c] -mt-0.5">
+              <div className="hidden sm:block text-[9px] uppercase font-semibold tracking-[0.2em] text-[#78716c] -mt-0.5">
                 Luxury Indian Event Marketplace
               </div>
             </div>
           </div>
 
-          {/* CITY SELECTOR PILL */}
-          <div className="hidden xl:flex items-center bg-amber-100/70 hover:bg-amber-200/80 transition-all rounded-full px-4 py-1.5 border border-amber-300/80 shadow-xs text-xs font-medium text-[#44403c] hover:scale-105">
-            <MapPin className="w-3.5 h-3.5 text-[#4a1525] mr-1.5" />
-            <span className="text-amber-900 font-semibold mr-1">Location:</span>
+          {/* REFINED CITY SELECTOR */}
+          <div className="hidden xl:flex items-center bg-stone-100/90 hover:bg-stone-200/80 transition-all rounded-full px-3.5 py-1.5 border border-stone-200 text-xs font-medium text-stone-700">
+            <MapPin className="w-3.5 h-3.5 text-[#2D0B16] mr-1.5" />
+            <span className="text-stone-500 mr-1">City:</span>
             <select
               value={selectedCity}
               onChange={(e) => setSelectedCity(e.target.value)}
-              className="bg-transparent text-[#1c1917] font-bold focus:outline-none cursor-pointer pr-1"
+              className="bg-transparent text-[#1c1917] font-semibold focus:outline-none cursor-pointer pr-1"
             >
               {cities.map(c => (
                 <option key={c} value={c}>{c}</option>
@@ -99,104 +96,104 @@ export default function Navbar({
           </div>
 
           {/* DESKTOP NAV LINKS */}
-          <nav className="hidden lg:flex items-center gap-1 xl:gap-2 text-[12px] xl:text-[13px] font-medium text-[#44403c]">
+          <nav className="hidden lg:flex items-center gap-1 xl:gap-1.5 text-[12px] xl:text-[13px] font-medium text-[#44403c]">
             <button
               onClick={() => setActiveTab('home')}
-              className={`px-2.5 xl:px-3.5 py-1.5 xl:py-2 rounded-full transition-all duration-300 hover:-translate-y-0.5 ${
+              className={`px-3 py-1.5 rounded-full transition-all ${
                 activeTab === 'home'
-                  ? 'text-[#4a1525] bg-gradient-to-r from-amber-100/70 via-rose-100/60 to-amber-100/70 font-bold border border-amber-300/80 shadow-sm'
-                  : 'hover:text-[#1c1917] hover:bg-[#f2ede4]'
+                  ? 'text-[#2D0B16] bg-stone-200/75 font-semibold'
+                  : 'hover:text-[#1c1917] hover:bg-stone-100/80'
               }`}
             >
               Home
             </button>
             <Link
               href="/venues"
-              className="px-2.5 xl:px-3.5 py-1.5 xl:py-2 rounded-full transition-all duration-300 hover:-translate-y-0.5 hover:text-[#1c1917] hover:bg-[#f2ede4] font-medium"
+              className="px-3 py-1.5 rounded-full transition-all hover:text-[#1c1917] hover:bg-stone-100/80 font-medium"
             >
               Browse Venues
             </Link>
             <Link
               href="/how-it-works"
-              className="px-2.5 xl:px-3.5 py-1.5 xl:py-2 rounded-full transition-all duration-300 hover:-translate-y-0.5 hover:text-[#1c1917] hover:bg-[#f2ede4] font-medium"
+              className="px-3 py-1.5 rounded-full transition-all hover:text-[#1c1917] hover:bg-stone-100/80 font-medium"
             >
               How it Works
             </Link>
             <Link
               href="/pricing"
-              className="px-2.5 xl:px-3.5 py-1.5 xl:py-2 rounded-full transition-all duration-300 hover:-translate-y-0.5 hover:text-[#1c1917] hover:bg-[#f2ede4] font-medium"
+              className="px-3 py-1.5 rounded-full transition-all hover:text-[#1c1917] hover:bg-stone-100/80 font-medium"
             >
               Pricing
             </Link>
             <button
               onClick={() => setActiveTab('builder')}
-              className={`px-2.5 xl:px-3.5 py-1.5 xl:py-2 rounded-full relative transition-all duration-300 hover:-translate-y-0.5 flex items-center gap-1.5 ${
+              className={`px-3 py-1.5 rounded-full relative transition-all flex items-center gap-1.5 ${
                 activeTab === 'builder'
-                  ? 'text-[#4a1525] bg-gradient-to-r from-amber-100/70 via-rose-100/60 to-amber-100/70 font-bold border border-amber-300/80 shadow-sm'
-                  : 'hover:text-[#1c1917] hover:bg-[#f2ede4]'
+                  ? 'text-[#2D0B16] bg-stone-200/75 font-semibold'
+                  : 'hover:text-[#1c1917] hover:bg-stone-100/80'
               }`}
             >
               <span>Build My Event</span>
               {budgetCount > 0 && (
-                <span className="bg-gradient-to-r from-[#4a1525] to-[#781f37] text-amber-200 text-[10px] font-bold px-2 py-0.5 rounded-full shadow-sm animate-pulse">
+                <span className="bg-[#2D0B16] text-amber-100 text-[10px] font-bold px-1.5 py-0.2 rounded-full shadow-xs">
                   {budgetCount}
                 </span>
               )}
             </button>
             <button
               onClick={() => setActiveTab('planning_toolkit')}
-              className={`px-2.5 xl:px-3.5 py-1.5 xl:py-2 rounded-full relative transition-all duration-300 hover:-translate-y-0.5 flex items-center gap-1.5 ${
+              className={`px-3 py-1.5 rounded-full relative transition-all flex items-center gap-1.5 ${
                 activeTab === 'planning_toolkit'
-                  ? 'text-[#4a1525] bg-gradient-to-r from-amber-100/70 via-rose-100/60 to-amber-100/70 font-bold border border-amber-300/80 shadow-sm'
-                  : 'hover:text-[#1c1917] hover:bg-[#f2ede4]'
+                  ? 'text-[#2D0B16] bg-stone-200/75 font-semibold'
+                  : 'hover:text-[#1c1917] hover:bg-stone-100/80'
               }`}
             >
               <span>Wedding Toolkit</span>
-              <span className="hidden xl:inline bg-gradient-to-r from-amber-500 to-rose-600 text-white text-[9px] font-extrabold uppercase px-1.5 py-0.5 rounded-full shadow-xs">
+              <span className="hidden xl:inline text-[9px] font-semibold uppercase tracking-wider text-stone-500 bg-stone-200/70 px-1.5 py-0.5 rounded-md">
                 Budget &amp; RSVP
               </span>
             </button>
           </nav>
 
           {/* RIGHT ACTION BUTTONS */}
-          <div className="flex items-center gap-1.5 sm:gap-2 xl:gap-3 shrink-0">
-            {/* Wishlist Button (Desktop/Tablet - hidden on mobile as it is pinned in bottom nav) */}
+          <div className="flex items-center gap-2 sm:gap-2.5 xl:gap-3 shrink-0">
+            {/* Wishlist Button */}
             <button
               onClick={() => setActiveTab('wishlist')}
               title="Saved Wishlist"
-              className={`hidden sm:flex p-2.5 rounded-full border relative transition-all duration-300 hover:scale-110 active:scale-95 ${
+              className={`hidden sm:flex p-2 rounded-full border relative transition-all active:scale-95 ${
                 activeTab === 'wishlist'
-                  ? 'bg-rose-50 text-rose-600 border-rose-300 shadow-sm'
-                  : 'bg-white/80 hover:bg-[#eae3d7] border-[#dfd7c8] text-[#44403c] shadow-sm'
+                  ? 'bg-rose-50 text-rose-600 border-rose-200 shadow-xs'
+                  : 'bg-stone-100/80 hover:bg-stone-200/70 border-stone-200 text-stone-700'
               }`}
             >
               <Heart className={`w-4 h-4 ${wishlistCount > 0 ? 'fill-rose-500 text-rose-500' : ''}`} />
               {wishlistCount > 0 && (
-                <span className="absolute -top-1 -right-1 bg-rose-600 text-white text-[10px] font-bold w-4 h-4 rounded-full flex items-center justify-center shadow-sm">
+                <span className="absolute -top-1 -right-1 bg-rose-600 text-white text-[10px] font-bold w-4 h-4 rounded-full flex items-center justify-center shadow-xs">
                   {wishlistCount}
                 </span>
               )}
             </button>
 
-            {/* Notifications Bell (Desktop/Tablet) */}
+            {/* Notifications Bell */}
             <div className="relative hidden sm:block">
               <button
                 onClick={() => setShowNotifications(!showNotifications)}
                 title="Notifications"
-                className="p-2.5 rounded-full border border-[#dfd7c8] bg-[#f5f2eb] hover:bg-[#eae3d7] text-[#44403c] relative transition-all"
+                className="p-2 rounded-full border border-stone-200 bg-stone-100/80 hover:bg-stone-200/70 text-stone-700 relative transition-all"
               >
                 <Bell className="w-4 h-4" />
                 {unreadCount > 0 && (
-                  <span className="absolute top-1 right-1 w-2 h-2 rounded-full bg-[#c5a059] ring-2 ring-white"></span>
+                  <span className="absolute top-1 right-1 w-2 h-2 rounded-full bg-[#C5A059] ring-2 ring-white"></span>
                 )}
               </button>
 
               {/* Notifications Dropdown */}
               {showNotifications && (
-                <div className="absolute right-0 mt-3 w-80 sm:w-96 bg-white rounded-2xl shadow-xl border border-[#e8e2d5] p-4 z-50 animate-in fade-in slide-in-from-top-2">
+                <div className="absolute right-0 mt-3 w-80 sm:w-96 bg-white rounded-2xl shadow-xl border border-stone-200 p-4 z-50 animate-in fade-in slide-in-from-top-2">
                   <div className="flex items-center justify-between pb-3 border-b border-stone-100">
                     <h4 className="font-serif font-bold text-sm text-[#1c1917] flex items-center gap-2">
-                      <Bell className="w-4 h-4 text-[#4a1525]" /> Notifications
+                      <Bell className="w-4 h-4 text-[#2D0B16]" /> Notifications
                     </h4>
                     <span className="text-[11px] text-stone-500">{notifications.length} alerts</span>
                   </div>
@@ -216,7 +213,7 @@ export default function Navbar({
                   </div>
                   <button
                     onClick={() => setShowNotifications(false)}
-                    className="w-full mt-3 py-1.5 text-center text-xs text-[#4a1525] font-semibold hover:bg-stone-50 rounded-lg transition-colors"
+                    className="w-full mt-3 py-1.5 text-center text-xs text-[#2D0B16] font-semibold hover:bg-stone-50 rounded-lg transition-colors cursor-pointer"
                   >
                     Close
                   </button>
@@ -229,23 +226,23 @@ export default function Navbar({
               <div className="relative">
                 <button
                   onClick={() => setShowProfileMenu(!showProfileMenu)}
-                  className="btn-3d-wine flex items-center gap-1.5 sm:gap-2 pl-1.5 sm:pl-2 pr-2.5 sm:pr-3.5 py-1 sm:py-1.5 rounded-full bg-gradient-to-r from-[#4a1525] via-[#5e192f] to-[#4a1525] text-white hover:brightness-110 transition-all border border-[#c5a059]/40 shadow-md hover:scale-105 active:scale-95 text-xs"
+                  className="flex items-center gap-1.5 sm:gap-2 pl-1.5 pr-2.5 sm:pr-3 py-1 sm:py-1.5 rounded-full bg-[#2D0B16] hover:bg-[#3D101E] text-white transition-all border border-[#C5A059]/30 shadow-xs active:scale-95 text-xs cursor-pointer"
                 >
-                  <div className="w-6 h-6 sm:w-7 sm:h-7 rounded-full bg-gradient-to-br from-amber-300 to-amber-500 text-[#1c1917] font-bold text-xs flex items-center justify-center shadow-sm shrink-0">
+                  <div className="w-6 h-6 sm:w-7 sm:h-7 rounded-full bg-[#C5A059] text-[#1c1917] font-bold text-xs flex items-center justify-center shadow-xs shrink-0">
                     {currentUser.name ? currentUser.name[0].toUpperCase() : 'U'}
                   </div>
-                  <span className="text-xs font-semibold hidden sm:inline max-w-[100px] truncate text-amber-100">
+                  <span className="text-xs font-medium hidden sm:inline max-w-[100px] truncate text-amber-50">
                     {currentUser.name}
                   </span>
-                  <ChevronDown className="w-3 h-3 sm:w-3.5 sm:h-3.5 opacity-80 text-amber-300 shrink-0" />
+                  <ChevronDown className="w-3.5 h-3.5 opacity-80 text-amber-200 shrink-0" />
                 </button>
 
                 {showProfileMenu && (
-                  <div className="absolute right-0 mt-3 w-64 bg-white/95 backdrop-blur-xl rounded-2xl shadow-2xl border border-amber-200/70 p-2 z-50 animate-in fade-in slide-in-from-top-2 text-xs">
-                    <div className="p-3 border-b border-stone-100 bg-gradient-to-br from-amber-50/60 to-rose-50/40 rounded-xl mb-1 border border-amber-100/60">
+                  <div className="absolute right-0 mt-3 w-64 bg-white rounded-2xl shadow-2xl border border-stone-200 p-2 z-50 animate-in fade-in slide-in-from-top-2 text-xs">
+                    <div className="p-3 border-b border-stone-100 bg-stone-50 rounded-xl mb-1">
                       <div className="font-bold text-stone-900 truncate">{currentUser.name}</div>
                       <div className="text-[11px] text-stone-500 truncate">{currentUser.email}</div>
-                      <div className="inline-block mt-1.5 px-2.5 py-0.5 bg-[#ebd8de] text-[#4a1525] rounded-full text-[10px] font-bold uppercase tracking-wider border border-[#4a1525]/20">
+                      <div className="inline-block mt-1.5 px-2.5 py-0.5 bg-stone-200 text-stone-800 rounded-full text-[10px] font-bold uppercase tracking-wider">
                         Role: {userRole}
                       </div>
                     </div>
@@ -259,19 +256,19 @@ export default function Navbar({
                     </Link>
                     <button
                       onClick={() => { setShowProfileMenu(false); setActiveTab('builder'); }}
-                      className="w-full text-left px-3 py-2 hover:bg-[#faf8f5] rounded-lg font-medium text-stone-800 flex items-center gap-2"
+                      className="w-full text-left px-3 py-2 hover:bg-[#faf8f5] rounded-lg font-medium text-stone-800 flex items-center gap-2 cursor-pointer"
                     >
                       <CalendarDays className="w-4 h-4 text-stone-500" /> My Event Plan
                     </button>
                     <button
                       onClick={() => { setShowProfileMenu(false); setActiveTab('planning_toolkit'); }}
-                      className="w-full text-left px-3 py-2 hover:bg-[#faf8f5] rounded-lg font-medium text-stone-800 flex items-center gap-2"
+                      className="w-full text-left px-3 py-2 hover:bg-[#faf8f5] rounded-lg font-medium text-stone-800 flex items-center gap-2 cursor-pointer"
                     >
                       <Calculator className="w-4 h-4 text-stone-500" /> Wedding Toolkit (Budget &amp; RSVP)
                     </button>
                     <button
                       onClick={() => { setShowProfileMenu(false); setActiveTab('wishlist'); }}
-                      className="w-full text-left px-3 py-2 hover:bg-[#faf8f5] rounded-lg font-medium text-stone-800 flex items-center gap-2"
+                      className="w-full text-left px-3 py-2 hover:bg-[#faf8f5] rounded-lg font-medium text-stone-800 flex items-center gap-2 cursor-pointer"
                     >
                       <Heart className="w-4 h-4 text-stone-500" /> Saved Wishlist
                     </button>
@@ -283,21 +280,21 @@ export default function Navbar({
                       <Link
                         href="/"
                         onClick={() => { setUserRole('customer'); setShowProfileMenu(false); }}
-                        className={`block w-full text-left px-3 py-1.5 rounded-lg text-xs font-semibold ${userRole === 'customer' ? 'text-[#4a1525] bg-[#ebd8de]/40' : 'text-stone-700 hover:bg-stone-50'}`}
+                        className={`block w-full text-left px-3 py-1.5 rounded-lg text-xs font-semibold ${userRole === 'customer' ? 'text-[#2D0B16] bg-stone-100' : 'text-stone-700 hover:bg-stone-50'}`}
                       >
                         Customer Experience
                       </Link>
                       <Link
                         href="/vendor"
                         onClick={() => { setUserRole('vendor'); setShowProfileMenu(false); }}
-                        className={`block w-full text-left px-3 py-1.5 rounded-lg text-xs font-semibold ${userRole === 'vendor' ? 'text-[#4a1525] bg-[#ebd8de]/40' : 'text-stone-700 hover:bg-stone-50'}`}
+                        className={`block w-full text-left px-3 py-1.5 rounded-lg text-xs font-semibold ${userRole === 'vendor' ? 'text-[#2D0B16] bg-stone-100' : 'text-stone-700 hover:bg-stone-50'}`}
                       >
                         Vendor Partner Portal
                       </Link>
                       <Link
                         href="/admin"
                         onClick={() => { setUserRole('admin'); setShowProfileMenu(false); }}
-                        className={`block w-full text-left px-3 py-1.5 rounded-lg text-xs font-semibold ${userRole === 'admin' ? 'text-[#4a1525] bg-[#ebd8de]/40' : 'text-stone-700 hover:bg-stone-50'}`}
+                        className={`block w-full text-left px-3 py-1.5 rounded-lg text-xs font-semibold ${userRole === 'admin' ? 'text-[#2D0B16] bg-stone-100' : 'text-stone-700 hover:bg-stone-50'}`}
                       >
                         Operations Admin Console
                       </Link>
@@ -306,7 +303,7 @@ export default function Navbar({
                     <div className="border-t border-stone-100 mt-1 pt-1">
                       <button
                         onClick={() => { setShowProfileMenu(false); onLogout(); }}
-                        className="w-full text-left px-3 py-2 text-rose-600 hover:bg-rose-50 rounded-lg font-semibold flex items-center gap-2"
+                        className="w-full text-left px-3 py-2 text-rose-600 hover:bg-rose-50 rounded-lg font-semibold flex items-center gap-2 cursor-pointer"
                       >
                         <LogOut className="w-4 h-4" /> Sign Out
                       </button>
@@ -317,9 +314,8 @@ export default function Navbar({
             ) : (
               <button
                 onClick={onOpenAuth || (() => { window.location.href = '/login' })}
-                className="btn-3d-wine px-3 sm:px-5 py-1.5 sm:py-2 rounded-full bg-gradient-to-r from-[#4a1525] via-[#5c1a2e] to-[#4a1525] hover:brightness-110 text-[#f5ebd7] text-xs font-bold transition-all shadow-md border border-[#c5a059]/40 hover:scale-105 active:scale-95 flex items-center gap-1 sm:gap-1.5 shrink-0"
+                className="px-4 sm:px-5 py-2 rounded-full bg-[#2D0B16] hover:bg-[#3D101E] text-amber-50 text-xs font-semibold transition-all shadow-xs border border-[#C5A059]/30 active:scale-95 flex items-center gap-1.5 shrink-0 cursor-pointer"
               >
-                <Sparkles className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-amber-300 shrink-0" />
                 <span>Sign In</span>
               </button>
             )}
@@ -327,7 +323,7 @@ export default function Navbar({
             {/* MOBILE MENU TOGGLE */}
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="lg:hidden p-2 rounded-xl border border-amber-300/80 bg-gradient-to-b from-amber-50 to-amber-100/70 hover:bg-amber-200 text-[#4a1525] transition-all shadow-xs flex items-center justify-center shrink-0 active:scale-95"
+              className="lg:hidden p-2 rounded-xl border border-stone-200 bg-stone-100 hover:bg-stone-200 text-stone-800 transition-all flex items-center justify-center shrink-0 active:scale-95 cursor-pointer"
               aria-label="Toggle navigation menu"
             >
               {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
@@ -339,16 +335,16 @@ export default function Navbar({
 
       {/* MOBILE ACCORDION DRAWER */}
       {mobileMenuOpen && (
-        <div className="lg:hidden bg-gradient-to-b from-[#fdfbf7] via-[#faf4ea] to-[#f7efe0] border-b-2 border-amber-300/70 px-4 py-4 space-y-3 animate-in slide-in-from-top-2 shadow-2xl">
+        <div className="lg:hidden bg-[#FAF7F2] border-b border-stone-200 px-4 py-4 space-y-3 animate-in slide-in-from-top-2 shadow-xl">
           {/* City Selector */}
-          <div className="p-2.5 rounded-xl bg-white/90 border border-amber-200/90 flex items-center justify-between shadow-xs">
+          <div className="p-2.5 rounded-xl bg-white border border-stone-200 flex items-center justify-between shadow-xs">
             <span className="text-xs text-stone-600 font-semibold flex items-center gap-1.5">
-              <MapPin className="w-3.5 h-3.5 text-[#4a1525]" /> Location:
+              <MapPin className="w-3.5 h-3.5 text-[#2D0B16]" /> City:
             </span>
             <select
               value={selectedCity}
               onChange={(e) => setSelectedCity(e.target.value)}
-              className="bg-amber-50/80 border border-amber-300 rounded-lg px-2.5 py-1 text-xs font-bold text-stone-900 focus:outline-none cursor-pointer"
+              className="bg-stone-50 border border-stone-200 rounded-lg px-2.5 py-1 text-xs font-semibold text-stone-900 focus:outline-none cursor-pointer"
             >
               {cities.map(c => (
                 <option key={c} value={c}>{c}</option>
@@ -358,11 +354,11 @@ export default function Navbar({
 
           {/* Quick Notifications Alert if any */}
           {unreadCount > 0 && (
-            <div className="p-2.5 rounded-xl bg-amber-100/90 border border-amber-300 text-amber-950 text-xs flex items-center justify-between">
-              <span className="flex items-center gap-1.5 font-bold">
-                <Bell className="w-3.5 h-3.5 text-[#4a1525]" /> {unreadCount} New Notification{unreadCount > 1 ? 's' : ''}
+            <div className="p-2.5 rounded-xl bg-amber-50 border border-amber-200 text-amber-950 text-xs flex items-center justify-between">
+              <span className="flex items-center gap-1.5 font-semibold">
+                <Bell className="w-3.5 h-3.5 text-[#2D0B16]" /> {unreadCount} New Notification{unreadCount > 1 ? 's' : ''}
               </span>
-              <span className="text-[10px] bg-[#4a1525] text-amber-200 px-2 py-0.5 rounded-full font-bold">Alert</span>
+              <span className="text-[10px] bg-[#2D0B16] text-amber-200 px-2 py-0.5 rounded-full font-bold">Alert</span>
             </div>
           )}
 
@@ -370,12 +366,11 @@ export default function Navbar({
           <div className="space-y-1">
             <button
               onClick={() => { setActiveTab('home'); setMobileMenuOpen(false); }}
-              className={`w-full text-left px-3.5 py-2.5 rounded-xl text-sm font-semibold transition-all flex items-center justify-between ${
-                activeTab === 'home' ? 'bg-[#4a1525] text-[#f5ebd7] shadow-sm' : 'text-stone-700 hover:bg-white'
+              className={`w-full text-left px-3.5 py-2.5 rounded-xl text-sm font-semibold transition-all flex items-center justify-between cursor-pointer ${
+                activeTab === 'home' ? 'bg-[#2D0B16] text-[#f5ebd7] shadow-xs' : 'text-stone-700 hover:bg-white'
               }`}
             >
               <span>Home</span>
-              <Sparkles className="w-4 h-4 opacity-70" />
             </button>
             <Link
               href="/venues"
@@ -383,7 +378,7 @@ export default function Navbar({
               className="w-full text-left px-3.5 py-2.5 rounded-xl text-sm font-semibold transition-all flex items-center justify-between text-stone-700 hover:bg-white"
             >
               <span>Browse Venues</span>
-              <Building2 className="w-4 h-4 opacity-70 text-amber-700" />
+              <Building2 className="w-4 h-4 text-stone-500" />
             </Link>
             <Link
               href="/dashboard"
@@ -391,7 +386,7 @@ export default function Navbar({
               className="w-full text-left px-3.5 py-2.5 rounded-xl text-sm font-semibold transition-all flex items-center justify-between text-stone-700 hover:bg-white"
             >
               <span>Customer Dashboard</span>
-              <Building2 className="w-4 h-4 opacity-70 text-amber-700" />
+              <Building2 className="w-4 h-4 text-stone-500" />
             </Link>
             <Link
               href="/how-it-works"
@@ -399,7 +394,7 @@ export default function Navbar({
               className="w-full text-left px-3.5 py-2.5 rounded-xl text-sm font-semibold transition-all flex items-center justify-between text-stone-700 hover:bg-white"
             >
               <span>How it Works</span>
-              <Compass className="w-4 h-4 opacity-70" />
+              <Compass className="w-4 h-4 text-stone-500" />
             </Link>
             <Link
               href="/pricing"
@@ -407,36 +402,35 @@ export default function Navbar({
               className="w-full text-left px-3.5 py-2.5 rounded-xl text-sm font-semibold transition-all flex items-center justify-between text-stone-700 hover:bg-white"
             >
               <span>Pricing</span>
-              <Sparkles className="w-4 h-4 opacity-70 text-amber-600" />
             </Link>
             <button
               onClick={() => { setActiveTab('builder'); setMobileMenuOpen(false); }}
-              className={`w-full text-left px-3.5 py-2.5 rounded-xl text-sm font-semibold transition-all flex items-center justify-between ${
-                activeTab === 'builder' ? 'bg-[#4a1525] text-[#f5ebd7] shadow-sm' : 'text-stone-700 hover:bg-white'
+              className={`w-full text-left px-3.5 py-2.5 rounded-xl text-sm font-semibold transition-all flex items-center justify-between cursor-pointer ${
+                activeTab === 'builder' ? 'bg-[#2D0B16] text-[#f5ebd7] shadow-xs' : 'text-stone-700 hover:bg-white'
               }`}
             >
               <span>Build My Event</span>
               {budgetCount > 0 ? (
-                <span className="bg-amber-400 text-stone-950 text-[10px] font-bold px-2 py-0.5 rounded-full">
+                <span className="bg-[#2D0B16] text-amber-200 text-[10px] font-bold px-2 py-0.5 rounded-full">
                   {budgetCount} Items
                 </span>
               ) : (
-                <Calendar className="w-4 h-4 opacity-70" />
+                <Calendar className="w-4 h-4 text-stone-500" />
               )}
             </button>
             <button
               onClick={() => { setActiveTab('planning_toolkit'); setMobileMenuOpen(false); }}
-              className={`w-full text-left px-3.5 py-2.5 rounded-xl text-sm font-semibold transition-all flex items-center justify-between ${
-                activeTab === 'planning_toolkit' ? 'bg-[#4a1525] text-[#f5ebd7] shadow-sm' : 'text-stone-700 hover:bg-white'
+              className={`w-full text-left px-3.5 py-2.5 rounded-xl text-sm font-semibold transition-all flex items-center justify-between cursor-pointer ${
+                activeTab === 'planning_toolkit' ? 'bg-[#2D0B16] text-[#f5ebd7] shadow-xs' : 'text-stone-700 hover:bg-white'
               }`}
             >
               <span>Wedding Toolkit (Budget &amp; RSVP)</span>
-              <Calculator className="w-4 h-4 opacity-70" />
+              <Calculator className="w-4 h-4 text-stone-500" />
             </button>
             <button
               onClick={() => { setActiveTab('wishlist'); setMobileMenuOpen(false); }}
-              className={`w-full text-left px-3.5 py-2.5 rounded-xl text-sm font-semibold transition-all flex items-center justify-between ${
-                activeTab === 'wishlist' ? 'bg-[#4a1525] text-[#f5ebd7] shadow-sm' : 'text-stone-700 hover:bg-white'
+              className={`w-full text-left px-3.5 py-2.5 rounded-xl text-sm font-semibold transition-all flex items-center justify-between cursor-pointer ${
+                activeTab === 'wishlist' ? 'bg-[#2D0B16] text-[#f5ebd7] shadow-xs' : 'text-stone-700 hover:bg-white'
               }`}
             >
               <span>Saved Wishlist</span>
@@ -445,22 +439,22 @@ export default function Navbar({
                   {wishlistCount} Saved
                 </span>
               ) : (
-                <Heart className="w-4 h-4 opacity-70" />
+                <Heart className="w-4 h-4 text-stone-500" />
               )}
             </button>
           </div>
 
           {/* Role Portals */}
-          <div className="border-t border-amber-200/80 pt-2 flex gap-2">
+          <div className="border-t border-stone-200 pt-2 flex gap-2">
             <button
               onClick={() => { setUserRole('vendor'); setActiveTab('vendor_portal'); setMobileMenuOpen(false); }}
-              className="flex-1 py-2 text-center text-xs font-bold rounded-xl bg-white border border-stone-200 text-stone-800 hover:bg-stone-50 shadow-xs"
+              className="flex-1 py-2 text-center text-xs font-semibold rounded-xl bg-white border border-stone-200 text-stone-800 hover:bg-stone-50 shadow-xs cursor-pointer"
             >
               Vendor Portal
             </button>
             <button
               onClick={() => { setUserRole('admin'); setActiveTab('admin_portal'); setMobileMenuOpen(false); }}
-              className="flex-1 py-2 text-center text-xs font-bold rounded-xl bg-gradient-to-r from-[#4a1525] to-[#60192e] text-[#f5ebd7] hover:brightness-110 shadow-xs"
+              className="flex-1 py-2 text-center text-xs font-semibold rounded-xl bg-[#2D0B16] text-[#f5ebd7] hover:bg-[#3D101E] shadow-xs cursor-pointer"
             >
               Admin Console
             </button>
@@ -468,14 +462,14 @@ export default function Navbar({
 
           {/* Current User in mobile menu */}
           {currentUser && (
-            <div className="border-t border-amber-200/80 pt-2 flex items-center justify-between">
+            <div className="border-t border-stone-200 pt-2 flex items-center justify-between">
               <div className="text-xs">
                 <div className="font-bold text-stone-900 truncate max-w-[180px]">{currentUser.name}</div>
                 <div className="text-[10px] text-stone-500 capitalize">{userRole} Account</div>
               </div>
               <button
                 onClick={() => { setMobileMenuOpen(false); onLogout(); }}
-                className="text-xs font-semibold text-rose-600 hover:text-rose-700 px-2 py-1 rounded-lg hover:bg-rose-50"
+                className="text-xs font-semibold text-rose-600 hover:text-rose-700 px-2 py-1 rounded-lg hover:bg-rose-50 cursor-pointer"
               >
                 Sign Out
               </button>
@@ -485,37 +479,37 @@ export default function Navbar({
       )}
     </header>
 
-    {/* 3. MOBILE FIXED BOTTOM NAVIGATION BAR (Rendered outside header to avoid stacking context / containing block clipping) */}
-    <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-gradient-to-r from-[#fcf8ef]/95 via-[#fdfaf3]/95 to-[#faf4e9]/95 backdrop-blur-xl border-t border-amber-300/60 px-2 py-2 shadow-[0_-4px_25px_rgba(74,21,37,0.08)] flex items-center justify-around pb-[max(0.5rem,env(safe-area-inset-bottom))]">
+    {/* 3. MOBILE FIXED BOTTOM NAVIGATION BAR */}
+    <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-[#FAF7F2]/95 backdrop-blur-xl border-t border-stone-200/80 px-2 py-2 shadow-lg flex items-center justify-around pb-[max(0.5rem,env(safe-area-inset-bottom))]">
       <button
         onClick={() => { setActiveTab('home'); setMobileMenuOpen(false); }}
-        className={`flex flex-col items-center justify-center py-1 px-2.5 rounded-xl transition-colors ${
-          activeTab === 'home' ? 'text-[#4a1525] font-bold' : 'text-[#78716c] hover:text-[#1c1917]'
+        className={`flex flex-col items-center justify-center py-1 px-2.5 rounded-xl transition-colors cursor-pointer ${
+          activeTab === 'home' ? 'text-[#2D0B16] font-bold' : 'text-[#78716c] hover:text-[#1c1917]'
         }`}
       >
-        <Sparkles className={`w-5 h-5 ${activeTab === 'home' ? 'text-[#c5a059]' : ''}`} />
+        <Sparkles className={`w-5 h-5 ${activeTab === 'home' ? 'text-[#C5A059]' : ''}`} />
         <span className="text-[10px] mt-0.5">Home</span>
       </button>
 
       <button
         onClick={() => { setActiveTab('explore'); setMobileMenuOpen(false); }}
-        className={`flex flex-col items-center justify-center py-1 px-2.5 rounded-xl transition-colors ${
-          activeTab === 'explore' ? 'text-[#4a1525] font-bold' : 'text-[#78716c] hover:text-[#1c1917]'
+        className={`flex flex-col items-center justify-center py-1 px-2.5 rounded-xl transition-colors cursor-pointer ${
+          activeTab === 'explore' ? 'text-[#2D0B16] font-bold' : 'text-[#78716c] hover:text-[#1c1917]'
         }`}
       >
-        <Compass className={`w-5 h-5 ${activeTab === 'explore' ? 'text-[#c5a059]' : ''}`} />
+        <Compass className={`w-5 h-5 ${activeTab === 'explore' ? 'text-[#C5A059]' : ''}`} />
         <span className="text-[10px] mt-0.5">Explore</span>
       </button>
 
       <button
         onClick={() => { setActiveTab('builder'); setMobileMenuOpen(false); }}
-        className={`relative flex flex-col items-center justify-center py-1 px-2.5 rounded-xl transition-colors ${
-          activeTab === 'builder' ? 'text-[#4a1525] font-bold' : 'text-[#78716c] hover:text-[#1c1917]'
+        className={`relative flex flex-col items-center justify-center py-1 px-2.5 rounded-xl transition-colors cursor-pointer ${
+          activeTab === 'builder' ? 'text-[#2D0B16] font-bold' : 'text-[#78716c] hover:text-[#1c1917]'
         }`}
       >
-        <CalendarDays className={`w-5 h-5 ${activeTab === 'builder' ? 'text-[#c5a059]' : ''}`} />
+        <CalendarDays className={`w-5 h-5 ${activeTab === 'builder' ? 'text-[#C5A059]' : ''}`} />
         {budgetCount > 0 && (
-          <span className="absolute -top-1 right-2 bg-[#4a1525] text-white text-[9px] font-bold w-4 h-4 rounded-full flex items-center justify-center border border-white">
+          <span className="absolute -top-1 right-2 bg-[#2D0B16] text-white text-[9px] font-bold w-4 h-4 rounded-full flex items-center justify-center border border-white">
             {budgetCount}
           </span>
         )}
@@ -524,8 +518,8 @@ export default function Navbar({
 
       <button
         onClick={() => { setActiveTab('wishlist'); setMobileMenuOpen(false); }}
-        className={`relative flex flex-col items-center justify-center py-1 px-2.5 rounded-xl transition-colors ${
-          activeTab === 'wishlist' ? 'text-[#4a1525] font-bold' : 'text-[#78716c] hover:text-[#1c1917]'
+        className={`relative flex flex-col items-center justify-center py-1 px-2.5 rounded-xl transition-colors cursor-pointer ${
+          activeTab === 'wishlist' ? 'text-[#2D0B16] font-bold' : 'text-[#78716c] hover:text-[#1c1917]'
         }`}
       >
         <Heart className={`w-5 h-5 ${activeTab === 'wishlist' ? 'fill-rose-500 text-rose-500' : ''}`} />
@@ -549,8 +543,8 @@ export default function Navbar({
           }
           setMobileMenuOpen(false)
         }}
-        className={`flex flex-col items-center justify-center py-1 px-2.5 rounded-xl transition-colors ${
-          ['bookings', 'admin_portal', 'vendor_portal'].includes(activeTab) ? 'text-[#4a1525] font-bold' : 'text-[#78716c] hover:text-[#1c1917]'
+        className={`flex flex-col items-center justify-center py-1 px-2.5 rounded-xl transition-colors cursor-pointer ${
+          ['bookings', 'admin_portal', 'vendor_portal'].includes(activeTab) ? 'text-[#2D0B16] font-bold' : 'text-[#78716c] hover:text-[#1c1917]'
         }`}
       >
         <User className="w-5 h-5" />
