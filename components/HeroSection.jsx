@@ -71,7 +71,7 @@ export default function HeroSection({
           transition={{ duration: 0.6, ease: luxuryEasing }}
           className="relative z-20 max-w-5xl mx-auto w-full flex items-center justify-between text-white/90"
         >
-          <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-black/40 backdrop-blur-md border border-white/15 text-amber-200/90 text-[11px] font-medium tracking-[0.2em] uppercase shadow-sm">
+          <div className="inline-flex items-center gap-2 px-3 sm:px-3.5 py-1 rounded-full bg-black/40 backdrop-blur-md border border-white/15 text-amber-200/90 text-[10px] sm:text-[11px] font-medium tracking-[0.14em] sm:tracking-[0.2em] uppercase shadow-sm">
             <span className="w-1.5 h-1.5 rounded-full bg-[#C5A059]" />
             <span>{heroData.badge || "Curated Heritage Venues & Masters"}</span>
           </div>
@@ -279,7 +279,7 @@ export default function HeroSection({
           </div>
 
           {/* Understated Curated Quick Links */}
-          <div className="flex items-center justify-center gap-2 sm:gap-3 mt-3 text-[11px] text-stone-300 overflow-x-auto no-scrollbar py-0.5 px-2">
+          <div className="hidden sm:flex items-center justify-center gap-3 mt-3 text-[11px] text-stone-300 py-0.5 px-2">
             <span className="font-medium text-amber-200/90 whitespace-nowrap">Curated:</span>
             <button
               type="button"
