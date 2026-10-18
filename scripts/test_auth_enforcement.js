@@ -133,7 +133,15 @@ async function runAuthEnforcementTests() {
   );
 
   // 7. Authenticated POST /api/bookings with Customer #1 token
-  const authBookingDate = `2026-11-${String(Math.floor(Math.random() * 20) + 1).padStart(2, '0')}`;
+  // Pick a guaranteed unbooked date to prevent 409 collision
+  const availRes = await api(`/api/bookings/availability/${testVenueId}`);
+  const bookedSet = new Set((availRes.data?.bookedDates || []).concat(availRes.data?.blackoutDates || []));
+  let candidateDay = 1;
+  let authBookingDate = `2027-06-${String(candidateDay).padStart(2, '0')}`;
+  while (bookedSet.has(authBookingDate)) {
+    candidateDay++;
+    authBookingDate = `2027-06-${String(candidateDay).padStart(2, '0')}`;
+  }
   const authBookingPayload = {
     venueId: testVenueId,
     venueName: 'The Royal Nawabi Palace & Lawns',
@@ -250,8 +258,8 @@ async function runAuthEnforcementTests() {
   );
 
   // 13. Date Availability reflects newly confirmed booking date
-  const availRes = await api(`/api/bookings/availability/${testVenueId}`);
-  const isDateMarkedBooked = (availRes.data?.bookedDates || []).includes(authBookingDate);
+  const updatedAvailRes = await api(`/api/bookings/availability/${testVenueId}`);
+  const isDateMarkedBooked = (updatedAvailRes.data?.bookedDates || []).includes(authBookingDate);
   record(
     13,
     'Date Availability Dynamic Lock Verification',
