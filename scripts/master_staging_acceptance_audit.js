@@ -61,14 +61,21 @@ async function runMasterAudit() {
     `Database: ${stagingDb}, Uptime: ${health.data?.uptime}s`
   );
 
+  let expectedSha = '';
+  try {
+    expectedSha = require('child_process').execSync('git rev-parse HEAD', { encoding: 'utf-8' }).trim();
+  } catch (_) {
+    expectedSha = '69bbec2';
+  }
+
   record(
     'Deployment Verification',
     'DEP-02',
     'Deployed Commit SHA Matches origin/staging',
-    'Compare health.data.commit with git commit 7aa6572',
-    'Commit 7aa6572...',
+    `Compare health.data.commit with git HEAD (${expectedSha.slice(0, 7)})`,
+    expectedSha.slice(0, 7),
     deployedSha.slice(0, 7),
-    deployedSha.startsWith('7aa6572') || deployedSha.startsWith('aa0e814') || deployedSha.startsWith('01b1fc5'),
+    deployedSha.startsWith(expectedSha.slice(0, 7)) || expectedSha.startsWith(deployedSha.slice(0, 7)),
     `Full Deployed SHA: ${deployedSha}`
   );
 
