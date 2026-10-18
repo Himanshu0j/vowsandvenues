@@ -10,27 +10,28 @@ export default function StandaloneVendorPortalPage() {
   return (
     <div className="min-h-screen bg-[#fcf8f2] text-stone-900">
       {/* Top Navigation */}
-      <header className="sticky top-0 z-40 bg-[#1c1917] text-white border-b border-stone-800 shadow-md">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-amber-400 to-amber-600 text-stone-950 flex items-center justify-center font-serif text-lg font-bold shadow">
+      <header className="sticky top-0 z-40 bg-[#1c1917] text-white border-b border-stone-800 shadow-md overflow-hidden">
+        <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-2 overflow-hidden">
+          <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
+            <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-gradient-to-br from-amber-400 to-amber-600 text-stone-950 flex items-center justify-center font-serif text-base sm:text-lg font-bold shadow shrink-0">
               V
             </div>
-            <div>
-              <span className="font-serif text-base font-bold tracking-tight">Vows &amp; Venues</span>
-              <span className="block text-[10px] text-amber-400 font-mono uppercase tracking-widest font-semibold">
+            <div className="min-w-0">
+              <span className="font-serif text-sm sm:text-base font-bold tracking-tight block truncate">Vows &amp; Venues</span>
+              <span className="block text-[9px] sm:text-[10px] text-amber-400 font-mono uppercase tracking-widest font-semibold truncate">
                 Vendor Partner Portal
               </span>
             </div>
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2 shrink-0">
             <Link
               href="/"
-              className="text-xs text-stone-300 hover:text-white px-3 py-1.5 rounded-lg hover:bg-stone-800 transition-colors flex items-center gap-1.5 font-medium"
+              className="text-xs text-stone-300 hover:text-white px-2.5 sm:px-3 py-1.5 rounded-lg hover:bg-stone-800 transition-colors flex items-center gap-1 font-medium whitespace-nowrap"
             >
               <ArrowLeft className="w-3.5 h-3.5" />
-              <span>Back to Marketplace</span>
+              <span className="hidden sm:inline">Back to Marketplace</span>
+              <span className="sm:hidden text-[11px]">Marketplace</span>
             </Link>
 
             <Link
@@ -45,7 +46,7 @@ export default function StandaloneVendorPortalPage() {
       </header>
 
       {/* Main Content */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <main className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-6 sm:py-8 overflow-x-hidden">
         <ErrorBoundary fallbackTitle="Vendor Partner Suite">
           <VendorPartnerSuite />
         </ErrorBoundary>

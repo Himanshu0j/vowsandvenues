@@ -220,35 +220,35 @@ export default function VendorPartnerSuite() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 max-w-full overflow-hidden">
       {/* Top Banner with Vendor Profile Switcher */}
-      <div className="bg-gradient-to-r from-stone-900 via-emerald-950/90 to-stone-900 text-white rounded-3xl p-6 sm:p-8 border border-emerald-500/30 shadow-2xl">
-        <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6">
-          <div className="flex items-center gap-4">
-            <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-amber-400 to-amber-600 text-stone-950 flex items-center justify-center font-serif text-2xl font-bold shadow-lg shrink-0">
+      <div className="bg-gradient-to-r from-stone-900 via-emerald-950/90 to-stone-900 text-white rounded-3xl p-4 sm:p-8 border border-emerald-500/30 shadow-2xl max-w-full overflow-hidden">
+        <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-5 max-w-full">
+          <div className="flex items-center gap-3 sm:gap-4 max-w-full min-w-0">
+            <div className="w-12 h-12 sm:w-16 sm:h-16 rounded-2xl bg-gradient-to-br from-amber-400 to-amber-600 text-stone-950 flex items-center justify-center font-serif text-lg sm:text-2xl font-bold shadow-lg shrink-0">
               {activeVendor.name.split(' ').map(w => w[0]).slice(0, 2).join('')}
             </div>
-            <div>
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/20 border border-emerald-500/40 text-emerald-300 text-xs font-semibold uppercase tracking-wider mb-1">
-                <Building2 className="w-3.5 h-3.5" />
-                <span>Verified Partner Storefront</span>
+            <div className="min-w-0 flex-1">
+              <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-500/20 border border-emerald-500/40 text-emerald-300 text-[11px] font-semibold uppercase tracking-wider mb-1 truncate">
+                <Building2 className="w-3 h-3 shrink-0" />
+                <span className="truncate">Verified Partner Storefront</span>
               </div>
-              <h1 className="font-serif text-2xl sm:text-3xl font-bold text-white">{activeVendor.name}</h1>
-              <div className="flex flex-wrap items-center gap-3 text-xs text-stone-300 mt-1">
+              <h1 className="font-serif text-xl sm:text-3xl font-bold text-white truncate">{activeVendor.name}</h1>
+              <div className="flex flex-wrap items-center gap-2 sm:gap-3 text-xs text-stone-300 mt-1">
                 <span>📍 {activeVendor.city}</span>
-                <span>★ {activeVendor.rating} ({activeVendor.reviewCount} Reviews)</span>
-                <span>⚡ Avg Response: {activeVendor.responseTime}</span>
+                <span>★ {activeVendor.rating} ({activeVendor.reviewCount})</span>
+                <span>⚡ {activeVendor.responseTime}</span>
               </div>
             </div>
           </div>
 
           {/* Quick Vendor Selector (For Testing Multiple Venues) */}
-          <div className="bg-stone-900/90 border border-white/10 rounded-2xl p-3 flex flex-col sm:flex-row items-start sm:items-center gap-2">
-            <span className="text-[11px] font-bold text-stone-400 uppercase tracking-wider">Switch Storefront:</span>
+          <div className="bg-stone-900/90 border border-white/10 rounded-2xl p-2.5 sm:p-3 flex flex-col sm:flex-row items-start sm:items-center gap-2 w-full sm:w-auto max-w-full">
+            <span className="text-[10px] sm:text-[11px] font-bold text-stone-400 uppercase tracking-wider shrink-0">Switch Storefront:</span>
             <select
               value={selectedVendorId}
               onChange={(e) => setSelectedVendorId(e.target.value)}
-              className="text-xs bg-stone-800 text-white font-semibold px-3 py-1.5 rounded-xl border border-stone-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 cursor-pointer"
+              className="text-xs bg-stone-800 text-white font-semibold px-2.5 py-1.5 rounded-xl border border-stone-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 cursor-pointer w-full sm:w-auto max-w-full truncate"
             >
               {MOCK_VENDOR_PARTNERS.map(v => (
                 <option key={v.id} value={v.id}>{v.name} ({v.city})</option>
@@ -258,7 +258,7 @@ export default function VendorPartnerSuite() {
         </div>
 
         {/* Operational Tabs */}
-        <div className="flex items-center gap-2 overflow-x-auto pt-6 mt-6 border-t border-white/10 text-xs">
+        <div className="flex items-center gap-2 overflow-x-auto pt-4 sm:pt-6 mt-4 sm:mt-6 border-t border-white/10 text-xs max-w-full">
           {[
             { id: 'overview', label: 'Overview & Analytics', icon: TrendingUp },
             { id: 'negotiations', label: `Lead Inbox & Offers (${leads.filter(l => l.status === 'OFFER_MADE').length})`, icon: MessageSquare },
@@ -291,23 +291,23 @@ export default function VendorPartnerSuite() {
       {/* ======================================================== */}
       {activeTab === 'overview' && (
         <div className="space-y-6">
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-            <div className="bg-white rounded-2xl p-5 border border-stone-200 shadow-sm">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+            <div className="bg-white rounded-2xl p-4 sm:p-5 border border-stone-200 shadow-sm">
               <span className="text-[11px] text-stone-500 uppercase tracking-wider block font-bold">Total Inquiries</span>
               <span className="font-serif text-2xl font-bold text-stone-900 mt-1 block">48 Couples</span>
               <span className="text-[10px] text-emerald-600 font-bold block mt-1">↑ 18% this wedding season</span>
             </div>
-            <div className="bg-white rounded-2xl p-5 border border-stone-200 shadow-sm">
+            <div className="bg-white rounded-2xl p-4 sm:p-5 border border-stone-200 shadow-sm">
               <span className="text-[11px] text-stone-500 uppercase tracking-wider block font-bold">Confirmed Bookings</span>
               <span className="font-serif text-2xl font-bold text-emerald-700 mt-1 block">14 Weddings</span>
               <span className="text-[10px] text-stone-500 block mt-1">Token advance held in escrow</span>
             </div>
-            <div className="bg-white rounded-2xl p-5 border border-stone-200 shadow-sm">
+            <div className="bg-white rounded-2xl p-4 sm:p-5 border border-stone-200 shadow-sm">
               <span className="text-[11px] text-stone-500 uppercase tracking-wider block font-bold">Gross Contract Value</span>
               <span className="font-serif text-2xl font-bold text-stone-900 mt-1 block">₹38.5 Lakhs</span>
               <span className="text-[10px] text-stone-500 block mt-1">Avg ₹2.75L per event</span>
             </div>
-            <div className="bg-emerald-50/70 rounded-2xl p-5 border border-emerald-200 shadow-sm">
+            <div className="bg-emerald-50/70 rounded-2xl p-4 sm:p-5 border border-emerald-200 shadow-sm">
               <span className="text-[11px] text-emerald-800 uppercase tracking-wider block font-bold">Net Payouts Received</span>
               <span className="font-serif text-2xl font-bold text-emerald-950 mt-1 block">₹34.65 Lakhs</span>
               <span className="text-[10px] text-emerald-700 font-bold block mt-1">10% Platform fee deducted</span>
