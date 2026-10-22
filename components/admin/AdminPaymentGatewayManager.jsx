@@ -30,11 +30,11 @@ import {
 import { toast } from 'sonner'
 
 export const DEFAULT_PAYMENT_CONFIG = {
-  activeMode: 'HYBRID', // 'CUSTOM_UPI_QR' | 'PAYMENT_GATEWAY' | 'HYBRID' | 'BANK_NEFT_RTGS'
+  activeMode: 'CUSTOM_UPI_QR', // 'CUSTOM_UPI_QR' | 'PAYMENT_GATEWAY' | 'HYBRID' | 'BANK_NEFT_RTGS'
   upi: {
-    upiId: 'vowsandvenues@icici',
-    merchantName: 'Vows & Venues Luxury Hospitality Pvt Ltd',
-    qrImageUrl: 'https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=upi://pay?pa=vowsandvenues@icici&pn=Vows%20and%20Venues%20Luxury%20Hospitality&cu=INR',
+    upiId: '9305977591@ptaxis',
+    merchantName: 'Sakshi Singh',
+    qrImageUrl: '/images/paytm_upi_qr.png',
     requireUtr: true,
     requireScreenshot: false,
     autoWhatsAppReceipt: true
@@ -67,11 +67,11 @@ export const INITIAL_TRANSACTIONS = [
     clientPhone: '+919820123456',
     amount: 160000,
     method: 'CUSTOM_UPI_QR',
-    payeeUpi: 'vowsandvenues@icici',
+    payeeUpi: '9305977591@ptaxis',
     utr: '429188291042',
     date: '14 Oct 2026, 01:15 AM',
     status: 'PENDING_VERIFICATION',
-    notes: '20% Token advance paid via PhonePe UPI QR'
+    notes: '20% Token advance paid via Paytm UPI QR'
   },
   {
     id: 'tx_pay_102',
@@ -107,7 +107,7 @@ export const INITIAL_TRANSACTIONS = [
     clientPhone: '+919876543210',
     amount: 75000,
     method: 'CUSTOM_UPI_QR',
-    payeeUpi: 'vowsandvenues@icici',
+    payeeUpi: '9305977591@ptaxis',
     utr: '000000000000',
     date: '11 Oct 2026, 11:10 AM',
     status: 'REJECTED',
@@ -458,7 +458,7 @@ export default function AdminPaymentGatewayManager() {
                         ...config,
                         upi: { ...config.upi, upiId: e.target.value }
                       })}
-                      placeholder="e.g. vowsandvenues@icici"
+                      placeholder="e.g. 9305977591@ptaxis"
                       className="w-full px-3.5 py-2.5 bg-stone-50 border border-stone-200 rounded-xl text-xs font-mono font-bold text-stone-900 focus:outline-none focus:border-amber-500"
                     />
                     <button
@@ -497,20 +497,45 @@ export default function AdminPaymentGatewayManager() {
 
               <div>
                 <label className="text-xs font-bold text-stone-700 block mb-1">
-                  Custom Static QR Code Image URL (Optional)
+                  Custom Static QR Code Image (Upload File or Enter URL)
                 </label>
-                <input
-                  type="text"
-                  value={config.upi.qrImageUrl}
-                  onChange={(e) => setConfig({
-                    ...config,
-                    upi: { ...config.upi, qrImageUrl: e.target.value }
-                  })}
-                  placeholder="https://... or leave as default dynamic generator"
-                  className="w-full px-3.5 py-2.5 bg-stone-50 border border-stone-200 rounded-xl text-xs text-stone-800 focus:outline-none focus:border-amber-500"
-                />
-                <p className="text-[11px] text-stone-400 mt-1">
-                  If left empty, system automatically renders a dynamic QR code based on your UPI ID above with exact booking amount pre-filled.
+                <div className="flex flex-col sm:flex-row gap-2 items-stretch sm:items-center">
+                  <input
+                    type="text"
+                    value={config.upi.qrImageUrl}
+                    onChange={(e) => setConfig({
+                      ...config,
+                      upi: { ...config.upi, qrImageUrl: e.target.value }
+                    })}
+                    placeholder="/images/paytm_upi_qr.png or image URL"
+                    className="flex-1 px-3.5 py-2.5 bg-stone-50 border border-stone-200 rounded-xl text-xs text-stone-800 font-mono focus:outline-none focus:border-amber-500"
+                  />
+                  <label className="px-4 py-2.5 rounded-xl bg-amber-100 hover:bg-amber-200 text-amber-950 font-bold text-xs cursor-pointer border border-amber-300 flex items-center justify-center gap-1.5 shrink-0 transition-colors">
+                    <QrCode className="w-3.5 h-3.5 text-amber-800" />
+                    <span>Upload QR Image</span>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      className="hidden"
+                      onChange={(e) => {
+                        const file = e.target.files?.[0]
+                        if (file) {
+                          const reader = new FileReader()
+                          reader.onload = () => {
+                            setConfig(prev => ({
+                              ...prev,
+                              upi: { ...prev.upi, qrImageUrl: reader.result }
+                            }))
+                            toast.success('New QR code loaded into preview!')
+                          }
+                          reader.readAsDataURL(file)
+                        }
+                      }}
+                    />
+                  </label>
+                </div>
+                <p className="text-[11px] text-stone-500 mt-1">
+                  Active QR: Paytm UPI QR for Sakshi Singh (<span className="font-mono font-semibold text-stone-800">9305977591@ptaxis</span>). Upload a replacement image or specify an asset path anytime.
                 </p>
               </div>
 

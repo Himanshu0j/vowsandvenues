@@ -23,7 +23,10 @@ import {
   AlertCircle,
   ExternalLink,
   UserCheck,
-  Percent
+  Percent,
+  Camera,
+  Upload,
+  RefreshCw
 } from 'lucide-react'
 import { toast } from 'sonner'
 
@@ -159,7 +162,55 @@ export default function VendorPartnerSuite() {
   const [blockDateInput, setBlockDateInput] = useState('')
   const [blockReasonInput, setBlockReasonInput] = useState('')
 
+  // Verification on-site photo state
+  const [onSitePhoto, setOnSitePhoto] = useState(null)
+  const [uploadingPhoto, setUploadingPhoto] = useState(false)
+  const photoInputRef = React.useRef(null)
+  const cameraInputRef = React.useRef(null)
+
   const activeVendor = MOCK_VENDOR_PARTNERS.find(v => v.id === selectedVendorId) || MOCK_VENDOR_PARTNERS[0]
+
+  const handlePhotoUpload = async (e) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    try {
+      setUploadingPhoto(true)
+      const reader = new FileReader()
+      reader.onload = async (ev) => {
+        const img = new Image()
+        img.onload = async () => {
+          const canvas = document.createElement('canvas')
+          let w = img.width, h = img.height
+          const max = 900
+          if (w > max || h > max) {
+            if (w > h) { h = Math.round((h * max) / w); w = max }
+            else { w = Math.round((w * max) / h); h = max }
+          }
+          canvas.width = w; canvas.height = h
+          const ctx = canvas.getContext('2d')
+          ctx.drawImage(img, 0, 0, w, h)
+          const compressed = canvas.toDataURL('image/jpeg', 0.75)
+          setOnSitePhoto(compressed)
+
+          const token = typeof window !== 'undefined' ? (localStorage.getItem('vv_token') || localStorage.getItem('vv_auth_token')) : null
+          if (token && activeVendor?.id) {
+            await fetch(`/api/vendors/${activeVendor.id}`, {
+              method: 'PUT',
+              headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+              body: JSON.stringify({ verificationSelfie: compressed })
+            }).catch(() => {})
+          }
+          toast.success('On-site verification photo updated and submitted for admin review!')
+        }
+        img.src = ev.target.result
+      }
+      reader.readAsDataURL(file)
+    } catch (_) {
+      toast.error('Failed to upload image')
+    } finally {
+      setUploadingPhoto(false)
+    }
+  }
 
   // Lead Actions
   const handleAcceptOffer = (leadId) => {
@@ -535,6 +586,101 @@ export default function VendorPartnerSuite() {
       {/* ======================================================== */}
       {activeTab === 'kyc_finance' && (
         <div className="space-y-6">
+          {/* 1. ON-SITE PHYSICAL VENUE VERIFICATION STATUS & PHOTO */}
+          <div className="bg-white rounded-2xl p-6 border border-stone-200 shadow-sm space-y-4">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-stone-200">
+              <div className="flex items-center gap-2.5">
+                <ShieldCheck className="w-6 h-6 text-amber-700" />
+                <div>
+                  <h3 className="font-serif font-bold text-lg text-stone-900">
+                    On-Site Verification &amp; KYC Status (वेन्यू के साथ फोटो)
+                  </h3>
+                  <p className="text-xs text-stone-500">
+                    Mandatory physical proof: Vendor must stand with their venue/property for official partner verification.
+                  </p>
+                </div>
+              </div>
+              <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold w-fit ${
+                activeVendor.verified
+                  ? 'bg-emerald-100 text-emerald-800 border border-emerald-300'
+                  : 'bg-amber-100 text-amber-900 border border-amber-300'
+              }`}>
+                {activeVendor.verified ? (
+                  <>
+                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-700" />
+                    <span>Verified Official Partner</span>
+                  </>
+                ) : (
+                  <>
+                    <Clock className="w-3.5 h-3.5 text-amber-700" />
+                    <span>Pending Admin Review</span>
+                  </>
+                )}
+              </span>
+            </div>
+
+            <div className="p-4 bg-gradient-to-br from-amber-50/60 to-orange-50/30 rounded-2xl border border-amber-200 flex flex-col md:flex-row items-center gap-5">
+              <div className="relative shrink-0">
+                <img
+                  src={onSitePhoto || activeVendor.verificationSelfie || activeVendor.coverImage}
+                  alt="On-Site Venue Proof"
+                  className="w-32 h-32 md:w-36 md:h-36 object-cover rounded-xl border-2 border-amber-400 shadow-sm"
+                />
+                <span className="absolute bottom-1.5 left-1.5 bg-black/75 text-white text-[9px] px-2 py-0.5 rounded font-mono">
+                  {onSitePhoto ? 'Updated Photo' : 'Submitted Proof'}
+                </span>
+              </div>
+
+              <div className="flex-1 text-center md:text-left space-y-2">
+                <h4 className="font-serif font-bold text-sm text-stone-900">
+                  {onSitePhoto ? 'New Verification Photo Attached' : 'Your Verified On-Site Venue Photograph'}
+                </h4>
+                <p className="text-xs text-stone-600 leading-relaxed">
+                  To maintain the highest level of trust on Vows &amp; Venues, our compliance team reviews every partner's live on-site photo with their physical venue before approving luxury bookings and escrow payouts.
+                </p>
+
+                {/* Hidden File & Camera Inputs */}
+                <input
+                  ref={cameraInputRef}
+                  type="file"
+                  accept="image/*"
+                  capture="environment"
+                  className="hidden"
+                  onChange={handlePhotoUpload}
+                />
+                <input
+                  ref={photoInputRef}
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={handlePhotoUpload}
+                />
+
+                <div className="flex flex-wrap items-center justify-center md:justify-start gap-2.5 pt-1">
+                  <button
+                    type="button"
+                    disabled={uploadingPhoto}
+                    onClick={() => cameraInputRef.current?.click()}
+                    className="px-3 py-1.5 rounded-xl bg-amber-700 hover:bg-amber-800 text-white font-bold text-xs flex items-center gap-1.5 shadow-sm transition-all cursor-pointer disabled:opacity-50"
+                  >
+                    <Camera className="w-3.5 h-3.5" />
+                    <span>{uploadingPhoto ? 'Processing...' : 'Click Live Photo'}</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    disabled={uploadingPhoto}
+                    onClick={() => photoInputRef.current?.click()}
+                    className="px-3 py-1.5 rounded-xl bg-white hover:bg-stone-50 border border-stone-300 text-stone-700 font-bold text-xs flex items-center gap-1.5 shadow-xs transition-all cursor-pointer disabled:opacity-50"
+                  >
+                    <Upload className="w-3.5 h-3.5 text-stone-500" />
+                    <span>Upload from Device</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
           <div className="bg-white rounded-2xl p-6 border border-stone-200 shadow-sm space-y-4">
             <h3 className="font-serif font-bold text-lg text-stone-900">Verified Bank Account Details (NEFT/RTGS)</h3>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs font-mono bg-stone-50 p-4 rounded-2xl border border-stone-200">

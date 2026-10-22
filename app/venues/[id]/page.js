@@ -555,10 +555,10 @@ export default function VenueDetailPage({ params }) {
   }
 
   const images = Array.isArray(venue.images) && venue.images.length > 0 ? venue.images : [venue.image || 'https://images.unsplash.com/photo-1519167758481-83f550bb49b3']
-  const upiId = paymentConfig?.upiId || 'vowsandvenues@okhdfcbank'
-  const payeeName = paymentConfig?.payeeName || 'Vows and Venues Private Limited'
+  const upiId = paymentConfig?.upiId || '9305977591@ptaxis'
+  const payeeName = paymentConfig?.payeeName || 'Sakshi Singh'
   const upiQrString = `upi://pay?pa=${upiId}&pn=${encodeURIComponent(payeeName)}&am=${advancePayNow}&cu=INR&tn=Advance-${venue.id.slice(0, 8)}`
-  const qrImageSrc = `https://api.qrserver.com/v1/create-qr-code/?size=240x240&data=${encodeURIComponent(upiQrString)}`
+  const qrImageSrc = paymentConfig?.qrImageUrl || '/images/paytm_upi_qr.png'
 
   return (
     <ErrorBoundary>

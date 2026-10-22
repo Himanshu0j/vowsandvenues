@@ -41,7 +41,9 @@ import {
   Sun,
   Phone,
   QrCode,
-  CreditCard
+  CreditCard,
+  Camera,
+  Eye
 } from 'lucide-react'
 import { toast } from 'sonner'
 import { getOptimizedImageUrl } from '@/lib/imageUtils'
@@ -166,6 +168,7 @@ export default function AdminOperationsSuite({
   const [payoutProcessing, setPayoutProcessing] = useState({})
 
   // Live Price Negotiations & Chat State (Client Requested)
+  const [inspectedVerificationVendor, setInspectedVerificationVendor] = useState(null)
   const [negotiations, setNegotiations] = useState([])
   const [selectedNegId, setSelectedNegId] = useState(null)
   const [negSearch, setNegSearch] = useState('')
@@ -872,13 +875,14 @@ export default function AdminOperationsSuite({
 
           {/* Vendors Table */}
           <div className="overflow-x-auto -mx-5 sm:mx-0 px-5 sm:px-0">
-            <table className="w-full min-w-[760px] text-left text-xs">
+            <table className="w-full min-w-[850px] text-left text-xs">
               <thead className="bg-stone-50 border-y border-stone-200 text-stone-500 uppercase tracking-wider text-[10px]">
                 <tr>
                   <th className="py-3 px-4 font-bold">Vendor Name</th>
                   <th className="py-3 px-4 font-bold">Category</th>
                   <th className="py-3 px-4 font-bold">City</th>
                   <th className="py-3 px-4 font-bold">Starting Price</th>
+                  <th className="py-3 px-4 font-bold">On-Site Photo</th>
                   <th className="py-3 px-4 font-bold">KYC / Verification</th>
                   <th className="py-3 px-4 font-bold text-right">Actions</th>
                 </tr>
@@ -909,6 +913,26 @@ export default function AdminOperationsSuite({
                       ₹{Number(v.startingPrice || 0).toLocaleString('en-IN')} <span className="text-[10px] text-stone-400 font-normal">/{v.priceUnit || 'event'}</span>
                     </td>
                     <td className="py-3.5 px-4">
+                      {v.verificationSelfie ? (
+                        <button
+                          type="button"
+                          onClick={() => setInspectedVerificationVendor(v)}
+                          className="flex items-center gap-1.5 px-2.5 py-1 bg-amber-50 hover:bg-amber-100 text-amber-900 border border-amber-300 rounded-lg text-[11px] font-bold transition-all shadow-xs cursor-pointer"
+                          title="Click to audit submitted on-site verification photo"
+                        >
+                          <img
+                            src={getOptimizedImageUrl(v.verificationSelfie, 40, 40)}
+                            alt="On-Site Proof"
+                            className="w-5 h-5 rounded object-cover border border-amber-400"
+                          />
+                          <Camera className="w-3 h-3 text-amber-700" />
+                          <span>View Photo</span>
+                        </button>
+                      ) : (
+                        <span className="text-[10px] text-stone-400 italic">No photo uploaded</span>
+                      )}
+                    </td>
+                    <td className="py-3.5 px-4">
                       {v.verified ? (
                         <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-700 font-bold text-[10px] border border-emerald-200">
                           <CheckCircle2 className="w-3 h-3 text-emerald-600" /> Verified
@@ -921,6 +945,16 @@ export default function AdminOperationsSuite({
                     </td>
                     <td className="py-3.5 px-4 text-right">
                       <div className="inline-flex items-center gap-1.5">
+                        {v.verificationSelfie && (
+                          <button
+                            type="button"
+                            onClick={() => setInspectedVerificationVendor(v)}
+                            className="p-1.5 rounded-lg text-stone-600 hover:text-stone-900 hover:bg-stone-100 transition-all cursor-pointer"
+                            title="Inspect on-site proof"
+                          >
+                            <Eye className="w-3.5 h-3.5" />
+                          </button>
+                        )}
                         <button
                           onClick={() => onVerifyToggle && onVerifyToggle(v.id, !v.verified)}
                           disabled={adminActionBusy}
@@ -946,6 +980,104 @@ export default function AdminOperationsSuite({
               </tbody>
             </table>
           </div>
+
+          {/* Vendor On-Site Verification Review Modal */}
+          {inspectedVerificationVendor && (
+            <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
+              <div className="bg-white rounded-3xl max-w-lg w-full overflow-hidden shadow-2xl border border-stone-200 animate-in fade-in zoom-in duration-200">
+                <div className="p-5 border-b border-stone-200 bg-gradient-to-r from-amber-50 to-orange-50 flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <ShieldCheck className="w-5 h-5 text-amber-700" />
+                    <div>
+                      <h3 className="font-serif font-bold text-base text-stone-900">
+                        Vendor On-Site Verification Audit
+                      </h3>
+                      <p className="text-[11px] text-stone-600">
+                        Photo clicked with venue / physical premises
+                      </p>
+                    </div>
+                  </div>
+                  <button
+                    onClick={() => setInspectedVerificationVendor(null)}
+                    className="p-1.5 rounded-full hover:bg-stone-200 text-stone-500 text-xs cursor-pointer"
+                  >
+                    ✕
+                  </button>
+                </div>
+
+                <div className="p-5 space-y-4 max-h-[75vh] overflow-y-auto">
+                  <div className="relative rounded-2xl overflow-hidden border-2 border-amber-400 bg-stone-900 shadow-md">
+                    <img
+                      src={inspectedVerificationVendor.verificationSelfie || inspectedVerificationVendor.image}
+                      alt="Vendor on-site proof"
+                      className="w-full max-h-[380px] object-contain mx-auto"
+                    />
+                    <div className="absolute bottom-2 left-2 bg-black/75 text-white text-[10px] px-2.5 py-1 rounded-full backdrop-blur-xs font-mono">
+                      Owner with Venue / Premises
+                    </div>
+                  </div>
+
+                  <div className="p-3.5 bg-stone-50 rounded-2xl border border-stone-200 text-xs space-y-2">
+                    <div className="flex justify-between">
+                      <span className="text-stone-500">Business / Venue:</span>
+                      <span className="font-bold text-stone-900">{inspectedVerificationVendor.name}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-stone-500">Category &amp; City:</span>
+                      <span className="font-bold text-stone-900 capitalize">{inspectedVerificationVendor.category} • {inspectedVerificationVendor.city}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-stone-500">Contact:</span>
+                      <span className="font-mono text-stone-800">{inspectedVerificationVendor.contactPhone || inspectedVerificationVendor.email || 'N/A'}</span>
+                    </div>
+                    <div className="flex justify-between items-center pt-1 border-t border-stone-200">
+                      <span className="text-stone-500">Current KYC Status:</span>
+                      <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
+                        inspectedVerificationVendor.verified
+                          ? 'bg-emerald-100 text-emerald-800'
+                          : 'bg-amber-100 text-amber-800'
+                      }`}>
+                        {inspectedVerificationVendor.verified ? 'Verified Partner' : 'Pending Review'}
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="p-3 bg-amber-50/80 rounded-xl border border-amber-200 text-[11px] text-amber-900 flex items-start gap-2">
+                    <AlertTriangle className="w-4 h-4 text-amber-700 shrink-0 mt-0.5" />
+                    <span>
+                      <strong>Compliance Guideline:</strong> Confirm that the vendor owner is physically present in the photo with identifiable architectural or signage features matching their venue description.
+                    </span>
+                  </div>
+                </div>
+
+                <div className="p-4 bg-stone-50 border-t border-stone-200 flex items-center justify-end gap-2.5">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (onRejectVendor) onRejectVendor(inspectedVerificationVendor.id)
+                      setInspectedVerificationVendor(null)
+                    }}
+                    disabled={adminActionBusy}
+                    className="px-4 py-2 rounded-xl text-xs font-bold text-rose-700 bg-rose-50 hover:bg-rose-100 border border-rose-200 transition-all cursor-pointer"
+                  >
+                    Reject KYC
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (onVerifyToggle) onVerifyToggle(inspectedVerificationVendor.id, true)
+                      setInspectedVerificationVendor(null)
+                    }}
+                    disabled={adminActionBusy}
+                    className="px-5 py-2 rounded-xl text-xs font-bold text-white bg-emerald-700 hover:bg-emerald-800 shadow-md transition-all cursor-pointer flex items-center gap-1.5"
+                  >
+                    <CheckCircle2 className="w-3.5 h-3.5" />
+                    <span>Approve &amp; Verify Vendor</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       )}
 

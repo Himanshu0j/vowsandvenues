@@ -2687,8 +2687,9 @@ async function handleRoute(request, { params }) {
         capacity: Number(body.capacity) || 500,
         verified: body.verified !== undefined ? body.verified : false,
         featured: body.featured || false,
-        image: body.image || 'https://images.unsplash.com/photo-1587271407850-8d438ca9fdf2',
-        gallery: body.gallery && body.gallery.length ? body.gallery : [body.image || 'https://images.unsplash.com/photo-1587271407850-8d438ca9fdf2'],
+        verificationSelfie: body.verificationSelfie || body.onSitePhoto || null,
+        image: body.image || (body.verificationSelfie || 'https://images.unsplash.com/photo-1587271407850-8d438ca9fdf2'),
+        gallery: body.gallery && body.gallery.length ? body.gallery : [(body.verificationSelfie || body.image || 'https://images.unsplash.com/photo-1587271407850-8d438ca9fdf2')],
         description: body.description || '',
         highlights: body.highlights || [],
         contactPhone: body.contactPhone || '+91 98000 00000',
@@ -2732,6 +2733,12 @@ async function handleRoute(request, { params }) {
         delete body.status
         delete body.userId
         delete body.id
+        // If updating verification selfie, reset status to pending for review
+        if (body.verificationSelfie || body.onSitePhoto) {
+          body.verificationSelfie = body.verificationSelfie || body.onSitePhoto
+          body.status = 'pending'
+          body.verificationRequestedAt = new Date().toISOString()
+        }
       }
 
       const result = await db.collection('vendors').findOneAndUpdate(
@@ -3681,12 +3688,69 @@ async function handleRoute(request, { params }) {
         id: uuidv4(),
         name,
         email: normalisedEmail,
+        phone: body?.phone || '',
         passwordHash,
         role: safeRole,
         avatarInitial: name.trim().charAt(0).toUpperCase(),
         provider: 'email',
         createdAt: new Date().toISOString()
       }
+
+      if (safeRole === 'vendor') {
+        const verificationSelfie = body?.verificationSelfie || body?.onSitePhoto || null
+        const businessName = body?.businessName || body?.venueName || name
+        const category = body?.category || body?.businessCategory || 'Venue'
+        const city = body?.city || 'Lucknow'
+
+        userDoc.verificationSelfie = verificationSelfie
+        userDoc.businessName = businessName
+        userDoc.category = category
+        userDoc.city = city
+        userDoc.status = 'pending'
+        userDoc.verified = false
+        userDoc.verificationSubmittedAt = new Date().toISOString()
+
+        const vendorId = body?.vendorId || `v_${uuidv4().slice(0, 8)}`
+        const newVendorRecord = {
+          id: vendorId,
+          userId: userDoc.id,
+          name: businessName,
+          category,
+          categoryName: category,
+          city,
+          address: `${city}, India`,
+          rating: 4.9,
+          reviewCount: 0,
+          startingPrice: Number(body?.startingPrice) || 35000,
+          priceUnit: 'per event',
+          capacity: Number(body?.capacity) || 500,
+          verified: false,
+          featured: false,
+          image: verificationSelfie || 'https://images.unsplash.com/photo-1587271407850-8d438ca9fdf2',
+          verificationSelfie,
+          gallery: verificationSelfie ? [verificationSelfie] : ['https://images.unsplash.com/photo-1587271407850-8d438ca9fdf2'],
+          description: body?.description || `${businessName} - Verified luxury wedding and event partner in ${city}.`,
+          highlights: ['On-Site Verified Partner', 'Full Day Event Service', 'Prime Location'],
+          contactPhone: body?.phone || '+91 98000 00000',
+          email: normalisedEmail,
+          responseTime: '< 1 hour',
+          tags: [city, category, 'Verified Partner'],
+          status: 'pending',
+          packages: [
+            {
+              id: `pkg_${uuidv4().slice(0, 6)}`,
+              name: 'Signature Celebration Package',
+              price: Number(body?.startingPrice) || 35000,
+              description: 'Standard event service setup with complete coordination.',
+              inclusions: ['Full event day service', 'Basic setup & coordination', 'Professional equipment']
+            }
+          ],
+          createdAt: new Date().toISOString()
+        }
+        await db.collection('vendors').insertOne(newVendorRecord)
+        userDoc.vendorId = vendorId
+      }
+
       await db.collection('users').insertOne(userDoc)
       const token = signAuthToken(userDoc)
       const { _id, passwordHash: _ph, password: _pw, ...safe } = userDoc
@@ -3836,6 +3900,13 @@ async function handleRoute(request, { params }) {
         { id: vendorId },
         { $set: { verified, status, verifiedAt: new Date().toISOString() } }
       )
+      const vDoc = await db.collection('vendors').findOne({ id: vendorId })
+      if (vDoc?.userId) {
+        await db.collection('users').updateOne(
+          { id: vDoc.userId },
+          { $set: { verified, status, verifiedAt: new Date().toISOString() } }
+        )
+      }
       await logAuditEvent(db, {
         actorId: ctx.userId,
         actorEmail: ctx.email,
@@ -3861,6 +3932,13 @@ async function handleRoute(request, { params }) {
         { id: vendorId },
         { $set: { verified: false, status: 'rejected', rejectedAt: new Date().toISOString() } }
       )
+      const vDoc = await db.collection('vendors').findOne({ id: vendorId })
+      if (vDoc?.userId) {
+        await db.collection('users').updateOne(
+          { id: vDoc.userId },
+          { $set: { verified: false, status: 'rejected', rejectedAt: new Date().toISOString() } }
+        )
+      }
       await logAuditEvent(db, {
         actorId: ctx.userId,
         actorEmail: ctx.email,
@@ -4305,20 +4383,30 @@ async function handleRoute(request, { params }) {
     // PAYMENT SETTINGS & CONFIGURATION APIS: GET /api/payments/config, POST /api/payments/config
     // ========================================================
     if ((route === '/payments/config' || route === '/api/payments/config') && method === 'GET') {
-      const cfg = await db.collection('payment_settings').findOne({ id: 'active_config' })
-      const result = cfg ? { ...cfg } : {
-        id: 'active_config',
-        activeMode: 'HYBRID',
-        upiId: 'vowsandvenues@okhdfcbank',
-        payeeName: 'Vows and Venues Luxury Hospitality Pvt Ltd',
-        qrImageUrl: 'https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=upi://pay?pa=vowsandvenues@okhdfcbank&pn=Vows%20and%20Venues&cu=INR',
-        requireUtr: true,
-        gateway: {
-          provider: 'razorpay',
-          isLive: false,
-          keyId: 'rzp_test_9A2bKx89mQpL4z'
+      let cfg = await db.collection('payment_settings').findOne({ id: 'active_config' })
+      if (!cfg || cfg.upiId === 'vowsandvenues@okhdfcbank' || !cfg.upiId || cfg.upiId.includes('okhdfcbank')) {
+        const defaultCfg = {
+          id: 'active_config',
+          activeMode: cfg?.activeMode || 'CUSTOM_UPI_QR',
+          upiId: '9305977591@ptaxis',
+          payeeName: 'Sakshi Singh',
+          qrImageUrl: '/images/paytm_upi_qr.png',
+          requireUtr: true,
+          gateway: cfg?.gateway || {
+            provider: 'razorpay',
+            isLive: false,
+            keyId: 'rzp_test_9A2bKx89mQpL4z'
+          },
+          updatedAt: new Date().toISOString()
         }
+        await db.collection('payment_settings').updateOne(
+          { id: 'active_config' },
+          { $set: defaultCfg },
+          { upsert: true }
+        )
+        cfg = defaultCfg
       }
+      const result = { ...cfg }
       if (result._id) delete result._id
       return cors(NextResponse.json(result))
     }

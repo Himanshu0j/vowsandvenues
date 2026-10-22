@@ -55,7 +55,8 @@ import {
   Scale,
   Percent,
   Compass,
-  Copy
+  Copy,
+  Upload
 } from 'lucide-react'
 import { toast } from 'sonner'
 import Navbar from '../components/Navbar'
@@ -214,12 +215,38 @@ export default function VowsAndVenuesApp() {
   const [copiedUpi, setCopiedUpi] = useState(false)
 
   useEffect(() => {
-    try {
-      const stored = localStorage.getItem('vv_payment_gateway_config')
-      if (stored) {
-        setPaymentConfig(JSON.parse(stored))
-      }
-    } catch (_) {}
+    const loadPaymentConfig = async () => {
+      try {
+        const res = await fetch('/api/payments/config')
+        if (res.ok) {
+          const cfg = await res.json()
+          if (cfg && cfg.upiId) {
+            setPaymentConfig(prev => ({
+              ...prev,
+              activeMode: cfg.activeMode || prev.activeMode || 'CUSTOM_UPI_QR',
+              upi: {
+                ...prev.upi,
+                upiId: cfg.upiId,
+                merchantName: cfg.payeeName || prev.upi.merchantName,
+                qrImageUrl: cfg.qrImageUrl || prev.upi.qrImageUrl
+              },
+              gateway: cfg.gateway || prev.gateway
+            }))
+            return
+          }
+        }
+      } catch (_) {}
+      try {
+        const stored = localStorage.getItem('vv_payment_gateway_config')
+        if (stored) {
+          const parsed = JSON.parse(stored)
+          if (parsed?.upi?.upiId && !parsed.upi.upiId.includes('icici')) {
+            setPaymentConfig(parsed)
+          }
+        }
+      } catch (_) {}
+    }
+    loadPaymentConfig()
   }, [isBookingModalOpen])
 
   // Review Modal State
@@ -261,9 +288,54 @@ export default function VowsAndVenuesApp() {
   const [authToken, setAuthToken] = useState(null)
   const [authModalOpen, setAuthModalOpen] = useState(false)
   const [authMode, setAuthMode] = useState('login') // 'login' | 'signup' | 'forgot'
-  const [authForm, setAuthForm] = useState({ name: '', email: '', password: '', role: 'customer' })
+  const [authForm, setAuthForm] = useState({
+    name: '',
+    email: '',
+    password: '',
+    role: 'customer',
+    businessName: '',
+    city: 'Lucknow',
+    verificationSelfie: null
+  })
   const [authBusy, setAuthBusy] = useState(false)
+  const [authPhotoBusy, setAuthPhotoBusy] = useState(false)
+  const authCameraInputRef = useRef(null)
+  const authFileInputRef = useRef(null)
   const [showProfileMenu, setShowProfileMenu] = useState(false)
+
+  const handleAuthPhotoSelect = async (e) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    try {
+      setAuthPhotoBusy(true)
+      const reader = new FileReader()
+      reader.onload = (ev) => {
+        const img = new Image()
+        img.onload = () => {
+          let width = img.width, height = img.height
+          const max = 800
+          if (width > max || height > max) {
+            if (width > height) { height = Math.round((height * max) / width); width = max }
+            else { width = Math.round((width * max) / height); height = max }
+          }
+          const canvas = document.createElement('canvas')
+          canvas.width = width
+          canvas.height = height
+          const ctx = canvas.getContext('2d')
+          ctx.drawImage(img, 0, 0, width, height)
+          const compressed = canvas.toDataURL('image/jpeg', 0.75)
+          setAuthForm(prev => ({ ...prev, verificationSelfie: compressed }))
+          toast.success('On-site verification photo attached!')
+        }
+        img.src = ev.target.result
+      }
+      reader.readAsDataURL(file)
+    } catch (_) {
+      toast.error('Failed to process image')
+    } finally {
+      setAuthPhotoBusy(false)
+    }
+  }
 
   // Install a global fetch interceptor that attaches Authorization and role headers to /api/* calls.
   const authTokenRef = useRef(null)
@@ -531,9 +603,25 @@ export default function VowsAndVenuesApp() {
     if (e?.preventDefault) e.preventDefault()
     setAuthBusy(true)
     try {
+      if (authMode === 'signup' && authForm.role === 'vendor' && !authForm.verificationSelfie) {
+        toast.error('कृपया वेरिफिकेशन के लिए अपने वेन्यू / प्रतिष्ठान के साथ फोटो अपलोड या क्लिक करें।')
+        setAuthBusy(false)
+        return
+      }
+
       const endpoint = authMode === 'signup' ? '/api/auth/signup' : '/api/auth/login'
       const body = authMode === 'signup'
-        ? { name: authForm.name, email: authForm.email, password: authForm.password, role: authForm.role }
+        ? {
+            name: authForm.name,
+            email: authForm.email,
+            password: authForm.password,
+            role: authForm.role,
+            ...(authForm.role === 'vendor' && {
+              businessName: authForm.businessName || authForm.name,
+              city: authForm.city || 'Lucknow',
+              verificationSelfie: authForm.verificationSelfie
+            })
+          }
         : { email: authForm.email, password: authForm.password }
       const res = await fetch(endpoint, {
         method: 'POST',
@@ -546,7 +634,15 @@ export default function VowsAndVenuesApp() {
       setAuthToken(data.token)
       persistUser(data.user, data.token)
       setAuthModalOpen(false)
-      setAuthForm({ name: '', email: '', password: '', role: 'customer' })
+      setAuthForm({
+        name: '',
+        email: '',
+        password: '',
+        role: 'customer',
+        businessName: '',
+        city: 'Lucknow',
+        verificationSelfie: null
+      })
       toast.success(authMode === 'signup' ? `Welcome, ${data.user.name}!` : `Welcome back, ${data.user.name}!`)
       if (data.user.role === 'vendor') { setUserRole('vendor'); setActiveTab('vendor_portal') }
     } catch (err) {
@@ -1392,7 +1488,7 @@ export default function VowsAndVenuesApp() {
       advancePaid: payableAmount,
       isAdvanceOnly: bookingDetails.isAdvanceOnly,
       paymentMethod: isUpiPayment
-        ? `Direct Admin UPI QR (${paymentConfig.upi?.upiId || 'vowsandvenues@icici'})`
+        ? `Direct Admin UPI QR (${paymentConfig.upi?.upiId || '9305977591@ptaxis'})`
         : (paymentConfig.activeMode === 'BANK_NEFT_RTGS' ? 'Bank Escrow NEFT/RTGS Wire' : `${paymentConfig.gateway?.provider?.toUpperCase() || 'Razorpay'} Gateway`),
       paymentDetails: {
         mode: paymentConfig.activeMode,
@@ -1421,7 +1517,7 @@ export default function VowsAndVenuesApp() {
         clientPhone: bookingDetails.phone || '+919876543210',
         amount: payableAmount,
         method: isUpiPayment ? 'CUSTOM_UPI_QR' : (paymentConfig.activeMode === 'BANK_NEFT_RTGS' ? 'BANK_NEFT_RTGS' : 'PAYMENT_GATEWAY'),
-        payeeUpi: paymentConfig.upi?.upiId || 'vowsandvenues@icici',
+        payeeUpi: paymentConfig.upi?.upiId || '9305977591@ptaxis',
         utr: customerUtr.trim() || (isUpiPayment ? '429188291042' : `RZP-${Math.floor(1000000000 + Math.random() * 9000000000)}`),
         date: new Date().toLocaleString('en-IN', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' }),
         status: isUpiPayment ? 'PENDING_VERIFICATION' : 'VERIFIED',
@@ -2987,10 +3083,10 @@ export default function VowsAndVenuesApp() {
               const payable = bookingDetails.isAdvanceOnly ? Math.round(grandTotal * 0.25) : grandTotal
 
               const dynamicQrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(
-                `upi://pay?pa=${paymentConfig.upi?.upiId || 'vowsandvenues@icici'}&pn=${encodeURIComponent(paymentConfig.upi?.merchantName || 'Vows & Venues')}&am=${payable}&cu=INR&tn=Booking-${activeEvent?.name || 'Event'}`
+                `upi://pay?pa=${paymentConfig.upi?.upiId || '9305977591@ptaxis'}&pn=${encodeURIComponent(paymentConfig.upi?.merchantName || 'Sakshi Singh')}&am=${payable}&cu=INR&tn=Booking-${activeEvent?.name || 'Event'}`
               )}`
 
-              const upiIntentUrl = `upi://pay?pa=${paymentConfig.upi?.upiId || 'vowsandvenues@icici'}&pn=${encodeURIComponent(paymentConfig.upi?.merchantName || 'Vows & Venues')}&am=${payable}&cu=INR&tn=Booking-${activeEvent?.name || 'Event'}`
+              const upiIntentUrl = `upi://pay?pa=${paymentConfig.upi?.upiId || '9305977591@ptaxis'}&pn=${encodeURIComponent(paymentConfig.upi?.merchantName || 'Sakshi Singh')}&am=${payable}&cu=INR&tn=Booking-${activeEvent?.name || 'Event'}`
 
               const isUpiMode = paymentConfig.activeMode === 'CUSTOM_UPI_QR' || (paymentConfig.activeMode === 'HYBRID' && bookingDetails.paymentMethod === 'upi')
               const isCardMode = paymentConfig.activeMode === 'PAYMENT_GATEWAY' || (paymentConfig.activeMode === 'HYBRID' && bookingDetails.paymentMethod === 'card')
@@ -3051,12 +3147,12 @@ export default function VowsAndVenuesApp() {
                         {/* Live QR Code Box */}
                         <div className="p-2.5 bg-white rounded-2xl shadow-md border-2 border-amber-400 shrink-0 text-center">
                           <img
-                            src={paymentConfig.upi?.qrImageUrl || dynamicQrUrl}
+                            src={paymentConfig.upi?.qrImageUrl || '/images/paytm_upi_qr.png'}
                             alt="Admin UPI QR Code"
                             className="w-40 h-40 object-contain mx-auto rounded-lg"
                           />
                           <span className="text-[10px] font-bold text-amber-900 block mt-1">
-                            Scan on any UPI App
+                            Scan on Paytm / Any UPI App
                           </span>
                         </div>
 
@@ -3067,7 +3163,7 @@ export default function VowsAndVenuesApp() {
                               Pay Directly To Merchant:
                             </span>
                             <span className="font-serif font-bold text-stone-900 text-sm block">
-                              {paymentConfig.upi?.merchantName || 'Vows & Venues Luxury Hospitality'}
+                              {paymentConfig.upi?.merchantName || 'Sakshi Singh'}
                             </span>
                           </div>
 
@@ -3075,13 +3171,13 @@ export default function VowsAndVenuesApp() {
                             <div>
                               <span className="text-[10px] text-stone-400 block font-mono">UPI ID / VPA:</span>
                               <span className="font-mono font-bold text-stone-900 text-xs">
-                                {paymentConfig.upi?.upiId || 'vowsandvenues@icici'}
+                                {paymentConfig.upi?.upiId || '9305977591@ptaxis'}
                               </span>
                             </div>
                             <button
                               type="button"
                               onClick={() => {
-                                navigator.clipboard.writeText(paymentConfig.upi?.upiId || 'vowsandvenues@icici')
+                                navigator.clipboard.writeText(paymentConfig.upi?.upiId || '9305977591@ptaxis')
                                 setCopiedUpi(true)
                                 toast.success('UPI ID copied to clipboard!')
                                 setTimeout(() => setCopiedUpi(false), 2000)
@@ -3867,6 +3963,116 @@ export default function VowsAndVenuesApp() {
                       >
                         List as Vendor
                       </button>
+                    </div>
+                  </div>
+                )}
+
+                {authMode === 'signup' && authForm.role === 'vendor' && (
+                  <div className="space-y-3 pt-2 border-t border-stone-200">
+                    <div>
+                      <label className="text-xs font-semibold text-stone-700">Business / Venue Name *</label>
+                      <input
+                        required
+                        value={authForm.businessName}
+                        onChange={(e) => setAuthForm({ ...authForm, businessName: e.target.value })}
+                        placeholder="e.g. Royal Heritage Palace & Banquets"
+                        className="mt-1 w-full px-3 py-2 bg-stone-50 border border-stone-200 rounded-xl text-xs focus:outline-none focus:border-emerald-500"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="text-xs font-semibold text-stone-700">City Location</label>
+                      <select
+                        value={authForm.city}
+                        onChange={(e) => setAuthForm({ ...authForm, city: e.target.value })}
+                        className="mt-1 w-full px-3 py-2 bg-stone-50 border border-stone-200 rounded-xl text-xs focus:outline-none focus:border-emerald-500"
+                      >
+                        {CITIES.filter(c => c !== 'All Cities').map(c => (
+                          <option key={c} value={c}>{c}</option>
+                        ))}
+                      </select>
+                    </div>
+
+                    {/* On-Site Verification Photo Box */}
+                    <div className="p-3 bg-amber-50/70 border-2 border-amber-300 rounded-xl space-y-2">
+                      <div className="flex items-center justify-between">
+                        <span className="font-bold text-xs text-amber-950 flex items-center gap-1.5">
+                          <Camera className="w-3.5 h-3.5 text-amber-700" />
+                          On-Site Photo with Venue / Place *
+                        </span>
+                        <span className="text-[10px] uppercase font-bold text-rose-700 bg-rose-100 px-1.5 py-0.5 rounded">Required</span>
+                      </div>
+                      <p className="text-[11px] text-stone-600">
+                        वेरिफिकेशन के लिए अपने वेन्यू / प्रतिष्ठान के सामने खड़े होकर फोटो अपलोड या क्लिक करें।
+                      </p>
+
+                      <input
+                        ref={authCameraInputRef}
+                        type="file"
+                        accept="image/*"
+                        capture="environment"
+                        className="hidden"
+                        onChange={handleAuthPhotoSelect}
+                      />
+                      <input
+                        ref={authFileInputRef}
+                        type="file"
+                        accept="image/*"
+                        className="hidden"
+                        onChange={handleAuthPhotoSelect}
+                      />
+
+                      {authForm.verificationSelfie ? (
+                        <div className="flex items-center gap-2.5 p-2 bg-white rounded-lg border border-stone-200">
+                          <img
+                            src={authForm.verificationSelfie}
+                            alt="Verification selfie"
+                            className="w-12 h-12 rounded object-cover border border-amber-400"
+                          />
+                          <div className="flex-1 text-[11px]">
+                            <span className="font-bold text-emerald-800 flex items-center gap-1">
+                              <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" /> Photo Attached
+                            </span>
+                            <div className="flex gap-2 mt-0.5">
+                              <button
+                                type="button"
+                                onClick={() => authCameraInputRef.current?.click()}
+                                className="text-amber-800 font-bold hover:underline cursor-pointer"
+                              >
+                                Re-click
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => setAuthForm(prev => ({ ...prev, verificationSelfie: null }))}
+                                className="text-rose-600 hover:underline cursor-pointer"
+                              >
+                                Remove
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="grid grid-cols-2 gap-2">
+                          <button
+                            type="button"
+                            disabled={authPhotoBusy}
+                            onClick={() => authCameraInputRef.current?.click()}
+                            className="py-2 px-2 rounded-lg border border-dashed border-amber-400 bg-white hover:bg-amber-100/50 text-[11px] font-bold text-amber-900 flex items-center justify-center gap-1 transition-all cursor-pointer"
+                          >
+                            <Camera className="w-3 h-3 text-amber-700" />
+                            <span>{authPhotoBusy ? 'Processing...' : 'Live Camera'}</span>
+                          </button>
+                          <button
+                            type="button"
+                            disabled={authPhotoBusy}
+                            onClick={() => authFileInputRef.current?.click()}
+                            className="py-2 px-2 rounded-lg border border-dashed border-stone-300 bg-white hover:bg-stone-50 text-[11px] font-bold text-stone-700 flex items-center justify-center gap-1 transition-all cursor-pointer"
+                          >
+                            <Upload className="w-3 h-3 text-stone-500" />
+                            <span>Upload File</span>
+                          </button>
+                        </div>
+                      )}
                     </div>
                   </div>
                 )}
