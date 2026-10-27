@@ -135,7 +135,8 @@ async function connectToMongo() {
           tls: true
         })
         clientPromise = client.connect().then(() => {
-          const targetDb = process.env.DB_NAME || 'vows_and_venues_staging'
+          const uriDbName = client.db().databaseName
+          const targetDb = process.env.DB_NAME || (uriDbName && uriDbName !== 'test' ? uriDbName : 'vows_and_venues_production')
           cachedDb = client.db(targetDb)
           console.log(`[DB] Successfully connected to persistent MongoDB cluster (database: ${targetDb}).`)
           return cachedDb
