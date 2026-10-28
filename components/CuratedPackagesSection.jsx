@@ -121,10 +121,10 @@ export default function CuratedPackagesSection({
       <ScrollStaggerContainer staggerDelay={0.1} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 items-stretch">
         {displayPackages.map((pkg, idx) => {
           const isFeatured = pkg.popular || idx === 0
-          const bannerImg = getOptimizedImageUrl(pkg.bannerImage || pkg.image || 'https://images.unsplash.com/photo-1587271407850-8d438ca9fdf2', { width: 800, quality: 75 })
+          const bannerImg = getOptimizedImageUrl(pkg.bannerImage || pkg.image || 'https://images.unsplash.com/photo-1587271407850-8d438ca9fdf2', { width: 500, quality: 70 })
 
           return (
-            <ScrollStaggerItem key={pkg.id || idx} yOffset={26} className="h-full flex flex-col">
+            <ScrollStaggerItem key={pkg.id || idx} yOffset={14} className="h-full flex flex-col">
               <div
                 className={`rounded-3xl overflow-hidden flex flex-col justify-between transition-all duration-500 hover:-translate-y-1.5 relative h-full ${
                 isFeatured
@@ -140,7 +140,7 @@ export default function CuratedPackagesSection({
                 <img
                   src={bannerImg}
                   alt={pkg.title}
-                  loading="eager"
+                  loading="lazy"
                   decoding="async"
                   className="w-full h-full object-cover transition-transform duration-700 hover:scale-108"
                 />

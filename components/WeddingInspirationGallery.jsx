@@ -83,9 +83,9 @@ export default function WeddingInspirationGallery({ onExploreCategory }) {
       </div>
 
       {/* EDITORIAL MASONRY / COLLAGE GRID WITH SCROLL STAGGER */}
-      <ScrollStaggerContainer staggerDelay={0.08} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6">
+      <ScrollStaggerContainer staggerDelay={0.03} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6">
         {filteredItems.map((item, idx) => {
-          const imgUrl = getOptimizedImageUrl(item.image, { width: 1200, quality: 80 })
+          const imgUrl = getOptimizedImageUrl(item.image, { width: 550, quality: 70 })
           
           // Magazine layout: varying heights
           const aspectClass = item.aspect === 'tall'
@@ -95,7 +95,7 @@ export default function WeddingInspirationGallery({ onExploreCategory }) {
             : 'aspect-square'
 
           return (
-            <ScrollStaggerItem key={item.id || idx} yOffset={30}>
+            <ScrollStaggerItem key={item.id || idx} yOffset={14}>
               <div
                 onClick={() => setActiveModalItem(item)}
                 className={`group relative rounded-3xl overflow-hidden bg-espresso shadow-sm hover:shadow-2xl transition-all duration-500 hover:-translate-y-1 cursor-pointer border border-[#e2d5c3] hover:border-champagne ${aspectClass}`}
@@ -104,7 +104,7 @@ export default function WeddingInspirationGallery({ onExploreCategory }) {
               <img
                 src={imgUrl}
                 alt={item.title}
-                loading="eager"
+                loading="lazy"
                 decoding="async"
                 className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-108"
               />

@@ -137,10 +137,10 @@ export default function EditorialCategories({ categories = [], onSelectCategory,
             subtext: 'Curated Wedding Masters'
           }
           const rawImg = dynamicCategoryImages[cat.slug] || cat.image || 'https://images.unsplash.com/photo-1587271407850-8d438ca9fdf2'
-          const catImg = getOptimizedImageUrl(rawImg, { width: 600, quality: 85 })
+          const catImg = getOptimizedImageUrl(rawImg, { width: 360, quality: 70 })
 
           return (
-            <ScrollStaggerItem key={cat.id || cat.slug} yOffset={28}>
+            <ScrollStaggerItem key={cat.id || cat.slug} yOffset={14}>
               <TiltCard
                 maxTilt={7}
                 scale={1.02}
@@ -155,7 +155,7 @@ export default function EditorialCategories({ categories = [], onSelectCategory,
                     <img
                       src={catImg}
                       alt={cat.name}
-                      loading="eager"
+                      loading="lazy"
                       decoding="async"
                       className="w-full h-full object-cover group-hover:scale-112 transition-transform duration-700 ease-out"
                     />

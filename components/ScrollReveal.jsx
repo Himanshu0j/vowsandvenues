@@ -13,11 +13,11 @@ export default function ScrollReveal({
   className = '',
   animation = 'fade-up', // 'fade-up' | 'fade-down' | 'fade-left' | 'fade-right' | 'zoom-in' | 'clip-reveal'
   delay = 0,
-  duration = 0.8,
-  amount = 0.12,
+  duration = 0.45,
+  amount = 0.02,
   once = true,
-  yOffset = 36,
-  xOffset = 42
+  yOffset = 18,
+  xOffset = 20
 }) {
   const shouldReduceMotion = useReducedMotion()
   const [isMobile, setIsMobile] = React.useState(false)
@@ -35,8 +35,8 @@ export default function ScrollReveal({
     return <div className={className}>{children}</div>
   }
 
-  const safeX = isMobile ? 0 : xOffset
-  const safeY = isMobile ? Math.min(yOffset, 20) : yOffset
+  const safeX = isMobile ? 0 : Math.min(xOffset, 16)
+  const safeY = isMobile ? Math.min(yOffset, 12) : yOffset
 
   const variantsMap = {
     'fade-up': {
@@ -74,7 +74,7 @@ export default function ScrollReveal({
       }
     },
     'zoom-in': {
-      hidden: { opacity: 0, scale: 0.94 },
+      hidden: { opacity: 0, scale: 0.97 },
       visible: {
         opacity: 1,
         scale: 1,
@@ -82,11 +82,11 @@ export default function ScrollReveal({
       }
     },
     'clip-reveal': {
-      hidden: { opacity: 0, clipPath: 'inset(10% 0% 10% 0%)' },
+      hidden: { opacity: 0, clipPath: 'inset(5% 0% 5% 0%)' },
       visible: {
         opacity: 1,
         clipPath: 'inset(0% 0% 0% 0%)',
-        transition: { duration: duration + 0.1, delay, ease: luxuryEasing }
+        transition: { duration: duration + 0.05, delay, ease: luxuryEasing }
       }
     }
   }
@@ -97,7 +97,7 @@ export default function ScrollReveal({
     <motion.div
       initial="hidden"
       whileInView="visible"
-      viewport={{ once, amount, margin: '0px 0px -40px 0px' }}
+      viewport={{ once, amount, margin: '150px 0px 80px 0px' }}
       variants={selectedVariant}
       className={className}
     >
@@ -114,9 +114,9 @@ export function TextLineReveal({
   lines = [],
   className = '',
   lineClassName = '',
-  stagger = 0.12,
+  stagger = 0.05,
   delay = 0,
-  amount = 0.15,
+  amount = 0.02,
   once = true
 }) {
   const shouldReduceMotion = useReducedMotion()
@@ -143,14 +143,14 @@ export function TextLineReveal({
 
   const lineVariants = {
     hidden: {
-      y: '115%',
+      y: '100%',
       opacity: 0
     },
     visible: {
       y: '0%',
       opacity: 1,
       transition: {
-        duration: 0.85,
+        duration: 0.45,
         ease: luxuryEasing
       }
     }
@@ -160,7 +160,7 @@ export function TextLineReveal({
     <motion.div
       initial="hidden"
       whileInView="visible"
-      viewport={{ once, amount, margin: '0px 0px -40px 0px' }}
+      viewport={{ once, amount, margin: '150px 0px 80px 0px' }}
       variants={containerVariants}
       className={className}
     >
@@ -184,7 +184,7 @@ export function ImageReveal({
   className = '',
   imgClassName = '',
   delay = 0,
-  duration = 0.95,
+  duration = 0.45,
   once = true,
   children
 }) {
@@ -202,7 +202,7 @@ export function ImageReveal({
   const containerVariants = {
     hidden: {
       opacity: 0,
-      y: 35
+      y: 16
     },
     visible: {
       opacity: 1,
@@ -217,12 +217,12 @@ export function ImageReveal({
 
   const imgVariants = {
     hidden: {
-      scale: 1.12
+      scale: 1.05
     },
     visible: {
       scale: 1,
       transition: {
-        duration: duration + 0.2,
+        duration: duration + 0.1,
         delay,
         ease: luxuryEasing
       }
@@ -233,7 +233,7 @@ export function ImageReveal({
     <motion.div
       initial="hidden"
       whileInView="visible"
-      viewport={{ once, amount: 0.15, margin: '0px 0px -40px 0px' }}
+      viewport={{ once, amount: 0.02, margin: '150px 0px 80px 0px' }}
       variants={containerVariants}
       className={`overflow-hidden relative ${className}`}
     >
@@ -254,9 +254,9 @@ export function ImageReveal({
 export function ScrollStaggerContainer({
   children,
   className = '',
-  staggerDelay = 0.08,
-  delayChildren = 0.04,
-  amount = 0.1,
+  staggerDelay = 0.025,
+  delayChildren = 0,
+  amount = 0.02,
   once = true
 }) {
   const shouldReduceMotion = useReducedMotion()
@@ -280,7 +280,7 @@ export function ScrollStaggerContainer({
     <motion.div
       initial="hidden"
       whileInView="visible"
-      viewport={{ once, amount, margin: '0px 0px -30px 0px' }}
+      viewport={{ once, amount, margin: '180px 0px 80px 0px' }}
       variants={containerVariants}
       className={className}
     >
@@ -295,7 +295,7 @@ export function ScrollStaggerContainer({
 export function ScrollStaggerItem({
   children,
   className = '',
-  yOffset = 30
+  yOffset = 16
 }) {
   const shouldReduceMotion = useReducedMotion()
 
@@ -303,18 +303,20 @@ export function ScrollStaggerItem({
     return <div className={className}>{children}</div>
   }
 
+  const safeY = Math.min(yOffset, 14)
+
   const itemVariants = {
     hidden: {
       opacity: 0,
-      y: yOffset,
-      scale: 0.97
+      y: safeY,
+      scale: 0.99
     },
     visible: {
       opacity: 1,
       y: 0,
       scale: 1,
       transition: {
-        duration: 0.65,
+        duration: 0.35,
         ease: luxuryEasing
       }
     }

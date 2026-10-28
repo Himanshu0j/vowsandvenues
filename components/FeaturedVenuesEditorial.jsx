@@ -51,7 +51,7 @@ export default function FeaturedVenuesEditorial({
     ? venueVendors.slice(1, 4)
     : vendors.slice(1, 4)
 
-  const heroImgUrl = getOptimizedImageUrl(heroVenue.heroImage || heroVenue.image, { width: 1800, quality: 85 })
+  const heroImgUrl = getOptimizedImageUrl(heroVenue.heroImage || heroVenue.image, { width: 1080, quality: 75 })
   const isHeroFavorite = wishlistIds.includes(heroVenue.id)
 
   return (
@@ -211,13 +211,13 @@ export default function FeaturedVenuesEditorial({
         {/* ============================================================== */}
         {/* 2. COMPLEMENTARY VENUE CARDS (Takes 5 of 12 columns on Desktop)*/}
         {/* ============================================================== */}
-        <ScrollStaggerContainer staggerDelay={0.09} className="lg:col-span-5 flex flex-col justify-between gap-4">
+        <ScrollStaggerContainer staggerDelay={0.03} className="lg:col-span-5 flex flex-col justify-between gap-4">
           {secondaryVenues.map((v) => {
-            const vImg = getOptimizedImageUrl(v.heroImage || v.image, { width: 800, quality: 75 })
+            const vImg = getOptimizedImageUrl(v.heroImage || v.image, { width: 450, quality: 70 })
             const isFav = wishlistIds.includes(v.id)
 
             return (
-              <ScrollStaggerItem key={v.id} yOffset={24}>
+              <ScrollStaggerItem key={v.id} yOffset={14}>
                 <TiltCard
                 key={v.id}
                 maxTilt={6}
@@ -235,7 +235,7 @@ export default function FeaturedVenuesEditorial({
                   <img
                     src={vImg}
                     alt={v.name}
-                    loading="eager"
+                    loading="lazy"
                     decoding="async"
                     className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
                   />

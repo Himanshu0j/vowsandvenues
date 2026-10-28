@@ -22,7 +22,7 @@ export default function VendorCard({
   onAddToEvent,
   onNegotiate
 }) {
-  const imageUrl = getOptimizedImageUrl(vendor.heroImage || vendor.image, { width: 600, quality: 75 })
+  const imageUrl = getOptimizedImageUrl(vendor.heroImage || vendor.image, { width: 420, quality: 70 })
 
   return (
     <div className="card-3d-wrap group relative rounded-3xl overflow-hidden bg-gradient-to-b from-[#fffefd] via-[#fdfbf7] to-[#f8f2e7] border-2 border-[#decfaa] hover:border-amber-500 shadow-[0_4px_20px_rgba(74,21,37,0.06)] hover:shadow-[0_20px_50px_rgba(74,21,37,0.18)] transition-all duration-500 hover:-translate-y-2 flex flex-col justify-between">
@@ -34,7 +34,7 @@ export default function VendorCard({
         <img
           src={imageUrl}
           alt={vendor.name}
-          loading="eager"
+          loading="lazy"
           decoding="async"
           className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 ease-out"
         />

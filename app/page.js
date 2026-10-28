@@ -1895,9 +1895,9 @@ export default function VowsAndVenuesApp() {
                 </ScrollReveal>
               </div>
 
-              <ScrollStaggerContainer staggerDelay={0.07} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+              <ScrollStaggerContainer staggerDelay={0.02} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                 {featuredCreators.map((vendor) => (
-                  <ScrollStaggerItem key={vendor.id} yOffset={25}>
+                  <ScrollStaggerItem key={vendor.id} yOffset={12}>
                     <VendorCard
                       vendor={vendor}
                       isFavorite={wishlistIds.includes(vendor.id)}
