@@ -14,7 +14,7 @@ import { DEFAULT_CMS_CONTENT, DEFAULT_MEDIA_LIBRARY, DEFAULT_COUPONS } from '@/l
 const JWT_SECRET = process.env.JWT_SECRET
 const JWT_EXPIRES_IN = '7d'
 const IS_PRODUCTION = process.env.NODE_ENV === 'production'
-const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID || ''
+const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID || '833576938813-6rqpe3vsep88q7ktpin19kjba9v6mm0e.apps.googleusercontent.com'
 const DEFAULT_ALLOWED_ORIGINS = [
   'https://vowsandvenues.in',
   'https://www.vowsandvenues.in'
