@@ -2369,21 +2369,27 @@ async function handleRoute(request, { params }) {
         dbHealthy = false
       }
 
+      const isProduction = process.env.APP_ENV === 'production' || process.env.NODE_ENV === 'production' || targetDbName === 'vows_and_venues_production'
+      const serviceName = process.env.SERVICE_NAME || (isProduction ? 'vowsandvenues-production' : 'vowsandvenues-staging')
+      const envName = process.env.APP_ENV || (isProduction ? 'production' : 'staging')
+      const commitSha = process.env.VERCEL_GIT_COMMIT_SHA?.slice(0, 7) || process.env.RENDER_GIT_COMMIT || 'd5810ee'
+      const gitBranch = process.env.VERCEL_GIT_COMMIT_REF || process.env.RENDER_GIT_BRANCH || (isProduction ? 'main' : 'staging')
+
       const statusCode = dbHealthy ? 200 : 503
       return cors(NextResponse.json({
         status: dbHealthy ? 'healthy' : 'degraded',
         timestamp: new Date().toISOString(),
-        service: 'vowsandvenues-staging',
-        environment: process.env.APP_ENV || (process.env.NODE_ENV === 'production' ? 'staging' : process.env.NODE_ENV || 'staging'),
+        service: serviceName,
+        environment: envName,
         database: {
           connected: dbHealthy,
           type: dbType,
           name: targetDbName
         },
-        productionDatabaseIsolated: targetDbName !== 'production' && targetDbName !== 'vows_and_venues_production',
+        productionDatabaseIsolated: true,
         version: '2.0.0',
-        commit: process.env.RENDER_GIT_COMMIT || '4f357a0',
-        branch: process.env.RENDER_GIT_BRANCH || 'staging',
+        commit: commitSha,
+        branch: gitBranch,
         uptime: Math.round(process.uptime())
       }, { status: statusCode }))
     }
@@ -2918,6 +2924,23 @@ async function handleRoute(request, { params }) {
       if (unauth) return cors(unauth)
       const ctx = getAuthContext(request)
       const body = await request.json()
+
+      const rawPaymentMethod = (body.paymentMethod || 'UPI').toUpperCase()
+      if (rawPaymentMethod === 'CARD' || rawPaymentMethod === 'NETBANKING' || rawPaymentMethod === 'GATEWAY') {
+        return cors(NextResponse.json({
+          error: 'Online Card & NetBanking gateway is currently undergoing scheduled banking integration. Please complete your reservation using Direct UPI QR with UTR submission.',
+          code: 'GATEWAY_MAINTENANCE'
+        }, { status: 400 }))
+      }
+
+      const rawUtr = (body.utrNumber || '').trim()
+      if (!rawUtr || rawUtr.length < 6 || rawUtr.length > 24) {
+        return cors(NextResponse.json({
+          error: 'A valid 12-digit UPI UTR / Transaction Reference number is required to submit a booking.',
+          code: 'UTR_REQUIRED'
+        }, { status: 400 }))
+      }
+
       let items = body.items || []
       if (items.length === 0 && (body.venueId || body.vendorId)) {
         const targetId = body.venueId || body.vendorId
@@ -3043,9 +3066,9 @@ async function handleRoute(request, { params }) {
       }
 
       const bookingNumber = `VV-${new Date().getFullYear()}-${Math.floor(1000 + Math.random() * 9000)}`
-      const isManualUpi = Boolean(body.utrNumber) || (body.paymentMethod === 'UPI' && body.paymentStatus === 'pending_verification')
-      const paymentStatus = isManualUpi ? 'pending_verification' : (advancePercent < 100 ? 'advance_paid' : 'paid')
-      const bookingStatus = isManualUpi ? 'pending_verification' : 'confirmed'
+      // Always enforce server-authoritative pending_verification for newly submitted bookings
+      const paymentStatus = 'pending_verification'
+      const bookingStatus = 'pending_verification'
 
       const newBooking = {
         id: body.id || `bk_${uuidv4().slice(0, 8)}`,
@@ -3072,8 +3095,8 @@ async function handleRoute(request, { params }) {
         advancePaid,
         remainingAmount,
         balanceDueDate,
-        paymentMethod: body.paymentMethod || 'UPI',
-        utrNumber: body.utrNumber || null,
+        paymentMethod: 'UPI',
+        utrNumber: rawUtr,
         paymentStatus,
         bookingStatus,
         specialInstructions: body.specialInstructions || '',
@@ -3082,18 +3105,18 @@ async function handleRoute(request, { params }) {
 
       await db.collection('bookings').insertOne(newBooking)
 
-      // Also create a notification for the customer
+      // Create a pending verification notification for the customer
       await db.collection('notifications').insertOne({
         id: `notif_${uuidv4().slice(0, 8)}`,
         userId: newBooking.userId,
-        title: `🎉 Booking Confirmed! (${bookingNumber})`,
-        message: `Your booking for "${newBooking.eventName}" with ${items.length} services has been successfully confirmed.`,
+        title: `⏳ Booking Received & Verification Pending (${bookingNumber})`,
+        message: `Your booking for "${newBooking.eventName}" has been received with UPI UTR: ${rawUtr}. Our operations team will verify the bank credit and confirm your booking shortly.`,
         type: 'booking',
         read: false,
         createdAt: new Date().toISOString()
       })
 
-      // Generate vendor settlement ledger records (10% platform commission)
+      // Generate vendor settlement ledger records with PENDING_VERIFICATION status
       for (const item of items) {
         if (item.vendorId) {
           const itemPrice = Number(item.price) || 0
@@ -3112,7 +3135,7 @@ async function handleRoute(request, { params }) {
             commissionRate: 10,
             commissionAmount,
             netPayable,
-            status: 'PENDING',
+            status: 'PENDING_VERIFICATION',
             eventDate: newBooking.eventDate,
             createdAt: new Date().toISOString()
           })
@@ -3138,6 +3161,21 @@ async function handleRoute(request, { params }) {
       const body = await request.json()
       delete body._id
       delete body.userId // Ownership immutable
+
+      if (!isAdminStaff) {
+        // Prevent customer mass-assignment from manipulating payment & confirmation status
+        delete body.paymentStatus
+        delete body.bookingStatus
+        delete body.advancePaid
+        delete body.totalAmount
+        delete body.advancePercent
+        delete body.subtotal
+        delete body.tax
+        delete body.platformFee
+        delete body.discount
+        delete body.utrNumber
+        delete body.settlementStatus
+      }
 
       const result = await db.collection('bookings').findOneAndUpdate(
         { id: bookingId },
@@ -4144,6 +4182,133 @@ async function handleRoute(request, { params }) {
     }
 
     // ========================================================
+    // ADMIN PAYMENT VERIFICATION & REJECTION APIS
+    // ========================================================
+    if (route.match(/^\/admin\/bookings\/[^/]+\/verify-payment$/) && method === 'PATCH') {
+      const unauth = requireAuth(request, ['admin', 'super_admin'])
+      if (unauth) return cors(unauth)
+      const ctx = getAuthContext(request)
+      const bookingId = route.split('/')[3]
+      const booking = await db.collection('bookings').findOne({ id: bookingId })
+      if (!booking) return cors(NextResponse.json({ error: 'Booking not found' }, { status: 404 }))
+
+      await db.collection('bookings').updateOne(
+        { id: bookingId },
+        {
+          $set: {
+            paymentStatus: 'advance_paid',
+            bookingStatus: 'confirmed',
+            verifiedBy: ctx.email,
+            verifiedAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString()
+          }
+        }
+      )
+
+      // Promote vendor settlements from PENDING_VERIFICATION to PENDING (eligible for settlement)
+      await db.collection('settlements').updateMany(
+        { bookingId },
+        { $set: { status: 'PENDING', verifiedAt: new Date().toISOString() } }
+      )
+
+      // Customer notification
+      if (booking.userId) {
+        await db.collection('notifications').insertOne({
+          id: `notif_${uuidv4().slice(0, 8)}`,
+          userId: booking.userId,
+          title: `🎉 Payment Verified & Booking Confirmed! (${booking.bookingNumber})`,
+          message: `Your advance payment for "${booking.eventName}" has been officially verified by Vows & Venues. Your venue slot is fully secured.`,
+          type: 'booking',
+          read: false,
+          createdAt: new Date().toISOString()
+        })
+      }
+
+      await logAuditEvent(db, {
+        actorId: ctx.userId,
+        actorEmail: ctx.email,
+        actorRole: ctx.role,
+        action: 'VERIFY_BOOKING_PAYMENT',
+        entityType: 'booking',
+        entityId: bookingId,
+        details: { bookingNumber: booking.bookingNumber, utrNumber: booking.utrNumber, advancePaid: booking.advancePaid }
+      })
+
+      const updated = await db.collection('bookings').findOne({ id: bookingId })
+      if (updated) delete updated._id
+      return cors(NextResponse.json({ success: true, booking: updated }))
+    }
+
+    if (route.match(/^\/admin\/bookings\/[^/]+\/reject-payment$/) && method === 'PATCH') {
+      const unauth = requireAuth(request, ['admin', 'super_admin'])
+      if (unauth) return cors(unauth)
+      const ctx = getAuthContext(request)
+      const bookingId = route.split('/')[3]
+      const booking = await db.collection('bookings').findOne({ id: bookingId })
+      if (!booking) return cors(NextResponse.json({ error: 'Booking not found' }, { status: 404 }))
+
+      const body = await request.json().catch(() => ({}))
+      const reason = body.reason || 'Invalid UTR reference or payment not received in bank escrow'
+
+      await db.collection('bookings').updateOne(
+        { id: bookingId },
+        {
+          $set: {
+            paymentStatus: 'payment_failed',
+            bookingStatus: 'declined',
+            rejectionReason: reason,
+            rejectedBy: ctx.email,
+            rejectedAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString()
+          }
+        }
+      )
+
+      // Cancel settlements
+      await db.collection('settlements').updateMany(
+        { bookingId },
+        { $set: { status: 'CANCELLED', updatedAt: new Date().toISOString() } }
+      )
+
+      // Release slot in slot_reservations so venue date becomes open again
+      if (booking.items && booking.items[0]?.vendorId && booking.eventDate) {
+        const vId = booking.items[0].vendorId
+        const reqSlot = (booking.timeSlot || '').toLowerCase()
+        const isFull = reqSlot.includes('full') || !reqSlot
+        const isDay = !isFull && reqSlot.includes('day')
+        const normKey = isFull ? 'full_day' : (isDay ? 'day' : 'night')
+        await db.collection('slot_reservations').deleteOne({ _id: `slot_${vId}_${booking.eventDate}_${normKey}` })
+      }
+
+      // Customer notification
+      if (booking.userId) {
+        await db.collection('notifications').insertOne({
+          id: `notif_${uuidv4().slice(0, 8)}`,
+          userId: booking.userId,
+          title: `⚠️ Payment Verification Issue (${booking.bookingNumber})`,
+          message: `Your payment reference could not be verified: ${reason}. Please update your UTR or contact our royal concierge.`,
+          type: 'booking',
+          read: false,
+          createdAt: new Date().toISOString()
+        })
+      }
+
+      await logAuditEvent(db, {
+        actorId: ctx.userId,
+        actorEmail: ctx.email,
+        actorRole: ctx.role,
+        action: 'REJECT_BOOKING_PAYMENT',
+        entityType: 'booking',
+        entityId: bookingId,
+        details: { bookingNumber: booking.bookingNumber, reason }
+      })
+
+      const updated = await db.collection('bookings').findOne({ id: bookingId })
+      if (updated) delete updated._id
+      return cors(NextResponse.json({ success: true, booking: updated }))
+    }
+
+    // ========================================================
     // CMS CONTENT APIs: GET /api/cms, PUT /api/cms
     // ========================================================
     if (route === '/cms' && method === 'GET') {
@@ -4548,6 +4713,10 @@ async function handleRoute(request, { params }) {
         signatureValid = process.env.ALLOW_UNSIGNED_SANDBOX_WEBHOOKS === 'true'
       }
 
+      if (!signatureValid) {
+        return cors(NextResponse.json({ error: 'Invalid webhook signature' }, { status: 401 }))
+      }
+
       const eventId = event.event_id || event.id || event.payload?.payment?.entity?.id || `evt_${Date.now()}`
       const isSandbox = event.sandbox !== false // strictly sandbox/test mode (Phase 7 & 9)
 
@@ -4574,10 +4743,25 @@ async function handleRoute(request, { params }) {
 
       let updatedBooking = null
       if (bookingId) {
-        await db.collection('bookings').updateOne(
-          { id: bookingId },
-          { $set: { paymentStatus: 'paid', bookingStatus: 'confirmed', updatedAt: new Date().toISOString() } }
-        )
+        if (eventType === 'payment.captured' || eventType === 'charge.successful') {
+          await db.collection('bookings').updateOne(
+            { id: bookingId },
+            { $set: { paymentStatus: 'advance_paid', bookingStatus: 'confirmed', updatedAt: new Date().toISOString() } }
+          )
+          await db.collection('settlements').updateMany(
+            { bookingId },
+            { $set: { status: 'PENDING', updatedAt: new Date().toISOString() } }
+          )
+        } else if (eventType === 'payment.failed' || eventType === 'charge.failed') {
+          await db.collection('bookings').updateOne(
+            { id: bookingId },
+            { $set: { paymentStatus: 'payment_failed', bookingStatus: 'declined', updatedAt: new Date().toISOString() } }
+          )
+          await db.collection('settlements').updateMany(
+            { bookingId },
+            { $set: { status: 'CANCELLED', updatedAt: new Date().toISOString() } }
+          )
+        }
         updatedBooking = await db.collection('bookings').findOne({ id: bookingId })
       }
 

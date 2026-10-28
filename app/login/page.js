@@ -160,10 +160,11 @@ function LoginContent() {
         const container = document.getElementById('login-google-btn-container')
         if (container) {
           container.innerHTML = ''
+          const computedWidth = Math.min(Math.max((container.clientWidth || (window.innerWidth - 64)), 220), 380)
           window.google.accounts.id.renderButton(container, {
             theme: 'outline',
             size: 'large',
-            width: 380,
+            width: computedWidth,
             text: 'continue_with',
             shape: 'rectangular',
             logo_alignment: 'left'
@@ -208,7 +209,7 @@ function LoginContent() {
         )}
 
         {/* Google Sign In */}
-        <div id="login-google-btn-container" className="mb-4 flex items-center justify-center min-h-[44px]">
+        <div id="login-google-btn-container" className="mb-4 flex items-center justify-center min-h-[44px] w-full max-w-full overflow-hidden">
           <button
             type="button"
             disabled={submitting}

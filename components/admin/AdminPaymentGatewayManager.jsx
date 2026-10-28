@@ -43,8 +43,8 @@ export const DEFAULT_PAYMENT_CONFIG = {
     provider: 'razorpay', // 'razorpay' | 'cashfree' | 'stripe' | 'paytm'
     isLive: false,
     keyId: 'rzp_test_9A2bKx89mQpL4z',
-    keySecret: 'sec_test_k9823hjas98124',
-    webhookSecret: 'whsec_vows_venues_live_secret_2026',
+    keySecret: '••••••••••••••••••••••••',
+    webhookSecret: '••••••••••••••••••••••••',
     convenienceFeeType: 'flat', // 'flat' | 'percent' | 'zero'
     convenienceFeeAmount: 2500,
     autoRefund: true
@@ -162,21 +162,42 @@ export default function AdminPaymentGatewayManager() {
   }
 
   // Transaction Verification Actions
-  const handleVerifyTransaction = (id) => {
+  const handleVerifyTransaction = async (id, bookingId) => {
     setTransactions(prev => {
       const next = prev.map(t => t.id === id ? { ...t, status: 'VERIFIED' } : t)
       localStorage.setItem('vv_payment_transactions', JSON.stringify(next))
       return next
     })
+    const bId = bookingId || id
+    try {
+      const token = localStorage.getItem('vv_auth_token') || localStorage.getItem('auth_token')
+      if (token && bId) {
+        await fetch(`/api/admin/bookings/${bId}/verify-payment`, {
+          method: 'PATCH',
+          headers: { Authorization: `Bearer ${token}` }
+        })
+      }
+    } catch (_) {}
     toast.success('Payment verified & booking confirmed! Token receipt dispatched.')
   }
 
-  const handleRejectTransaction = (id) => {
+  const handleRejectTransaction = async (id, bookingId) => {
     setTransactions(prev => {
       const next = prev.map(t => t.id === id ? { ...t, status: 'REJECTED' } : t)
       localStorage.setItem('vv_payment_transactions', JSON.stringify(next))
       return next
     })
+    const bId = bookingId || id
+    try {
+      const token = localStorage.getItem('vv_auth_token') || localStorage.getItem('auth_token')
+      if (token && bId) {
+        await fetch(`/api/admin/bookings/${bId}/reject-payment`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+          body: JSON.stringify({ reason: 'Invalid UTR reference or payment not received in bank escrow' })
+        })
+      }
+    } catch (_) {}
     toast.error('Payment rejected. Customer will be notified to re-submit valid UTR.')
   }
 

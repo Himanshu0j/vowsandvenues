@@ -469,36 +469,14 @@ export default function VenueDetailPage({ params }) {
     }
 
     // Payment mode validation
-    if (paymentMode === 'UPI_QR') {
-      if (!utrNumber || utrNumber.trim().length < 6) {
-        toast.error('Please enter the 12-digit UPI UTR / Transaction Reference number after completing payment.')
-        return
-      }
-    } else if (paymentMode === 'GATEWAY') {
-      if (gatewayTab === 'CARD') {
-        const rawNum = cardNumber.replace(/\s/g, '')
-        if (!rawNum || rawNum.length < 15) {
-          toast.error('Please enter a valid 16-digit Card Number.')
-          return
-        }
-        if (!cardName.trim()) {
-          toast.error('Please enter the cardholder name.')
-          return
-        }
-        if (!cardExpiry || cardExpiry.length < 5) {
-          toast.error('Please enter card expiry date (MM/YY).')
-          return
-        }
-        if (!cardCvv || cardCvv.length < 3) {
-          toast.error('Please enter CVV security code.')
-          return
-        }
-      } else if (gatewayTab === 'NETBANKING') {
-        if (!selectedBank) {
-          toast.error('Please select your bank for NetBanking.')
-          return
-        }
-      }
+    if (paymentMode !== 'UPI_QR') {
+      toast.error('Online Card/NetBanking is undergoing banking maintenance. Please use Direct UPI QR.')
+      setPaymentMode('UPI_QR')
+      return
+    }
+    if (!utrNumber || utrNumber.trim().length < 6) {
+      toast.error('Please enter the 12-digit UPI UTR / Transaction Reference number after completing payment.')
+      return
     }
 
     try {
@@ -518,14 +496,13 @@ export default function VenueDetailPage({ params }) {
         advancePaid: advancePayNow,
         subtotal: basePrice,
         totalAmount: estimatedTotal,
-        paymentMethod: paymentMode === 'UPI_QR' ? 'UPI' : (gatewayTab === 'CARD' ? 'CARD' : 'NETBANKING'),
-        utrNumber: paymentMode === 'UPI_QR' ? utrNumber : (gatewayTab === 'CARD' ? `CARD_${cardNumber.replace(/\s/g, '').slice(-4)}` : `NB_${selectedBank}`),
-        paymentDetails: paymentMode === 'GATEWAY' ? {
-          mode: gatewayTab,
-          last4: gatewayTab === 'CARD' ? cardNumber.replace(/\s/g, '').slice(-4) : null,
-          bank: gatewayTab === 'NETBANKING' ? selectedBank : null,
-          cardholder: cardName || null
-        } : null,
+        paymentMethod: 'UPI',
+        utrNumber: utrNumber.trim(),
+        paymentDetails: {
+          mode: 'UPI_QR',
+          payee: upiId,
+          utr: utrNumber.trim()
+        },
         items: [
           {
             vendorId: venue.id,
@@ -1251,31 +1228,25 @@ export default function VenueDetailPage({ params }) {
                       <label className="text-xs font-semibold text-stone-800 mb-1.5 block">
                         4. Payment Method for 5% Advance (₹{advancePayNow.toLocaleString('en-IN')})
                       </label>
-                      <div className="grid grid-cols-2 gap-2 mb-3">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mb-3">
                         <button
                           type="button"
                           onClick={() => setPaymentMode('UPI_QR')}
-                          className={`flex items-center justify-center gap-2 p-2.5 rounded-xl border text-xs font-medium cursor-pointer transition-all ${
-                            paymentMode === 'UPI_QR'
-                              ? 'border-amber-600 bg-amber-50 text-amber-900 font-bold shadow-xs ring-1 ring-amber-400'
-                              : 'border-stone-200 bg-white text-stone-700 hover:border-stone-300'
-                          }`}
+                          className="flex items-center justify-center gap-2 p-2.5 rounded-xl border border-amber-600 bg-amber-50 text-amber-900 font-bold shadow-xs ring-1 ring-amber-400 cursor-pointer transition-all"
                         >
                           <QrCode className="w-4 h-4 text-amber-700" />
-                          <span>Direct UPI QR (0% Fee)</span>
+                          <span>Direct UPI QR (0% Fee Active)</span>
                         </button>
-                        <button
-                          type="button"
-                          onClick={() => setPaymentMode('GATEWAY')}
-                          className={`flex items-center justify-center gap-2 p-2.5 rounded-xl border text-xs font-medium cursor-pointer transition-all ${
-                            paymentMode === 'GATEWAY'
-                              ? 'border-amber-600 bg-amber-50 text-amber-900 font-bold shadow-xs ring-1 ring-amber-400'
-                              : 'border-stone-200 bg-white text-stone-700 hover:border-stone-300'
-                          }`}
+                        <div
+                          className="flex items-center justify-center gap-2 p-2.5 rounded-xl border border-stone-200 bg-stone-100 text-stone-400 text-xs font-medium cursor-not-allowed select-none opacity-80"
+                          title="Online Cards & NetBanking gateway is undergoing scheduled banking integration. Please use Direct UPI QR."
                         >
-                          <CreditCard className="w-4 h-4 text-amber-700" />
-                          <span>Online Cards / NetBanking</span>
-                        </button>
+                          <CreditCard className="w-4 h-4 text-stone-400" />
+                          <span className="flex items-center gap-1.5">
+                            Online Cards
+                            <span className="text-[10px] bg-stone-200 text-stone-600 font-bold px-1.5 py-0.5 rounded">Maintenance</span>
+                          </span>
+                        </div>
                       </div>
 
                       {/* DIRECT UPI QR SECTION (Enlarged, Centered, Copy UPI ID, Prominent UTR) */}
@@ -1347,149 +1318,18 @@ export default function VenueDetailPage({ params }) {
 
                       {/* ONLINE CARDS / NETBANKING GATEWAY SECTION */}
                       {paymentMode === 'GATEWAY' && (
-                        <div className="bg-stone-50 border border-stone-200 rounded-2xl p-4 sm:p-5 space-y-4">
-                          {/* Sub-Tabs: Credit/Debit Cards vs NetBanking */}
-                          <div className="flex rounded-xl bg-stone-200/80 p-1">
-                            <button
-                              type="button"
-                              onClick={() => setGatewayTab('CARD')}
-                              className={`flex-1 py-2 text-xs font-bold rounded-lg transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
-                                gatewayTab === 'CARD'
-                                  ? 'bg-white text-stone-900 shadow-xs'
-                                  : 'text-stone-600 hover:text-stone-900'
-                              }`}
-                            >
-                              <CreditCard className="w-3.5 h-3.5 text-amber-700" />
-                              <span>Credit / Debit Card</span>
-                            </button>
-                            <button
-                              type="button"
-                              onClick={() => setGatewayTab('NETBANKING')}
-                              className={`flex-1 py-2 text-xs font-bold rounded-lg transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
-                                gatewayTab === 'NETBANKING'
-                                  ? 'bg-white text-stone-900 shadow-xs'
-                                  : 'text-stone-600 hover:text-stone-900'
-                              }`}
-                            >
-                              <Building2 className="w-3.5 h-3.5 text-amber-700" />
-                              <span>NetBanking</span>
-                            </button>
-                          </div>
-
-                          {/* CARD PAYMENT FORM */}
-                          {gatewayTab === 'CARD' && (
-                            <div className="space-y-3">
-                              <div>
-                                <label className="text-xs font-semibold text-stone-700 mb-1 block">Card Number *</label>
-                                <div className="relative">
-                                  <input
-                                    type="text"
-                                    placeholder="4532 •••• •••• 8920"
-                                    value={cardNumber}
-                                    onChange={(e) => handleCardNumberChange(e.target.value)}
-                                    maxLength={19}
-                                    className="w-full bg-white border border-stone-300 rounded-xl px-3.5 py-2.5 text-xs font-mono text-stone-900 tracking-wider focus:outline-none focus:ring-2 focus:ring-amber-500"
-                                  />
-                                  <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-1 text-[10px] font-bold text-stone-400">
-                                    <span className="bg-stone-100 px-1 py-0.5 rounded border border-stone-200">VISA</span>
-                                    <span className="bg-stone-100 px-1 py-0.5 rounded border border-stone-200">MC</span>
-                                    <span className="bg-stone-100 px-1 py-0.5 rounded border border-stone-200">RuPay</span>
-                                  </div>
-                                </div>
-                              </div>
-
-                              <div>
-                                <label className="text-xs font-semibold text-stone-700 mb-1 block">Cardholder Name (as printed on card) *</label>
-                                <input
-                                  type="text"
-                                  placeholder="e.g. Rahul Verma"
-                                  value={cardName}
-                                  onChange={(e) => setCardName(e.target.value)}
-                                  className="w-full bg-white border border-stone-300 rounded-xl px-3.5 py-2 text-xs text-stone-900 focus:outline-none focus:ring-2 focus:ring-amber-500"
-                                />
-                              </div>
-
-                              <div className="grid grid-cols-2 gap-3">
-                                <div>
-                                  <label className="text-xs font-semibold text-stone-700 mb-1 block">Valid Thru (MM/YY) *</label>
-                                  <input
-                                    type="text"
-                                    placeholder="12/28"
-                                    value={cardExpiry}
-                                    onChange={(e) => handleExpiryChange(e.target.value)}
-                                    maxLength={5}
-                                    className="w-full bg-white border border-stone-300 rounded-xl px-3.5 py-2 text-xs font-mono text-stone-900 focus:outline-none focus:ring-2 focus:ring-amber-500"
-                                  />
-                                </div>
-                                <div>
-                                  <label className="text-xs font-semibold text-stone-700 mb-1 block">CVV / CVC *</label>
-                                  <input
-                                    type="password"
-                                    placeholder="•••"
-                                    value={cardCvv}
-                                    onChange={(e) => setCardCvv(e.target.value.replace(/\D/g, '').slice(0, 4))}
-                                    maxLength={4}
-                                    className="w-full bg-white border border-stone-300 rounded-xl px-3.5 py-2 text-xs font-mono text-stone-900 tracking-widest focus:outline-none focus:ring-2 focus:ring-amber-500"
-                                  />
-                                </div>
-                              </div>
-                            </div>
-                          )}
-
-                          {/* NETBANKING SELECTOR */}
-                          {gatewayTab === 'NETBANKING' && (
-                            <div className="space-y-3">
-                              <div>
-                                <label className="text-xs font-semibold text-stone-700 mb-1.5 block">Select Popular Bank</label>
-                                <div className="grid grid-cols-3 gap-2">
-                                  {[
-                                    { id: 'HDFC', name: 'HDFC Bank' },
-                                    { id: 'SBI', name: 'SBI' },
-                                    { id: 'ICICI', name: 'ICICI Bank' },
-                                    { id: 'AXIS', name: 'Axis Bank' },
-                                    { id: 'KOTAK', name: 'Kotak Bank' },
-                                    { id: 'PNB', name: 'Punjab Nat. Bank' }
-                                  ].map(bank => (
-                                    <button
-                                      key={bank.id}
-                                      type="button"
-                                      onClick={() => setSelectedBank(bank.id)}
-                                      className={`py-2 px-2 rounded-xl border text-xs font-semibold transition-all cursor-pointer text-center ${
-                                        selectedBank === bank.id
-                                          ? 'border-amber-600 bg-amber-50 text-amber-900 shadow-xs'
-                                          : 'border-stone-200 bg-white text-stone-700 hover:border-stone-300'
-                                      }`}
-                                    >
-                                      {bank.name}
-                                    </button>
-                                  ))}
-                                </div>
-                              </div>
-
-                              <div>
-                                <label className="text-xs font-semibold text-stone-700 mb-1 block">Or All Other Indian Banks</label>
-                                <select
-                                  value={selectedBank}
-                                  onChange={(e) => setSelectedBank(e.target.value)}
-                                  className="w-full bg-white border border-stone-300 rounded-xl px-3.5 py-2 text-xs text-stone-800 focus:outline-none focus:ring-2 focus:ring-amber-500 cursor-pointer"
-                                >
-                                  <option value="HDFC">HDFC Bank</option>
-                                  <option value="SBI">State Bank of India (SBI)</option>
-                                  <option value="ICICI">ICICI Bank</option>
-                                  <option value="AXIS">Axis Bank</option>
-                                  <option value="KOTAK">Kotak Mahindra Bank</option>
-                                  <option value="BOB">Bank of Baroda</option>
-                                  <option value="PNB">Punjab National Bank</option>
-                                  <option value="CANARA">Canara Bank</option>
-                                  <option value="UNION">Union Bank of India</option>
-                                  <option value="INDUSIND">IndusInd Bank</option>
-                                  <option value="YES">Yes Bank</option>
-                                  <option value="IDFC">IDFC FIRST Bank</option>
-                                  <option value="FEDERAL">Federal Bank</option>
-                                </select>
-                              </div>
-                            </div>
-                          )}
+                        <div className="bg-amber-50 border border-amber-300 rounded-2xl p-5 text-center space-y-2">
+                          <p className="text-xs font-bold text-amber-900">Online Card Gateway Under Scheduled Banking Integration</p>
+                          <p className="text-xs text-stone-600">Please use the 0% Fee Direct UPI QR above to reserve your venue date.</p>
+                          <button
+                            type="button"
+                            onClick={() => setPaymentMode('UPI_QR')}
+                            className="mt-2 inline-flex items-center gap-1.5 px-4 py-2 bg-amber-700 text-white rounded-xl text-xs font-semibold hover:bg-amber-800 cursor-pointer"
+                          >
+                            Switch to Direct UPI QR
+                          </button>
+                        </div>
+                      )}
 
                           {/* 256-Bit SSL Escrow Trust Badge */}
                           <div className="bg-emerald-50 border border-emerald-200 rounded-xl p-3 flex items-start gap-2 text-[11px] text-emerald-900">
@@ -1502,8 +1342,6 @@ export default function VenueDetailPage({ params }) {
                             </div>
                           </div>
                         </div>
-                      )}
-                    </div>
 
                     {/* Submit Button */}
                     <button
