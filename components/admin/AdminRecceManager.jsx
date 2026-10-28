@@ -27,7 +27,7 @@ export const INITIAL_RECCES = [
     phone: '+919920887766',
     venueName: 'Umaid Bhawan Citadel & Lawns',
     venueCity: 'Jodhpur, Rajasthan',
-    dateTime: '2026-11-02T11:00',
+    dateTime: '2026-11-05T11:00',
     guestEstimate: 400,
     coordinatorName: 'Thakur Gajendra Singh (Venue GM)',
     coordinatorPhone: '+91 98290 88991',
@@ -42,7 +42,7 @@ export const INITIAL_RECCES = [
     phone: '+919820123456',
     venueName: 'The Royal Lake Palace & Gardens',
     venueCity: 'Udaipur, Rajasthan',
-    dateTime: '2026-10-25T15:30',
+    dateTime: '2026-11-12T15:30',
     guestEstimate: 450,
     coordinatorName: 'Maharani Vijaylaxmi Rathore (GM Hospitality)',
     coordinatorPhone: '+91 98291 44556',
@@ -57,7 +57,7 @@ export const INITIAL_RECCES = [
     phone: '+919811223344',
     venueName: 'The Royal Nawabi Palace & Lawns',
     venueCity: 'Lucknow, UP',
-    dateTime: '2026-10-09T14:00',
+    dateTime: '2026-10-25T14:00',
     guestEstimate: 300,
     coordinatorName: 'Nawab Asad Mirza (Estate Manager)',
     coordinatorPhone: '+91 94150 11223',
@@ -65,12 +65,28 @@ export const INITIAL_RECCES = [
     feedback: 'Loved the Sheesh Mahal ballroom. Requested customized Awadhi royal feast tasting before final token advance.',
     conversionScore: 'WON (Contract In Progress)',
     specialNotes: 'Menu tasting scheduled with Chef Imtiaz for next weekend.'
+  },
+  {
+    id: 'recce_04',
+    coupleName: 'Pooja Sharma & Vikramaditya Rathore',
+    phone: '+919829012890',
+    venueName: 'Rambagh Heritage Palace & Courtyards',
+    venueCity: 'Jaipur, Rajasthan',
+    dateTime: '2026-10-09T10:30',
+    guestEstimate: 500,
+    coordinatorName: 'Col. Ranjit Singh (Palace Director)',
+    coordinatorPhone: '+91 98290 77112',
+    status: 'COMPLETED',
+    feedback: 'Walkthrough completed satisfactorily. Confirmed bridal party suites in Maharani wing.',
+    conversionScore: 'WON (Advance Token Verified)',
+    specialNotes: 'Grand courtyard lighting trial approved by couple.'
   }
 ]
 
 export default function AdminRecceManager() {
   const [recces, setRecces] = useState(INITIAL_RECCES)
   const [searchTerm, setSearchTerm] = useState('')
+  const [filterTab, setFilterTab] = useState('ALL') // 'ALL' | 'SCHEDULED' | 'COMPLETED'
   const [isScheduleModalOpen, setIsScheduleModalOpen] = useState(false)
   const [activeFeedbackModal, setActiveFeedbackModal] = useState(null)
   const [feedbackInput, setFeedbackInput] = useState('')
@@ -81,18 +97,24 @@ export default function AdminRecceManager() {
     phone: '',
     venueName: 'Umaid Bhawan Citadel & Lawns',
     venueCity: 'Jodhpur, Rajasthan',
-    dateTime: '2026-11-15T11:00',
+    dateTime: '2026-11-20T11:00',
     guestEstimate: 350,
     coordinatorName: 'Palace Estate GM',
     coordinatorPhone: '+91 98290 00000',
     specialNotes: ''
   })
 
-  const filteredRecces = recces.filter(r =>
-    r.coupleName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    r.venueName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    r.venueCity.toLowerCase().includes(searchTerm.toLowerCase())
-  )
+  const upcomingCount = recces.filter(r => r.status === 'SCHEDULED').length
+  const completedCount = recces.filter(r => r.status === 'COMPLETED').length
+
+  const filteredRecces = recces.filter(r => {
+    const matchesSearch =
+      r.coupleName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      r.venueName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      r.venueCity.toLowerCase().includes(searchTerm.toLowerCase())
+    const matchesTab = filterTab === 'ALL' || r.status === filterTab
+    return matchesSearch && matchesTab
+  })
 
   const handleScheduleRecce = (e) => {
     e.preventDefault()
@@ -163,24 +185,47 @@ export default function AdminRecceManager() {
           </button>
         </div>
 
-        {/* Stats Row */}
+        {/* Stats Row with interactive quick click */}
         <div className="grid grid-cols-3 gap-4 mt-6 pt-5 border-t border-white/10">
-          <div>
-            <span className="text-[11px] text-stone-400 uppercase tracking-wider block">Upcoming Recces</span>
+          <button
+            type="button"
+            onClick={() => setFilterTab('SCHEDULED')}
+            className={`text-left p-2.5 rounded-xl transition-all cursor-pointer ${
+              filterTab === 'SCHEDULED' ? 'bg-purple-900/50 ring-1 ring-purple-400' : 'hover:bg-white/5'
+            }`}
+          >
+            <span className="text-[11px] text-purple-300 uppercase tracking-wider block font-semibold">Upcoming Recces</span>
             <span className="font-serif text-xl font-bold text-white">
-              {recces.filter(r => r.status === 'SCHEDULED').length} Scheduled
+              {upcomingCount} Scheduled
             </span>
-          </div>
-          <div>
-            <span className="text-[11px] text-stone-400 uppercase tracking-wider block">Completed Recces</span>
+            <span className="text-[10px] text-stone-400 block mt-0.5">Click to view upcoming</span>
+          </button>
+          <button
+            type="button"
+            onClick={() => setFilterTab('COMPLETED')}
+            className={`text-left p-2.5 rounded-xl transition-all cursor-pointer ${
+              filterTab === 'COMPLETED' ? 'bg-emerald-900/40 ring-1 ring-emerald-400' : 'hover:bg-white/5'
+            }`}
+          >
+            <span className="text-[11px] text-emerald-300 uppercase tracking-wider block font-semibold">Completed Recces</span>
             <span className="font-serif text-xl font-bold text-emerald-400">
-              {recces.filter(r => r.status === 'COMPLETED').length} Walkthroughs
+              {completedCount} Walkthroughs
             </span>
-          </div>
-          <div>
-            <span className="text-[11px] text-stone-400 uppercase tracking-wider block">Recce-to-Contract Rate</span>
-            <span className="font-serif text-xl font-bold text-champagne">87.5% Win Rate</span>
-          </div>
+            <span className="text-[10px] text-stone-400 block mt-0.5">Click to view completed</span>
+          </button>
+          <button
+            type="button"
+            onClick={() => setFilterTab('ALL')}
+            className={`text-left p-2.5 rounded-xl transition-all cursor-pointer ${
+              filterTab === 'ALL' ? 'bg-amber-900/30 ring-1 ring-amber-400' : 'hover:bg-white/5'
+            }`}
+          >
+            <span className="text-[11px] text-amber-300 uppercase tracking-wider block font-semibold">Recce-to-Contract Rate</span>
+            <span className="font-serif text-xl font-bold text-amber-200">
+              {recces.length > 0 ? Math.round((completedCount / recces.length) * 100) : 100}% Conversion
+            </span>
+            <span className="text-[10px] text-stone-400 block mt-0.5">View all {recces.length} records</span>
+          </button>
         </div>
       </div>
 
@@ -197,7 +242,43 @@ export default function AdminRecceManager() {
               className="w-full pl-9 pr-3 py-2 text-xs rounded-lg border border-stone-200 focus:outline-none focus:ring-2 focus:ring-purple-400"
             />
           </div>
-          <span className="text-xs text-stone-500 font-medium">{filteredRecces.length} Recces Listed</span>
+
+          {/* Filter Tabs */}
+          <div className="flex items-center gap-1.5 bg-stone-100 p-1 rounded-xl self-stretch sm:self-auto">
+            <button
+              type="button"
+              onClick={() => setFilterTab('ALL')}
+              className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
+                filterTab === 'ALL'
+                  ? 'bg-white text-stone-900 shadow-xs'
+                  : 'text-stone-600 hover:text-stone-900'
+              }`}
+            >
+              All ({recces.length})
+            </button>
+            <button
+              type="button"
+              onClick={() => setFilterTab('SCHEDULED')}
+              className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
+                filterTab === 'SCHEDULED'
+                  ? 'bg-purple-600 text-white shadow-xs'
+                  : 'text-stone-600 hover:text-purple-700'
+              }`}
+            >
+              Upcoming ({upcomingCount})
+            </button>
+            <button
+              type="button"
+              onClick={() => setFilterTab('COMPLETED')}
+              className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
+                filterTab === 'COMPLETED'
+                  ? 'bg-emerald-600 text-white shadow-xs'
+                  : 'text-stone-600 hover:text-emerald-700'
+              }`}
+            >
+              Completed ({completedCount})
+            </button>
+          </div>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">

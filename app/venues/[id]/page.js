@@ -32,7 +32,8 @@ import {
   Music,
   ArrowLeft,
   Lock,
-  User
+  User,
+  Copy
 } from 'lucide-react'
 import { toast } from 'sonner'
 import Navbar from '@/components/Navbar'
@@ -67,6 +68,13 @@ export default function VenueDetailPage({ params }) {
   const [specialInstructions, setSpecialInstructions] = useState('')
   const [paymentMode, setPaymentMode] = useState('UPI_QR') // 'UPI_QR' | 'GATEWAY'
   const [utrNumber, setUtrNumber] = useState('')
+  const [gatewayTab, setGatewayTab] = useState('CARD') // 'CARD' | 'NETBANKING'
+  const [cardNumber, setCardNumber] = useState('')
+  const [cardName, setCardName] = useState('')
+  const [cardExpiry, setCardExpiry] = useState('')
+  const [cardCvv, setCardCvv] = useState('')
+  const [selectedBank, setSelectedBank] = useState('HDFC')
+  const [copiedUpi, setCopiedUpi] = useState(false)
   const [bookingSubmitting, setBookingSubmitting] = useState(false)
   const [bookingSuccess, setBookingSuccess] = useState(null)
 
@@ -355,11 +363,71 @@ export default function VenueDetailPage({ params }) {
   const currentMonthIdx = calendarMonth.getMonth()
   const monthName = calendarMonth.toLocaleString('default', { month: 'long', year: 'numeric' })
 
-  const isDateBooked = (dateStr) => {
-    return (
-      (availability.bookedDates || []).includes(dateStr) ||
-      (availability.blackoutDates || []).includes(dateStr)
-    )
+  const getDateStatus = (dateStr) => {
+    const isPast = new Date(dateStr) < new Date(new Date().setHours(0,0,0,0))
+    if (isPast) return 'past'
+    if ((availability.blackoutDates || []).includes(dateStr)) return 'blackout'
+    if ((availability.bookedDates || []).includes(dateStr)) return 'booked'
+    if ((availability.partialDates || []).includes(dateStr)) return 'partial'
+    return 'open'
+  }
+
+  // Calculate booked slots on selectedDate
+  const bookedSlotsOnDate = selectedDate ? (availability.bookedSlotsByDate?.[selectedDate] || []) : []
+  const isFullDayDisabled = bookedSlotsOnDate.length > 0
+  const isDaySlotDisabled = bookedSlotsOnDate.includes('day') || bookedSlotsOnDate.includes('full_day')
+  const isNightSlotDisabled = bookedSlotsOnDate.includes('night') || bookedSlotsOnDate.includes('full_day')
+
+  // Auto-switch slot if current selectedSlot is disabled on selectedDate
+  useEffect(() => {
+    if (!selectedDate) return
+    const booked = availability.bookedSlotsByDate?.[selectedDate] || []
+    const fullDisabled = booked.length > 0
+    const dayDisabled = booked.includes('day') || booked.includes('full_day')
+    const nightDisabled = booked.includes('night') || booked.includes('full_day')
+
+    if (selectedSlot.startsWith('Full Day') && fullDisabled) {
+      if (!nightDisabled) {
+        setSelectedSlot('Night Slot (5 PM - Next Morning)')
+      } else if (!dayDisabled) {
+        setSelectedSlot('Day Slot (7 AM - 4 PM)')
+      }
+    } else if (selectedSlot.startsWith('Day Slot') && dayDisabled) {
+      if (!nightDisabled) {
+        setSelectedSlot('Night Slot (5 PM - Next Morning)')
+      }
+    } else if (selectedSlot.startsWith('Night Slot') && nightDisabled) {
+      if (!dayDisabled) {
+        setSelectedSlot('Day Slot (7 AM - 4 PM)')
+      }
+    }
+  }, [selectedDate, availability])
+
+  const handleCopyUpiId = () => {
+    try {
+      if (typeof navigator !== 'undefined' && navigator.clipboard) {
+        navigator.clipboard.writeText(upiId)
+      }
+      setCopiedUpi(true)
+      toast.success(`Copied UPI ID: ${upiId}`)
+      setTimeout(() => setCopiedUpi(false), 2500)
+    } catch (_) {
+      toast.info(`UPI ID: ${upiId}`)
+    }
+  }
+
+  const handleCardNumberChange = (val) => {
+    const raw = val.replace(/\D/g, '').slice(0, 16)
+    const formatted = raw.replace(/(\d{4})(?=\d)/g, '$1 ')
+    setCardNumber(formatted)
+  }
+
+  const handleExpiryChange = (val) => {
+    let clean = val.replace(/\D/g, '').slice(0, 4)
+    if (clean.length >= 2) {
+      clean = clean.slice(0, 2) + '/' + clean.slice(2)
+    }
+    setCardExpiry(clean)
   }
 
   // Handle Booking Submission
@@ -379,9 +447,58 @@ export default function VenueDetailPage({ params }) {
       toast.error('Please select an OPEN celebration date on the calendar.')
       return
     }
+
+    // Verify slot availability on selected date
+    const bookedOnSelected = availability.bookedSlotsByDate?.[selectedDate] || []
+    if (selectedSlot.startsWith('Full Day') && bookedOnSelected.length > 0) {
+      toast.error(`Full Day is unavailable on ${selectedDate} because a slot is already taken. Please choose Day Slot or Night Slot.`)
+      return
+    }
+    if (selectedSlot.startsWith('Day Slot') && (bookedOnSelected.includes('day') || bookedOnSelected.includes('full_day'))) {
+      toast.error(`Day Slot is already reserved on ${selectedDate}. Please select the Night Slot or another date.`)
+      return
+    }
+    if (selectedSlot.startsWith('Night Slot') && (bookedOnSelected.includes('night') || bookedOnSelected.includes('full_day'))) {
+      toast.error(`Night Slot is already reserved on ${selectedDate}. Please select the Day Slot or another date.`)
+      return
+    }
+
     if (!customerName || !customerEmail || !customerPhone) {
       toast.error('Please fill in your name, email, and phone number.')
       return
+    }
+
+    // Payment mode validation
+    if (paymentMode === 'UPI_QR') {
+      if (!utrNumber || utrNumber.trim().length < 6) {
+        toast.error('Please enter the 12-digit UPI UTR / Transaction Reference number after completing payment.')
+        return
+      }
+    } else if (paymentMode === 'GATEWAY') {
+      if (gatewayTab === 'CARD') {
+        const rawNum = cardNumber.replace(/\s/g, '')
+        if (!rawNum || rawNum.length < 15) {
+          toast.error('Please enter a valid 16-digit Card Number.')
+          return
+        }
+        if (!cardName.trim()) {
+          toast.error('Please enter the cardholder name.')
+          return
+        }
+        if (!cardExpiry || cardExpiry.length < 5) {
+          toast.error('Please enter card expiry date (MM/YY).')
+          return
+        }
+        if (!cardCvv || cardCvv.length < 3) {
+          toast.error('Please enter CVV security code.')
+          return
+        }
+      } else if (gatewayTab === 'NETBANKING') {
+        if (!selectedBank) {
+          toast.error('Please select your bank for NetBanking.')
+          return
+        }
+      }
     }
 
     try {
@@ -401,8 +518,14 @@ export default function VenueDetailPage({ params }) {
         advancePaid: advancePayNow,
         subtotal: basePrice,
         totalAmount: estimatedTotal,
-        paymentMethod: paymentMode === 'UPI_QR' ? 'UPI' : 'GATEWAY',
-        utrNumber: paymentMode === 'UPI_QR' ? utrNumber : null,
+        paymentMethod: paymentMode === 'UPI_QR' ? 'UPI' : (gatewayTab === 'CARD' ? 'CARD' : 'NETBANKING'),
+        utrNumber: paymentMode === 'UPI_QR' ? utrNumber : (gatewayTab === 'CARD' ? `CARD_${cardNumber.replace(/\s/g, '').slice(-4)}` : `NB_${selectedBank}`),
+        paymentDetails: paymentMode === 'GATEWAY' ? {
+          mode: gatewayTab,
+          last4: gatewayTab === 'CARD' ? cardNumber.replace(/\s/g, '').slice(-4) : null,
+          bank: gatewayTab === 'NETBANKING' ? selectedBank : null,
+          cardholder: cardName || null
+        } : null,
         items: [
           {
             vendorId: venue.id,
@@ -984,19 +1107,38 @@ export default function VenueDetailPage({ params }) {
                             const dayPadded = String(dayNum).padStart(2, '0')
                             const monthPadded = String(currentMonthIdx + 1).padStart(2, '0')
                             const dateStr = `${currentYear}-${monthPadded}-${dayPadded}`
-                            const isPast = new Date(dateStr) < new Date(new Date().setHours(0,0,0,0))
-                            const booked = isDateBooked(dateStr)
+                            const dayStatus = getDateStatus(dateStr)
                             const isSelected = selectedDate === dateStr
 
-                            if (isPast || booked) {
+                            if (dayStatus === 'past' || dayStatus === 'blackout' || dayStatus === 'booked') {
                               return (
                                 <div
                                   key={dateStr}
                                   className="h-9 rounded-lg flex flex-col items-center justify-center bg-stone-200/60 text-stone-400 text-xs cursor-not-allowed select-none"
                                 >
                                   <span>{dayNum}</span>
-                                  <span className="text-[8px] uppercase">{booked ? 'BOOKED' : 'PAST'}</span>
+                                  <span className="text-[7.5px] uppercase font-bold">
+                                    {dayStatus === 'booked' ? 'BOOKED' : dayStatus === 'blackout' ? 'BLOCKED' : 'PAST'}
+                                  </span>
                                 </div>
+                              )
+                            }
+
+                            if (dayStatus === 'partial') {
+                              return (
+                                <button
+                                  key={dateStr}
+                                  type="button"
+                                  onClick={() => setSelectedDate(dateStr)}
+                                  className={`h-9 rounded-lg flex flex-col items-center justify-center text-xs font-semibold transition-all cursor-pointer ${
+                                    isSelected
+                                      ? 'bg-[#4a1525] text-amber-200 shadow-md ring-2 ring-amber-400'
+                                      : 'bg-amber-50 hover:bg-amber-100 text-amber-900 border border-amber-300'
+                                  }`}
+                                >
+                                  <span>{dayNum}</span>
+                                  <span className="text-[7px] uppercase font-extrabold text-amber-800">1 SLOT</span>
+                                </button>
                               )
                             }
 
@@ -1027,18 +1169,48 @@ export default function VenueDetailPage({ params }) {
 
                     {/* Time Slot Selection */}
                     <div>
-                      <label className="text-xs font-semibold text-stone-800 mb-1.5 block">
-                        2. Time Slot
-                      </label>
+                      <div className="flex items-center justify-between mb-1.5">
+                        <label className="text-xs font-semibold text-stone-800">
+                          2. Time Slot
+                        </label>
+                        {selectedDate && (
+                          <span className="text-[10px] text-stone-500 font-medium">
+                            {bookedSlotsOnDate.length > 0
+                              ? `⚡ ${bookedSlotsOnDate.includes('day') ? 'Day Slot booked' : 'Night Slot booked'}`
+                              : 'All slots open'}
+                          </span>
+                        )}
+                      </div>
                       <select
                         value={selectedSlot}
                         onChange={(e) => setSelectedSlot(e.target.value)}
                         className="w-full bg-white border border-stone-300 rounded-xl px-3 py-2 text-xs font-medium text-stone-800 focus:outline-none focus:ring-2 focus:ring-amber-500 cursor-pointer"
                       >
-                        <option value="Full Day (7 AM - Next Day 7 AM)">Full Day (7 AM to next day 7 AM - Recommended for Weddings)</option>
-                        <option value="Day Slot (7 AM - 4 PM)">Day Slot (7 AM to 4 PM - Mehendi / Haldi)</option>
-                        <option value="Night Slot (5 PM - Next Morning)">Night Slot (5 PM onwards - Reception / Sangeet)</option>
+                        <option value="Full Day (7 AM - Next Day 7 AM)" disabled={isFullDayDisabled}>
+                          Full Day (7 AM to next day 7 AM) {isFullDayDisabled ? '— [UNAVAILABLE - Slot already taken]' : '— [OPEN - Recommended for Weddings]'}
+                        </option>
+                        <option value="Day Slot (7 AM - 4 PM)" disabled={isDaySlotDisabled}>
+                          Day Slot (7 AM to 4 PM - Mehendi / Haldi) {isDaySlotDisabled ? '— [ALREADY BOOKED]' : '— [OPEN]'}
+                        </option>
+                        <option value="Night Slot (5 PM - Next Morning)" disabled={isNightSlotDisabled}>
+                          Night Slot (5 PM onwards - Reception / Sangeet) {isNightSlotDisabled ? '— [ALREADY BOOKED]' : '— [OPEN]'}
+                        </option>
                       </select>
+
+                      {selectedDate && bookedSlotsOnDate.length > 0 && (
+                        <div className="mt-1.5 p-2 rounded-lg bg-amber-50 border border-amber-200 text-[11px] text-amber-900 flex items-start gap-1.5">
+                          <Info className="w-4 h-4 text-amber-700 shrink-0 mt-0.5" />
+                          <div>
+                            <span className="font-bold">Slot Notice for {selectedDate}: </span>
+                            {bookedSlotsOnDate.includes('day') && !bookedSlotsOnDate.includes('night') && (
+                              <span>The <strong>Day Slot (7 AM - 4 PM)</strong> is booked. The <strong>Night Slot (5 PM onwards)</strong> is OPEN and available!</span>
+                            )}
+                            {bookedSlotsOnDate.includes('night') && !bookedSlotsOnDate.includes('day') && (
+                              <span>The <strong>Night Slot (5 PM onwards)</strong> is booked. The <strong>Day Slot (7 AM - 4 PM)</strong> is OPEN and available!</span>
+                            )}
+                          </div>
+                        </div>
+                      )}
                     </div>
 
                     {/* Customer Contact Information */}
@@ -1079,14 +1251,14 @@ export default function VenueDetailPage({ params }) {
                       <label className="text-xs font-semibold text-stone-800 mb-1.5 block">
                         4. Payment Method for 5% Advance (₹{advancePayNow.toLocaleString('en-IN')})
                       </label>
-                      <div className="grid grid-cols-2 gap-2 mb-2">
+                      <div className="grid grid-cols-2 gap-2 mb-3">
                         <button
                           type="button"
                           onClick={() => setPaymentMode('UPI_QR')}
-                          className={`flex items-center gap-2 p-2.5 rounded-xl border text-xs font-medium cursor-pointer transition-all ${
+                          className={`flex items-center justify-center gap-2 p-2.5 rounded-xl border text-xs font-medium cursor-pointer transition-all ${
                             paymentMode === 'UPI_QR'
-                              ? 'border-amber-600 bg-amber-50 text-amber-900 font-bold'
-                              : 'border-stone-200 bg-white text-stone-700'
+                              ? 'border-amber-600 bg-amber-50 text-amber-900 font-bold shadow-xs ring-1 ring-amber-400'
+                              : 'border-stone-200 bg-white text-stone-700 hover:border-stone-300'
                           }`}
                         >
                           <QrCode className="w-4 h-4 text-amber-700" />
@@ -1095,10 +1267,10 @@ export default function VenueDetailPage({ params }) {
                         <button
                           type="button"
                           onClick={() => setPaymentMode('GATEWAY')}
-                          className={`flex items-center gap-2 p-2.5 rounded-xl border text-xs font-medium cursor-pointer transition-all ${
+                          className={`flex items-center justify-center gap-2 p-2.5 rounded-xl border text-xs font-medium cursor-pointer transition-all ${
                             paymentMode === 'GATEWAY'
-                              ? 'border-amber-600 bg-amber-50 text-amber-900 font-bold'
-                              : 'border-stone-200 bg-white text-stone-700'
+                              ? 'border-amber-600 bg-amber-50 text-amber-900 font-bold shadow-xs ring-1 ring-amber-400'
+                              : 'border-stone-200 bg-white text-stone-700 hover:border-stone-300'
                           }`}
                         >
                           <CreditCard className="w-4 h-4 text-amber-700" />
@@ -1106,23 +1278,228 @@ export default function VenueDetailPage({ params }) {
                         </button>
                       </div>
 
+                      {/* DIRECT UPI QR SECTION (Enlarged, Centered, Copy UPI ID, Prominent UTR) */}
                       {paymentMode === 'UPI_QR' && (
-                        <div className="bg-stone-50 border border-stone-200 p-3 rounded-xl flex items-center gap-3">
-                          <img
-                            src={qrImageSrc}
-                            alt="Scan UPI QR"
-                            className="w-20 h-20 rounded-lg border border-stone-300 bg-white p-1 shrink-0"
-                          />
-                          <div className="text-[11px] text-stone-600 space-y-1">
-                            <div className="font-semibold text-stone-900">Scan & Pay ₹{advancePayNow.toLocaleString('en-IN')}</div>
-                            <div>UPI ID: <span className="font-mono text-stone-800 bg-stone-200 px-1 py-0.5 rounded">{upiId}</span></div>
+                        <div className="bg-stone-50 border border-stone-200 rounded-2xl p-4 sm:p-5 flex flex-col items-center text-center space-y-4">
+                          <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-amber-100/80 border border-amber-300 rounded-full text-[11px] font-bold text-amber-900">
+                            <Smartphone className="w-3.5 h-3.5 text-amber-700" />
+                            <span>Scan with Any UPI App (0% Gateway Fee)</span>
+                          </div>
+
+                          {/* Large Prominent QR Code */}
+                          <div className="bg-white p-4 rounded-2xl shadow-md border-2 border-amber-400/60 flex flex-col items-center">
+                            <img
+                              src={qrImageSrc}
+                              alt="Scan & Pay UPI QR"
+                              className="w-52 h-52 sm:w-60 sm:h-60 object-contain rounded-xl"
+                            />
+                            <div className="mt-2.5 text-xs font-bold text-stone-800">
+                              Amount to Pay: <span className="text-emerald-700 font-extrabold text-base">₹{advancePayNow.toLocaleString('en-IN')}</span>
+                            </div>
+                          </div>
+
+                          {/* Supported UPI Apps */}
+                          <div className="flex flex-wrap items-center justify-center gap-1.5 text-[10px] font-semibold text-stone-600">
+                            <span className="bg-white px-2 py-0.5 rounded-md border border-stone-200">Google Pay</span>
+                            <span className="bg-white px-2 py-0.5 rounded-md border border-stone-200">PhonePe</span>
+                            <span className="bg-white px-2 py-0.5 rounded-md border border-stone-200">Paytm</span>
+                            <span className="bg-white px-2 py-0.5 rounded-md border border-stone-200">BHIM UPI</span>
+                            <span className="bg-white px-2 py-0.5 rounded-md border border-stone-200">Any Banking App</span>
+                          </div>
+
+                          {/* Merchant Payee & 1-Click Copy */}
+                          <div className="w-full bg-white border border-stone-200 rounded-xl p-3 flex flex-col sm:flex-row items-center justify-between gap-2 text-left">
+                            <div>
+                              <div className="text-[10px] uppercase font-bold text-stone-400">Official Merchant Payee</div>
+                              <div className="text-xs font-bold text-stone-800">{payeeName} &bull; <span className="font-mono text-amber-800">{upiId}</span></div>
+                            </div>
+                            <button
+                              type="button"
+                              onClick={handleCopyUpiId}
+                              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-amber-50 hover:bg-amber-100 text-amber-900 border border-amber-300 text-xs font-semibold cursor-pointer transition-colors"
+                            >
+                              {copiedUpi ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5 text-amber-700" />}
+                              <span>{copiedUpi ? 'Copied!' : 'Copy UPI ID'}</span>
+                            </button>
+                          </div>
+
+                          {/* UTR Input */}
+                          <div className="w-full text-left space-y-1.5">
+                            <label className="text-xs font-bold text-stone-800 flex items-center justify-between">
+                              <span>Enter 12-Digit UPI Transaction / UTR Number *</span>
+                              <span className="text-[10px] text-stone-500 font-normal">Found in UPI app receipt</span>
+                            </label>
                             <input
                               type="text"
-                              placeholder="Enter 12-digit UTR reference after payment..."
+                              required
+                              maxLength={16}
+                              placeholder="e.g. 429381749201"
                               value={utrNumber}
-                              onChange={(e) => setUtrNumber(e.target.value)}
-                              className="w-full bg-white border border-stone-300 rounded px-2 py-1 text-xs font-mono mt-1"
+                              onChange={(e) => setUtrNumber(e.target.value.replace(/[^0-9a-zA-Z]/g, ''))}
+                              className="w-full bg-white border border-stone-300 focus:border-amber-500 focus:ring-2 focus:ring-amber-200 rounded-xl px-3.5 py-2.5 text-sm font-mono tracking-wider text-stone-900 placeholder:text-stone-400 placeholder:font-sans placeholder:tracking-normal"
                             />
+                            <p className="text-[10px] text-stone-500">
+                              💡 After paying ₹{advancePayNow.toLocaleString('en-IN')} via any UPI app, enter the 12-digit UTR/Ref number above to instantly verify and issue your booking confirmation voucher.
+                            </p>
+                          </div>
+                        </div>
+                      )}
+
+                      {/* ONLINE CARDS / NETBANKING GATEWAY SECTION */}
+                      {paymentMode === 'GATEWAY' && (
+                        <div className="bg-stone-50 border border-stone-200 rounded-2xl p-4 sm:p-5 space-y-4">
+                          {/* Sub-Tabs: Credit/Debit Cards vs NetBanking */}
+                          <div className="flex rounded-xl bg-stone-200/80 p-1">
+                            <button
+                              type="button"
+                              onClick={() => setGatewayTab('CARD')}
+                              className={`flex-1 py-2 text-xs font-bold rounded-lg transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
+                                gatewayTab === 'CARD'
+                                  ? 'bg-white text-stone-900 shadow-xs'
+                                  : 'text-stone-600 hover:text-stone-900'
+                              }`}
+                            >
+                              <CreditCard className="w-3.5 h-3.5 text-amber-700" />
+                              <span>Credit / Debit Card</span>
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => setGatewayTab('NETBANKING')}
+                              className={`flex-1 py-2 text-xs font-bold rounded-lg transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
+                                gatewayTab === 'NETBANKING'
+                                  ? 'bg-white text-stone-900 shadow-xs'
+                                  : 'text-stone-600 hover:text-stone-900'
+                              }`}
+                            >
+                              <Building2 className="w-3.5 h-3.5 text-amber-700" />
+                              <span>NetBanking</span>
+                            </button>
+                          </div>
+
+                          {/* CARD PAYMENT FORM */}
+                          {gatewayTab === 'CARD' && (
+                            <div className="space-y-3">
+                              <div>
+                                <label className="text-xs font-semibold text-stone-700 mb-1 block">Card Number *</label>
+                                <div className="relative">
+                                  <input
+                                    type="text"
+                                    placeholder="4532 •••• •••• 8920"
+                                    value={cardNumber}
+                                    onChange={(e) => handleCardNumberChange(e.target.value)}
+                                    maxLength={19}
+                                    className="w-full bg-white border border-stone-300 rounded-xl px-3.5 py-2.5 text-xs font-mono text-stone-900 tracking-wider focus:outline-none focus:ring-2 focus:ring-amber-500"
+                                  />
+                                  <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-1 text-[10px] font-bold text-stone-400">
+                                    <span className="bg-stone-100 px-1 py-0.5 rounded border border-stone-200">VISA</span>
+                                    <span className="bg-stone-100 px-1 py-0.5 rounded border border-stone-200">MC</span>
+                                    <span className="bg-stone-100 px-1 py-0.5 rounded border border-stone-200">RuPay</span>
+                                  </div>
+                                </div>
+                              </div>
+
+                              <div>
+                                <label className="text-xs font-semibold text-stone-700 mb-1 block">Cardholder Name (as printed on card) *</label>
+                                <input
+                                  type="text"
+                                  placeholder="e.g. Rahul Verma"
+                                  value={cardName}
+                                  onChange={(e) => setCardName(e.target.value)}
+                                  className="w-full bg-white border border-stone-300 rounded-xl px-3.5 py-2 text-xs text-stone-900 focus:outline-none focus:ring-2 focus:ring-amber-500"
+                                />
+                              </div>
+
+                              <div className="grid grid-cols-2 gap-3">
+                                <div>
+                                  <label className="text-xs font-semibold text-stone-700 mb-1 block">Valid Thru (MM/YY) *</label>
+                                  <input
+                                    type="text"
+                                    placeholder="12/28"
+                                    value={cardExpiry}
+                                    onChange={(e) => handleExpiryChange(e.target.value)}
+                                    maxLength={5}
+                                    className="w-full bg-white border border-stone-300 rounded-xl px-3.5 py-2 text-xs font-mono text-stone-900 focus:outline-none focus:ring-2 focus:ring-amber-500"
+                                  />
+                                </div>
+                                <div>
+                                  <label className="text-xs font-semibold text-stone-700 mb-1 block">CVV / CVC *</label>
+                                  <input
+                                    type="password"
+                                    placeholder="•••"
+                                    value={cardCvv}
+                                    onChange={(e) => setCardCvv(e.target.value.replace(/\D/g, '').slice(0, 4))}
+                                    maxLength={4}
+                                    className="w-full bg-white border border-stone-300 rounded-xl px-3.5 py-2 text-xs font-mono text-stone-900 tracking-widest focus:outline-none focus:ring-2 focus:ring-amber-500"
+                                  />
+                                </div>
+                              </div>
+                            </div>
+                          )}
+
+                          {/* NETBANKING SELECTOR */}
+                          {gatewayTab === 'NETBANKING' && (
+                            <div className="space-y-3">
+                              <div>
+                                <label className="text-xs font-semibold text-stone-700 mb-1.5 block">Select Popular Bank</label>
+                                <div className="grid grid-cols-3 gap-2">
+                                  {[
+                                    { id: 'HDFC', name: 'HDFC Bank' },
+                                    { id: 'SBI', name: 'SBI' },
+                                    { id: 'ICICI', name: 'ICICI Bank' },
+                                    { id: 'AXIS', name: 'Axis Bank' },
+                                    { id: 'KOTAK', name: 'Kotak Bank' },
+                                    { id: 'PNB', name: 'Punjab Nat. Bank' }
+                                  ].map(bank => (
+                                    <button
+                                      key={bank.id}
+                                      type="button"
+                                      onClick={() => setSelectedBank(bank.id)}
+                                      className={`py-2 px-2 rounded-xl border text-xs font-semibold transition-all cursor-pointer text-center ${
+                                        selectedBank === bank.id
+                                          ? 'border-amber-600 bg-amber-50 text-amber-900 shadow-xs'
+                                          : 'border-stone-200 bg-white text-stone-700 hover:border-stone-300'
+                                      }`}
+                                    >
+                                      {bank.name}
+                                    </button>
+                                  ))}
+                                </div>
+                              </div>
+
+                              <div>
+                                <label className="text-xs font-semibold text-stone-700 mb-1 block">Or All Other Indian Banks</label>
+                                <select
+                                  value={selectedBank}
+                                  onChange={(e) => setSelectedBank(e.target.value)}
+                                  className="w-full bg-white border border-stone-300 rounded-xl px-3.5 py-2 text-xs text-stone-800 focus:outline-none focus:ring-2 focus:ring-amber-500 cursor-pointer"
+                                >
+                                  <option value="HDFC">HDFC Bank</option>
+                                  <option value="SBI">State Bank of India (SBI)</option>
+                                  <option value="ICICI">ICICI Bank</option>
+                                  <option value="AXIS">Axis Bank</option>
+                                  <option value="KOTAK">Kotak Mahindra Bank</option>
+                                  <option value="BOB">Bank of Baroda</option>
+                                  <option value="PNB">Punjab National Bank</option>
+                                  <option value="CANARA">Canara Bank</option>
+                                  <option value="UNION">Union Bank of India</option>
+                                  <option value="INDUSIND">IndusInd Bank</option>
+                                  <option value="YES">Yes Bank</option>
+                                  <option value="IDFC">IDFC FIRST Bank</option>
+                                  <option value="FEDERAL">Federal Bank</option>
+                                </select>
+                              </div>
+                            </div>
+                          )}
+
+                          {/* 256-Bit SSL Escrow Trust Badge */}
+                          <div className="bg-emerald-50 border border-emerald-200 rounded-xl p-3 flex items-start gap-2 text-[11px] text-emerald-900">
+                            <ShieldCheck className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+                            <div>
+                              <div className="font-bold">100% Secure 256-Bit Escrow Gateway</div>
+                              <p className="text-emerald-800 text-[10px] mt-0.5">
+                                Your ₹{advancePayNow.toLocaleString('en-IN')} payment is protected under Vows &amp; Venues Escrow Guarantee. It will only be disbursed to the palace after contract confirmation.
+                              </p>
+                            </div>
                           </div>
                         </div>
                       )}

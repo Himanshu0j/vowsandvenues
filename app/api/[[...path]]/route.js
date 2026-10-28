@@ -2529,13 +2529,60 @@ async function handleRoute(request, { params }) {
         $or: [{ 'items.vendorId': venueId }, { venueId: venueId }, { vendorId: venueId }],
         bookingStatus: { $in: ['confirmed', 'paid', 'pending_verification'] }
       }).toArray()
-      const bookedDates = [...new Set(bookings.map(b => b.eventDate).filter(Boolean))]
+
+      // Track slot-level bookings per date
+      const bookedSlotsByDate = {}
+      for (const b of bookings) {
+        if (!b.eventDate) continue
+        const rawSlot = (b.timeSlot || '').toLowerCase()
+        const isFull = rawSlot.includes('full') || !rawSlot
+        const isDay = !isFull && rawSlot.includes('day')
+        const isNight = rawSlot.includes('night') || rawSlot.includes('evening')
+
+        if (!bookedSlotsByDate[b.eventDate]) {
+          bookedSlotsByDate[b.eventDate] = new Set()
+        }
+        if (isFull) {
+          bookedSlotsByDate[b.eventDate].add('full_day')
+          bookedSlotsByDate[b.eventDate].add('day')
+          bookedSlotsByDate[b.eventDate].add('night')
+        } else if (isDay) {
+          bookedSlotsByDate[b.eventDate].add('day')
+        } else if (isNight) {
+          bookedSlotsByDate[b.eventDate].add('night')
+        }
+      }
+
+      // If both Day and Night are booked on a date, it is effectively full_day
+      const bookedDates = []
+      const partialDates = []
+      const bookedSlotsMap = {}
+
+      for (const [date, set] of Object.entries(bookedSlotsByDate)) {
+        if (set.has('day') && set.has('night')) {
+          set.add('full_day')
+        }
+        const arr = Array.from(set)
+        bookedSlotsMap[date] = arr
+        if (set.has('full_day')) {
+          bookedDates.push(date)
+        } else {
+          partialDates.push(date)
+        }
+      }
+
+      for (const bd of blackoutDates) {
+        if (!bookedDates.includes(bd)) bookedDates.push(bd)
+      }
+
       return cors(NextResponse.json({
         venueId,
         vendorId: venueId,
         name: vendorDoc.name,
         blackoutDates,
         bookedDates,
+        partialDates,
+        bookedSlotsByDate: bookedSlotsMap,
         open: true
       }))
     }
@@ -2918,35 +2965,72 @@ async function handleRoute(request, { params }) {
                 conflictDate: eventDate
               }, { status: 409 }))
             }
-            // Check double-booking for exclusive vendors (e.g. venues or banquet halls)
+            // Check double-booking for exclusive vendors (e.g. venues or banquet halls) with slot precision
             if (vendorDoc.category === 'venues' || vendorDoc.singleBookingPerDay) {
-              const conflict = await db.collection('bookings').findOne({
+              const reqSlot = (body.timeSlot || '').toLowerCase()
+              const isReqFull = reqSlot.includes('full') || !reqSlot
+              const isReqDay = !isReqFull && reqSlot.includes('day')
+              const isReqNight = reqSlot.includes('night') || reqSlot.includes('evening')
+
+              // Find existing active bookings on this eventDate for the vendor
+              const existingBookings = await db.collection('bookings').find({
                 $or: [{ 'items.vendorId': item.vendorId }, { venueId: item.vendorId }, { vendorId: item.vendorId }],
                 eventDate: eventDate,
                 bookingStatus: { $in: ['confirmed', 'paid', 'pending_verification'] }
-              })
-              if (conflict) {
+              }).toArray()
+
+              let hasConflict = false
+              let conflictReason = ''
+
+              for (const eb of existingBookings) {
+                const ebSlot = (eb.timeSlot || '').toLowerCase()
+                const isEbFull = ebSlot.includes('full') || !ebSlot
+                const isEbDay = !isEbFull && ebSlot.includes('day')
+                const isEbNight = ebSlot.includes('night') || ebSlot.includes('evening')
+
+                if (isReqFull) {
+                  hasConflict = true
+                  conflictReason = `Venue "${vendorDoc.name}" has an active reservation on ${eventDate} (${eb.timeSlot || 'Reserved Slot'}). Full Day booking is unavailable.`
+                  break
+                } else if (isEbFull) {
+                  hasConflict = true
+                  conflictReason = `Venue "${vendorDoc.name}" is already reserved for the Full Day on ${eventDate}. Please choose another date.`
+                  break
+                } else if (isReqDay && isEbDay) {
+                  hasConflict = true
+                  conflictReason = `Venue "${vendorDoc.name}" Day Slot is already booked on ${eventDate}. You can book the Night Slot instead.`
+                  break
+                } else if (isReqNight && isEbNight) {
+                  hasConflict = true
+                  conflictReason = `Venue "${vendorDoc.name}" Night Slot is already booked on ${eventDate}. You can book the Day Slot instead.`
+                  break
+                }
+              }
+
+              if (hasConflict) {
                 return cors(NextResponse.json({
-                  error: `Venue "${vendorDoc.name}" is already reserved for a celebration on ${eventDate}. Please choose another date or venue.`,
+                  error: conflictReason,
                   code: 'SCHEDULE_CONFLICT',
                   vendorId: item.vendorId,
                   conflictDate: eventDate
                 }, { status: 409 }))
               }
 
-              // Atomic Slot Reservation to prevent simultaneous double-booking race condition
-              const slotLockKey = `slot_${item.vendorId}_${eventDate}`
+              // Atomic Slot Reservation to prevent race conditions with slot key
+              const normalizedKey = isReqFull ? 'full_day' : (isReqDay ? 'day' : 'night')
+              const slotLockKey = `slot_${item.vendorId}_${eventDate}_${normalizedKey}`
               try {
                 await db.collection('slot_reservations').insertOne({
                   _id: slotLockKey,
                   vendorId: item.vendorId,
                   eventDate: eventDate,
+                  slot: normalizedKey,
                   createdAt: new Date().toISOString()
                 })
               } catch (lockErr) {
                 if (lockErr.code === 11000 || lockErr.message?.includes('duplicate key') || lockErr.message?.includes('E11000')) {
                   return cors(NextResponse.json({
-                    error: `Venue "${vendorDoc.name}" is already reserved for a celebration on ${eventDate}. Please choose another date or venue.`,
+                    error: `Slot "${body.timeSlot || 'Selected Slot'}" for "${vendorDoc.name}" on ${eventDate} was just reserved by another couple.`,
                     code: 'SCHEDULE_CONFLICT',
                     vendorId: item.vendorId,
                     conflictDate: eventDate
