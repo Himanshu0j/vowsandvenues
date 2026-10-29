@@ -243,7 +243,11 @@ export default function Navbar({
                       <div className="font-bold text-stone-900 truncate">{currentUser.name}</div>
                       <div className="text-[11px] text-stone-500 truncate">{currentUser.email}</div>
                       <div className="inline-block mt-1.5 px-2.5 py-0.5 bg-stone-200 text-stone-800 rounded-full text-[10px] font-bold uppercase tracking-wider">
-                        Role: {userRole}
+                        {currentUser?.role === 'admin' || currentUser?.role === 'super_admin'
+                          ? 'Operations Admin'
+                          : currentUser?.role === 'vendor'
+                            ? 'Vendor Partner'
+                            : 'Customer Account'}
                       </div>
                     </div>
 
@@ -255,50 +259,57 @@ export default function Navbar({
                       <Building2 className="w-4 h-4 text-stone-500" /> Customer Dashboard &amp; Bookings
                     </Link>
                     <button
-                      onClick={() => { setShowProfileMenu(false); setActiveTab('builder'); }}
+                      onClick={() => { setShowProfileMenu(false); setActiveTab && setActiveTab('builder'); }}
                       className="w-full text-left px-3 py-2 hover:bg-[#faf8f5] rounded-lg font-medium text-stone-800 flex items-center gap-2 cursor-pointer"
                     >
                       <CalendarDays className="w-4 h-4 text-stone-500" /> My Event Plan
                     </button>
                     <button
-                      onClick={() => { setShowProfileMenu(false); setActiveTab('planning_toolkit'); }}
+                      onClick={() => { setShowProfileMenu(false); setActiveTab && setActiveTab('planning_toolkit'); }}
                       className="w-full text-left px-3 py-2 hover:bg-[#faf8f5] rounded-lg font-medium text-stone-800 flex items-center gap-2 cursor-pointer"
                     >
                       <Calculator className="w-4 h-4 text-stone-500" /> Wedding Toolkit (Budget &amp; RSVP)
                     </button>
                     <button
-                      onClick={() => { setShowProfileMenu(false); setActiveTab('wishlist'); }}
+                      onClick={() => { setShowProfileMenu(false); setActiveTab && setActiveTab('wishlist'); }}
                       className="w-full text-left px-3 py-2 hover:bg-[#faf8f5] rounded-lg font-medium text-stone-800 flex items-center gap-2 cursor-pointer"
                     >
                       <Heart className="w-4 h-4 text-stone-500" /> Saved Wishlist
                     </button>
 
-                    <div className="border-t border-stone-100 my-1 pt-1">
-                      <div className="px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-stone-400">
-                        Switch View / Workspace
+                    {/* Role workspaces visible ONLY for authenticated staff / partners */}
+                    {(currentUser?.role === 'admin' || currentUser?.role === 'super_admin' || currentUser?.role === 'vendor') && (
+                      <div className="border-t border-stone-100 my-1 pt-1">
+                        <div className="px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-stone-400">
+                          Switch View / Workspace
+                        </div>
+                        <Link
+                          href="/"
+                          onClick={() => { setUserRole && setUserRole('customer'); setShowProfileMenu(false); }}
+                          className={`block w-full text-left px-3 py-1.5 rounded-lg text-xs font-semibold ${userRole === 'customer' ? 'text-[#2D0B16] bg-stone-100' : 'text-stone-700 hover:bg-stone-50'}`}
+                        >
+                          Customer Experience
+                        </Link>
+                        {(currentUser?.role === 'vendor' || currentUser?.role === 'admin' || currentUser?.role === 'super_admin') && (
+                          <Link
+                            href="/vendor"
+                            onClick={() => { setUserRole && setUserRole('vendor'); setShowProfileMenu(false); }}
+                            className={`block w-full text-left px-3 py-1.5 rounded-lg text-xs font-semibold ${userRole === 'vendor' ? 'text-[#2D0B16] bg-stone-100' : 'text-stone-700 hover:bg-stone-50'}`}
+                          >
+                            Vendor Partner Portal
+                          </Link>
+                        )}
+                        {(currentUser?.role === 'admin' || currentUser?.role === 'super_admin') && (
+                          <Link
+                            href="/admin"
+                            onClick={() => { setUserRole && setUserRole('admin'); setShowProfileMenu(false); }}
+                            className={`block w-full text-left px-3 py-1.5 rounded-lg text-xs font-semibold ${userRole === 'admin' ? 'text-[#2D0B16] bg-stone-100' : 'text-stone-700 hover:bg-stone-50'}`}
+                          >
+                            Operations Admin Console
+                          </Link>
+                        )}
                       </div>
-                      <Link
-                        href="/"
-                        onClick={() => { setUserRole('customer'); setShowProfileMenu(false); }}
-                        className={`block w-full text-left px-3 py-1.5 rounded-lg text-xs font-semibold ${userRole === 'customer' ? 'text-[#2D0B16] bg-stone-100' : 'text-stone-700 hover:bg-stone-50'}`}
-                      >
-                        Customer Experience
-                      </Link>
-                      <Link
-                        href="/vendor"
-                        onClick={() => { setUserRole('vendor'); setShowProfileMenu(false); }}
-                        className={`block w-full text-left px-3 py-1.5 rounded-lg text-xs font-semibold ${userRole === 'vendor' ? 'text-[#2D0B16] bg-stone-100' : 'text-stone-700 hover:bg-stone-50'}`}
-                      >
-                        Vendor Partner Portal
-                      </Link>
-                      <Link
-                        href="/admin"
-                        onClick={() => { setUserRole('admin'); setShowProfileMenu(false); }}
-                        className={`block w-full text-left px-3 py-1.5 rounded-lg text-xs font-semibold ${userRole === 'admin' ? 'text-[#2D0B16] bg-stone-100' : 'text-stone-700 hover:bg-stone-50'}`}
-                      >
-                        Operations Admin Console
-                      </Link>
-                    </div>
+                    )}
 
                     <div className="border-t border-stone-100 mt-1 pt-1">
                       <button
@@ -444,35 +455,66 @@ export default function Navbar({
             </button>
           </div>
 
-          {/* Role Portals */}
-          <div className="border-t border-stone-200 pt-2 flex gap-2">
-            <button
-              onClick={() => { setUserRole('vendor'); setActiveTab('vendor_portal'); setMobileMenuOpen(false); }}
-              className="flex-1 py-2 text-center text-xs font-semibold rounded-xl bg-white border border-stone-200 text-stone-800 hover:bg-stone-50 shadow-xs cursor-pointer"
-            >
-              Vendor Portal
-            </button>
-            <button
-              onClick={() => { setUserRole('admin'); setActiveTab('admin_portal'); setMobileMenuOpen(false); }}
-              className="flex-1 py-2 text-center text-xs font-semibold rounded-xl bg-[#2D0B16] text-[#f5ebd7] hover:bg-[#3D101E] shadow-xs cursor-pointer"
-            >
-              Admin Console
-            </button>
-          </div>
+          {/* Staff / Partner Workspace Shortcuts - ONLY for authenticated admin / vendor accounts */}
+          {(currentUser?.role === 'admin' || currentUser?.role === 'super_admin' || currentUser?.role === 'vendor') && (
+            <div className="border-t border-stone-200 pt-2 flex gap-2">
+              {(currentUser?.role === 'vendor' || currentUser?.role === 'admin' || currentUser?.role === 'super_admin') && (
+                <Link
+                  href="/vendor"
+                  onClick={() => { setUserRole && setUserRole('vendor'); setMobileMenuOpen(false); }}
+                  className="flex-1 py-2 text-center text-xs font-semibold rounded-xl bg-white border border-stone-200 text-stone-800 hover:bg-stone-50 shadow-xs"
+                >
+                  Vendor Portal
+                </Link>
+              )}
+              {(currentUser?.role === 'admin' || currentUser?.role === 'super_admin') && (
+                <Link
+                  href="/admin"
+                  onClick={() => { setUserRole && setUserRole('admin'); setMobileMenuOpen(false); }}
+                  className="flex-1 py-2 text-center text-xs font-semibold rounded-xl bg-[#2D0B16] text-[#f5ebd7] hover:bg-[#3D101E] shadow-xs"
+                >
+                  Admin Console
+                </Link>
+              )}
+            </div>
+          )}
 
-          {/* Current User in mobile menu */}
-          {currentUser && (
+          {/* Current User in mobile menu or Guest Sign In */}
+          {currentUser ? (
             <div className="border-t border-stone-200 pt-2 flex items-center justify-between">
               <div className="text-xs">
                 <div className="font-bold text-stone-900 truncate max-w-[180px]">{currentUser.name}</div>
-                <div className="text-[10px] text-stone-500 capitalize">{userRole} Account</div>
+                <div className="text-[10px] text-stone-500 capitalize">
+                  {currentUser?.role === 'admin' || currentUser?.role === 'super_admin'
+                    ? 'Operations Admin'
+                    : currentUser?.role === 'vendor'
+                      ? 'Vendor Partner'
+                      : 'Customer Account'}
+                </div>
               </div>
               <button
-                onClick={() => { setMobileMenuOpen(false); onLogout(); }}
+                onClick={() => { setMobileMenuOpen(false); onLogout && onLogout(); }}
                 className="text-xs font-semibold text-rose-600 hover:text-rose-700 px-2 py-1 rounded-lg hover:bg-rose-50 cursor-pointer"
               >
                 Sign Out
               </button>
+            </div>
+          ) : (
+            <div className="border-t border-stone-200 pt-2 flex gap-2">
+              <Link
+                href="/login"
+                onClick={() => setMobileMenuOpen(false)}
+                className="flex-1 py-2.5 text-center text-xs font-bold rounded-xl bg-[#2D0B16] text-[#f5ebd7] hover:bg-[#3D101E] shadow-xs"
+              >
+                Sign In
+              </Link>
+              <Link
+                href="/register"
+                onClick={() => setMobileMenuOpen(false)}
+                className="flex-1 py-2.5 text-center text-xs font-semibold rounded-xl bg-white border border-stone-200 text-stone-800 hover:bg-stone-50 shadow-xs"
+              >
+                Register
+              </Link>
             </div>
           )}
         </div>

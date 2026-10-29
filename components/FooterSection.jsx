@@ -1,6 +1,7 @@
 'use client'
 
 import React from 'react'
+import Link from 'next/link'
 import {
   Sparkles,
   MapPin,
@@ -149,7 +150,8 @@ export default function FooterSection({
             <h5 className="font-serif font-bold text-sm text-[#e8d08d] mb-3">Atelier Portals</h5>
             <ul className="space-y-2 text-stone-400">
               <li><span className="hover:text-white cursor-pointer">About Our Story</span></li>
-              <li><span className="hover:text-white cursor-pointer">For Vendor Partners</span></li>
+              <li><Link href="/vendor" className="hover:text-white transition-colors">For Vendor Partners</Link></li>
+              <li><Link href="/admin" className="hover:text-white transition-colors">Operations Staff Portal</Link></li>
               <li><span className="hover:text-white cursor-pointer">Wedding Concierge Advisory</span></li>
               <li><span className="hover:text-white cursor-pointer">Cancellation &amp; Refund Policy</span></li>
               <li><span className="hover:text-white cursor-pointer">Privacy &amp; Data Security</span></li>
