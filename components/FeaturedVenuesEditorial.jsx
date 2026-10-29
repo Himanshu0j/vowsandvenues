@@ -27,10 +27,16 @@ export default function FeaturedVenuesEditorial({
   onNegotiate,
   onViewAll
 }) {
-  // Filter venues from the vendors list
-  const venueVendors = vendors.filter(v => v.category === 'venues' || v.categorySlug === 'venues')
+  // Filter and strictly deduplicate venues from the vendors list
+  const venueVendors = Array.from(
+    new Map(
+      vendors
+        .filter(v => v.category === 'venues' || v.categorySlug === 'venues')
+        .map(v => [v.id || v.name, v])
+    ).values()
+  )
   
-  // Use first venue as the Grand Hero Feature, next 3 as complementary
+  // Use first venue as the Grand Hero Feature, next 3 distinct venues as complementary
   const heroVenue = venueVendors[0] || vendors[0] || {
     id: 'v_royal_jagmandir',
     name: 'The Royal Jagmandir Island Palace & Lakeside Mandap',

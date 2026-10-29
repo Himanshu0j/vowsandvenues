@@ -77,7 +77,10 @@ export default function CuratedPackagesSection({
   onCustomizePackage,
   onBookPackage
 }) {
-  const displayPackages = packages && packages.length > 0 ? packages : DEFAULT_PACKAGES
+  const rawPackages = packages && packages.length > 0 ? packages : DEFAULT_PACKAGES
+  const displayPackages = Array.from(
+    new Map(rawPackages.map(p => [p.id || p.title, p])).values()
+  )
 
   return (
     <section className="py-16 sm:py-24 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto select-none border-t border-[#e8dfcf] overflow-hidden">

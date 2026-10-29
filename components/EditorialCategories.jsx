@@ -84,6 +84,11 @@ const CATEGORY_ATELIER_META = {
 export default function EditorialCategories({ categories = [], onSelectCategory, cmsContent }) {
   const dynamicCategoryImages = cmsContent?.categoryImages || {}
 
+  // Ensure strict uniqueness by slug or id: exactly 11 master categories, zero duplicates
+  const uniqueCategories = Array.from(
+    new Map((categories || []).map(c => [c.slug || c.id, c])).values()
+  )
+
   return (
     <section className="py-16 sm:py-20 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto select-none overflow-hidden">
       
@@ -130,7 +135,7 @@ export default function EditorialCategories({ categories = [], onSelectCategory,
         staggerDelay={0.06}
         className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3 sm:gap-4.5"
       >
-        {categories.map((cat, idx) => {
+        {uniqueCategories.map((cat, idx) => {
           const IconComponent = ICON_MAP[cat.slug] || Sparkles
           const meta = CATEGORY_ATELIER_META[cat.slug] || { 
             badge: 'Verified Craft',

@@ -92,13 +92,19 @@ function VenuesContent() {
         const fallback = await fetch(`/api/vendors?category=venues&${params.toString()}`)
         if (fallback.ok) {
           const data = await fallback.json()
-          setVenues(Array.isArray(data) ? data : [])
+          const cleanVenues = Array.isArray(data)
+            ? Array.from(new Map(data.map(v => [v.id || v.name, v])).values())
+            : []
+          setVenues(cleanVenues)
           return
         }
         throw new Error('Failed to fetch venues')
       }
       const data = await res.json()
-      setVenues(Array.isArray(data) ? data : [])
+      const cleanVenues = Array.isArray(data)
+        ? Array.from(new Map(data.map(v => [v.id || v.name, v])).values())
+        : []
+      setVenues(cleanVenues)
     } catch (err) {
       console.error('Error fetching venues:', err)
       setError('Could not load venues at this moment. Please refresh.')

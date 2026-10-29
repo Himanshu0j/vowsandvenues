@@ -1046,9 +1046,16 @@ export default function VowsAndVenuesApp() {
         fetch('/api/media').then(r => r.json()).catch(() => []),
         fetch('/api/coupons').then(r => r.json()).catch(() => [])
       ])
-      setCategories(Array.isArray(catRes) && catRes.length > 0 ? catRes : DEFAULT_CATEGORIES)
-      setVendors(Array.isArray(venRes) ? venRes : [])
-      setPackages(Array.isArray(pkgRes) ? pkgRes : [])
+      const rawCats = Array.isArray(catRes) && catRes.length > 0 ? catRes : DEFAULT_CATEGORIES
+      const cleanCats = Array.from(new Map(rawCats.map(c => [c.slug || c.id, c])).values())
+      const rawVens = Array.isArray(venRes) ? venRes : []
+      const cleanVens = Array.from(new Map(rawVens.map(v => [v.id || `${v.name}_${v.city}`, v])).values())
+      const rawPkgs = Array.isArray(pkgRes) ? pkgRes : []
+      const cleanPkgs = Array.from(new Map(rawPkgs.map(p => [p.id || p.title, p])).values())
+
+      setCategories(cleanCats)
+      setVendors(cleanVens)
+      setPackages(cleanPkgs)
       if (cmsRes) setCmsContent(cmsRes)
       if (Array.isArray(mediaRes)) setMediaLibrary(mediaRes)
       if (Array.isArray(couponRes)) setCoupons(couponRes)
@@ -1209,8 +1216,10 @@ export default function VowsAndVenuesApp() {
       if (filterSortBy) params.append('sortBy', filterSortBy)
 
       const res = await fetch(`/api/vendors?${params.toString()}`)
-      const data = await res.json()
-      setVendors(data || [])
+      const cleanVens = Array.isArray(data)
+        ? Array.from(new Map(data.map(v => [v.id || `${v.name}_${v.city}`, v])).values())
+        : []
+      setVendors(cleanVens)
     } catch (err) {
       console.error('Error fetching filtered vendors:', err)
     }
@@ -1371,9 +1380,29 @@ export default function VowsAndVenuesApp() {
     return { total: totalSelected, totalSelected, maxBudget, remaining, percentage, isOver, count }
   }, [activeEvent])
 
-  // Featured Creators for Editorial Showcase
+  // Featured Creators for Editorial Showcase: pick 8 top-rated distinct creators across diverse categories
   const featuredCreators = useMemo(() => {
-    return vendors.slice(0, 8)
+    const seenCategories = new Set()
+    const distinct = []
+    const remaining = []
+
+    for (const v of vendors) {
+      if (!seenCategories.has(v.category) && distinct.length < 8) {
+        seenCategories.add(v.category)
+        distinct.push(v)
+      } else {
+        remaining.push(v)
+      }
+    }
+
+    while (distinct.length < 8 && remaining.length > 0) {
+      const next = remaining.shift()
+      if (!distinct.some(d => d.id === next.id)) {
+        distinct.push(next)
+      }
+    }
+
+    return distinct.length > 0 ? distinct : vendors.slice(0, 8)
   }, [vendors])
 
   // Apply Hero Search to Start Planning

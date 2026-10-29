@@ -2255,6 +2255,63 @@ async function ensureSeeded(db) {
       createdAt: new Date(Date.now() - 86400000 * 2).toISOString()
     }
     await db.collection('bookings').insertOne(defaultBooking)
+  } else {
+    // Database is populated: purge duplicate records if any exist
+    try {
+      const allCats = await db.collection('categories').find({}).toArray()
+      const seenCat = new Set()
+      const dupCat = []
+      for (const c of allCats) {
+        const k = c.slug || c.id
+        if (k && seenCat.has(k)) dupCat.push(c._id)
+        else if (k) seenCat.add(k)
+      }
+      if (dupCat.length > 0) {
+        await db.collection('categories').deleteMany({ _id: { $in: dupCat } })
+      }
+    } catch (_) {}
+
+    try {
+      const allVens = await db.collection('vendors').find({}).toArray()
+      const seenVen = new Set()
+      const dupVen = []
+      for (const v of allVens) {
+        const k = v.id || `${v.name || v.title}_${v.city}`
+        if (k && seenVen.has(k)) dupVen.push(v._id)
+        else if (k) seenVen.add(k)
+      }
+      if (dupVen.length > 0) {
+        await db.collection('vendors').deleteMany({ _id: { $in: dupVen } })
+      }
+    } catch (_) {}
+
+    try {
+      const allPkgs = await db.collection('packages').find({}).toArray()
+      const seenPkg = new Set()
+      const dupPkg = []
+      for (const p of allPkgs) {
+        const k = p.id || p.title
+        if (k && seenPkg.has(k)) dupPkg.push(p._id)
+        else if (k) seenPkg.add(k)
+      }
+      if (dupPkg.length > 0) {
+        await db.collection('packages').deleteMany({ _id: { $in: dupPkg } })
+      }
+    } catch (_) {}
+
+    try {
+      const allRevs = await db.collection('reviews').find({}).toArray()
+      const seenRev = new Set()
+      const dupRev = []
+      for (const r of allRevs) {
+        const k = r.id || `${r.vendorId}_${r.userName}`
+        if (k && seenRev.has(k)) dupRev.push(r._id)
+        else if (k) seenRev.add(k)
+      }
+      if (dupRev.length > 0) {
+        await db.collection('reviews').deleteMany({ _id: { $in: dupRev } })
+      }
+    } catch (_) {}
   }
 
   const cmsCount = await db.collection('cms_content').countDocuments()
@@ -2435,15 +2492,33 @@ async function handleRoute(request, { params }) {
     // CATEGORIES: GET /api/categories
     if (route === '/categories' && method === 'GET') {
       const categories = await db.collection('categories').find({}).toArray()
-      const cleaned = categories.map(({ _id, ...rest }) => rest)
-      return cors(NextResponse.json(cleaned))
+      const unique = []
+      const seen = new Set()
+      for (const c of categories) {
+        const key = c.slug || c.id
+        if (key && !seen.has(key)) {
+          seen.add(key)
+          const { _id, ...rest } = c
+          unique.push(rest)
+        }
+      }
+      return cors(NextResponse.json(unique))
     }
 
     // PACKAGES: GET /api/packages
     if (route === '/packages' && method === 'GET') {
       const packages = await db.collection('packages').find({}).toArray()
-      const cleaned = packages.map(({ _id, ...rest }) => rest)
-      return cors(NextResponse.json(cleaned))
+      const unique = []
+      const seen = new Set()
+      for (const p of packages) {
+        const key = p.id || p.title
+        if (key && !seen.has(key)) {
+          seen.add(key)
+          const { _id, ...rest } = p
+          unique.push(rest)
+        }
+      }
+      return cors(NextResponse.json(unique))
     }
 
     // PACKAGES: POST /api/packages
@@ -2521,8 +2596,17 @@ async function handleRoute(request, { params }) {
       else if (query.sortBy === 'popular') sortObj = { reviewCount: -1 }
 
       const vendors = await db.collection('vendors').find(filter).sort(sortObj).toArray()
-      const cleaned = vendors.map(({ _id, ...rest }) => rest)
-      return cors(NextResponse.json(cleaned))
+      const unique = []
+      const seen = new Set()
+      for (const v of vendors) {
+        const key = v.id || `${v.name || v.title}_${v.city}`
+        if (key && !seen.has(key)) {
+          seen.add(key)
+          const { _id, ...rest } = v
+          unique.push(rest)
+        }
+      }
+      return cors(NextResponse.json(unique))
     }
 
     // BOOKINGS AVAILABILITY CALENDAR: GET /api/bookings/availability/:id
@@ -3202,8 +3286,17 @@ async function handleRoute(request, { params }) {
       const filter = {}
       if (query.vendorId) filter.vendorId = query.vendorId
       const reviews = await db.collection('reviews').find(filter).sort({ date: -1 }).toArray()
-      const cleaned = reviews.map(({ _id, ...rest }) => rest)
-      return cors(NextResponse.json(cleaned))
+      const unique = []
+      const seen = new Set()
+      for (const r of reviews) {
+        const key = r.id || `${r.vendorId}_${r.userName}`
+        if (key && !seen.has(key)) {
+          seen.add(key)
+          const { _id, ...rest } = r
+          unique.push(rest)
+        }
+      }
+      return cors(NextResponse.json(unique))
     }
 
     // REVIEWS: POST /api/reviews  (auth required — customer/vendor)
