@@ -57,6 +57,7 @@ import AdminMuhuratPricing from '@/components/admin/AdminMuhuratPricing'
 import AdminReviewUGC from '@/components/admin/AdminReviewUGC'
 import AdminGSTCompliance from '@/components/admin/AdminGSTCompliance'
 import AdminPaymentGatewayManager from '@/components/admin/AdminPaymentGatewayManager'
+import AdminSiteImageManager from '@/components/admin/AdminSiteImageManager'
 
 function exportToCSV(data, filename) {
   if (!data || !data.length) {
@@ -649,6 +650,7 @@ export default function AdminOperationsSuite({
         <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar pt-6 mt-6 border-t border-stone-800 text-xs">
           {[
             { id: 'overview', label: 'Overview & KPIs', icon: TrendingUp },
+            { id: 'site_images', label: '📸 All Website Images', icon: Camera },
             { id: 'leads', label: 'Wedding Leads CRM', icon: Users },
             { id: 'whatsapp', label: 'WhatsApp Concierge', icon: Send },
             { id: 'recces', label: 'Site Recces', icon: Building2 },
@@ -1780,304 +1782,19 @@ export default function AdminOperationsSuite({
           </div>
 
           {/* ---------------------------------------------------- */}
-          {/* TAB 1: WEBSITE BANNERS & IMAGES                      */}
+          {/* TAB 1: WEBSITE BANNERS & IMAGES (FULL MANAGER)       */}
           {/* ---------------------------------------------------- */}
           {cmsSectionTab === 'visuals' && (
-            <div className="space-y-8 animate-in fade-in">
-              {/* 1.1 HERO BANNER 4K BACKDROP */}
-              <div className="p-5 rounded-2xl bg-stone-50 border border-stone-200 space-y-4">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <h4 className="font-serif font-bold text-sm text-stone-900 flex items-center gap-2">
-                      <span>1. Hero Section 4K Background Wallpaper</span>
-                      <span className="text-[10px] bg-amber-200/80 text-amber-950 font-sans px-2 py-0.5 rounded-full font-bold">Main Homepage</span>
-                    </h4>
-                    <p className="text-[11px] text-stone-500 mt-0.5">
-                      The primary 4K visual shown behind the royal headline when visitors land on the marketplace.
-                    </p>
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-start">
-                  {/* Live Preview Thumbnail */}
-                  <div className="relative aspect-[16/9] rounded-xl overflow-hidden border-2 border-amber-400/80 bg-stone-900 shadow-sm group">
-                    <img
-                      src={getOptimizedImageUrl(cmsDraft.hero?.heroImage || cmsDraft.banners?.heroBackdrop || 'https://images.unsplash.com/photo-1519741497674-611481863552', { width: 600, quality: 75 })}
-                      alt="Hero Live Preview"
-                      className="w-full h-full object-cover"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent flex flex-col justify-end p-2.5">
-                      <div className="text-[9px] font-bold text-amber-300 uppercase tracking-widest">Live Hero Backdrop Preview</div>
-                      <div className="text-[11px] font-serif font-bold text-white truncate">Plan Your Perfect Celebration</div>
-                    </div>
-                  </div>
-
-                  {/* URL Input & Preset Selector */}
-                  <div className="md:col-span-2 space-y-3">
-                    <div>
-                      <label className="block text-xs font-bold text-stone-700 mb-1">
-                        Hero Background Image URL (Direct 4K / High-Res Image Link)
-                      </label>
-                      <input
-                        type="url"
-                        value={cmsDraft.hero?.heroImage || cmsDraft.banners?.heroBackdrop || ''}
-                        onChange={(e) => {
-                          const val = e.target.value
-                          setCmsDraft({
-                            ...cmsDraft,
-                            hero: { ...(cmsDraft.hero || {}), heroImage: val },
-                            banners: { ...(cmsDraft.banners || {}), heroBackdrop: val }
-                          })
-                        }}
-                        placeholder="https://images.unsplash.com/photo-..."
-                        className="w-full px-3.5 py-2.5 rounded-xl bg-white border border-stone-300 text-xs focus:outline-none focus:border-[#4a1525] font-mono"
-                      />
-                    </div>
-
-                    {/* Presets */}
-                    <div>
-                      <div className="text-[11px] font-bold text-stone-600 mb-1.5 flex items-center gap-1">
-                        <span>⚜ Quick Apply Verified 4K Indian Royal Backdrops:</span>
-                      </div>
-                      <div className="flex flex-wrap gap-1.5">
-                        {[
-                          { name: 'Udaipur Island Palace', url: 'https://images.unsplash.com/photo-1519741497674-611481863552' },
-                          { name: 'Jaipur Rambagh Citadel', url: 'https://images.unsplash.com/photo-1587271407850-8d438ca9fdf2' },
-                          { name: 'Grand Marigold Mandap', url: 'https://images.unsplash.com/photo-1583939003579-730e3918a45a' },
-                          { name: 'Awadhi Feast Banquet', url: 'https://images.unsplash.com/photo-1555396273-367ea4eb4db5' },
-                          { name: 'Fragrant Mogra Florals', url: 'https://images.unsplash.com/photo-1511795409834-ef04bbd61622' }
-                        ].map((preset) => (
-                          <button
-                            key={preset.name}
-                            type="button"
-                            onClick={() => {
-                              setCmsDraft({
-                                ...cmsDraft,
-                                hero: { ...(cmsDraft.hero || {}), heroImage: preset.url },
-                                banners: { ...(cmsDraft.banners || {}), heroBackdrop: preset.url }
-                              })
-                              toast.info(`Selected "${preset.name}" preset! Click Save & Publish Live to apply.`)
-                            }}
-                            className="px-2.5 py-1 rounded-lg bg-white hover:bg-amber-100 border border-stone-200 text-[10.5px] font-medium text-stone-700 hover:text-[#4a1525] transition-colors cursor-pointer"
-                          >
-                            + {preset.name}
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* 1.2 TOP 3D SLIDING GALLERY SLIDES */}
-              <div className="p-5 rounded-2xl bg-stone-50 border border-stone-200 space-y-4">
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-                  <div>
-                    <h4 className="font-serif font-bold text-sm text-stone-900 flex items-center gap-2">
-                      <span>2. 3D Interactive Top Gallery Slides ({(cmsDraft.gallerySlides || []).length} Slides)</span>
-                      <span className="text-[10px] bg-emerald-200 text-emerald-900 font-sans px-2 py-0.5 rounded-full font-bold">Auto-Sliding Showcase</span>
-                    </h4>
-                    <p className="text-[11px] text-stone-500 mt-0.5">
-                      Configure slide images, royal titles, locations, and pricing tags displayed in the top sliding carousel.
-                    </p>
-                  </div>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      const cur = cmsDraft.gallerySlides || []
-                      const newSlide = {
-                        id: `slide_${Date.now()}`,
-                        title: 'Grand Royal Celebration Venue',
-                        city: 'Udaipur / Delhi NCR',
-                        category: 'Heritage Venues & Forts',
-                        rating: 4.98,
-                        reviews: 65,
-                        price: '₹2,50,000 / day',
-                        tag: 'Signature Showcase',
-                        image: 'https://images.unsplash.com/photo-1519741497674-611481863552',
-                        description: 'Bespoke celebration setting with royal hospitality, verified staff, and 100% direct date lock guarantee.'
-                      }
-                      setCmsDraft({ ...cmsDraft, gallerySlides: [...cur, newSlide] })
-                      toast.success('Added new slide! Update its image and title below.')
-                    }}
-                    className="px-3 py-1.5 rounded-xl bg-[#4a1525] hover:bg-[#340b17] text-amber-200 text-xs font-bold flex items-center gap-1.5 transition-colors cursor-pointer shrink-0"
-                  >
-                    <Plus className="w-3.5 h-3.5" />
-                    <span>Add New Slide</span>
-                  </button>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {(cmsDraft.gallerySlides || []).map((slide, sIdx) => (
-                    <div
-                      key={slide.id || sIdx}
-                      className="p-3.5 rounded-xl bg-white border border-stone-200 space-y-3 shadow-xs hover:border-amber-400 transition-all"
-                    >
-                      <div className="flex items-start gap-3">
-                        {/* Slide Thumbnail */}
-                        <div className="w-24 h-20 rounded-lg overflow-hidden bg-stone-900 border border-stone-200 shrink-0 relative">
-                          <img
-                            src={getOptimizedImageUrl(slide.image, { width: 250, quality: 75 })}
-                            alt={slide.title}
-                            className="w-full h-full object-cover"
-                          />
-                          <span className="absolute top-1 left-1 px-1.5 py-0.5 rounded text-[8px] font-bold bg-black/80 text-amber-300">
-                            #{sIdx + 1}
-                          </span>
-                        </div>
-
-                        {/* Title, City, Price */}
-                        <div className="flex-1 min-w-0 space-y-1.5">
-                          <div className="flex items-center justify-between">
-                            <span className="text-[10px] font-bold uppercase text-amber-800 tracking-wider">Slide #{sIdx + 1}</span>
-                            {(cmsDraft.gallerySlides || []).length > 1 && (
-                              <button
-                                type="button"
-                                onClick={() => {
-                                  const updated = (cmsDraft.gallerySlides || []).filter((_, i) => i !== sIdx)
-                                  setCmsDraft({ ...cmsDraft, gallerySlides: updated })
-                                  toast.info(`Removed Slide #${sIdx + 1}`)
-                                }}
-                                className="text-stone-400 hover:text-rose-600 transition-colors p-1"
-                                title="Delete Slide"
-                              >
-                                <Trash2 className="w-3.5 h-3.5" />
-                              </button>
-                            )}
-                          </div>
-                          <input
-                            type="text"
-                            value={slide.title || ''}
-                            onChange={(e) => {
-                              const updated = [...(cmsDraft.gallerySlides || [])]
-                              updated[sIdx] = { ...updated[sIdx], title: e.target.value }
-                              setCmsDraft({ ...cmsDraft, gallerySlides: updated })
-                            }}
-                            placeholder="Slide Title"
-                            className="w-full px-2 py-1 rounded bg-stone-50 border border-stone-200 text-xs font-semibold focus:outline-none"
-                          />
-                          <div className="grid grid-cols-2 gap-1.5">
-                            <input
-                              type="text"
-                              value={slide.city || ''}
-                              onChange={(e) => {
-                                const updated = [...(cmsDraft.gallerySlides || [])]
-                                updated[sIdx] = { ...updated[sIdx], city: e.target.value }
-                                setCmsDraft({ ...cmsDraft, gallerySlides: updated })
-                              }}
-                              placeholder="City / Region"
-                              className="w-full px-2 py-1 rounded bg-stone-50 border border-stone-200 text-[11px] focus:outline-none"
-                            />
-                            <input
-                              type="text"
-                              value={slide.price || ''}
-                              onChange={(e) => {
-                                const updated = [...(cmsDraft.gallerySlides || [])]
-                                updated[sIdx] = { ...updated[sIdx], price: e.target.value }
-                                setCmsDraft({ ...cmsDraft, gallerySlides: updated })
-                              }}
-                              placeholder="e.g. ₹3,50,000 / day"
-                              className="w-full px-2 py-1 rounded bg-stone-50 border border-stone-200 text-[11px] focus:outline-none font-medium"
-                            />
-                          </div>
-                        </div>
-                      </div>
-
-                      {/* Image URL input */}
-                      <div>
-                        <label className="block text-[10.5px] font-bold text-stone-600 mb-1">
-                          Slide Image URL:
-                        </label>
-                        <input
-                          type="url"
-                          value={slide.image || ''}
-                          onChange={(e) => {
-                            const updated = [...(cmsDraft.gallerySlides || [])]
-                            updated[sIdx] = { ...updated[sIdx], image: e.target.value }
-                            setCmsDraft({ ...cmsDraft, gallerySlides: updated })
-                          }}
-                          placeholder="https://images.unsplash.com/photo-..."
-                          className="w-full px-2.5 py-1.5 rounded-lg bg-stone-50 border border-stone-200 text-[11px] font-mono focus:outline-none focus:border-[#4a1525]"
-                        />
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              {/* 1.3 11 SPECIALIZATION CATEGORY SHOWCASE IMAGES */}
-              <div className="p-5 rounded-2xl bg-stone-50 border border-stone-200 space-y-4">
-                <div>
-                  <h4 className="font-serif font-bold text-sm text-stone-900 flex items-center gap-2">
-                    <span>3. 11 Verified Specialization Category Cards</span>
-                    <span className="text-[10px] bg-purple-200 text-purple-900 font-sans px-2 py-0.5 rounded-full font-bold">Category Grid</span>
-                  </h4>
-                  <p className="text-[11px] text-stone-500 mt-0.5">
-                    Customize the thumbnail photo for each celebration category card shown on the homepage.
-                  </p>
-                </div>
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3.5">
-                  {[
-                    { slug: 'venues', label: '1. Heritage Venues & Forts', defaultImg: 'https://images.unsplash.com/photo-1587271407850-8d438ca9fdf2' },
-                    { slug: 'catering', label: '2. Catering & Royal Feasts', defaultImg: 'https://images.unsplash.com/photo-1555244162-803834f70033' },
-                    { slug: 'decor', label: '3. Decoration & Mandaps', defaultImg: 'https://images.unsplash.com/photo-1587271636175-90d58cdad458' },
-                    { slug: 'makeup', label: '4. Bridal Makeup Artists', defaultImg: 'https://images.unsplash.com/photo-1600685890506-593fdf55949b' },
-                    { slug: 'outfits', label: '5. Couture Rental Outfits', defaultImg: 'https://images.unsplash.com/photo-1767955694884-d4bf352c23c2' },
-                    { slug: 'photography', label: '6. Photography & 4K Cinema', defaultImg: 'https://images.unsplash.com/photo-1744805624954-a6686543c3ff' },
-                    { slug: 'music', label: '7. DJ & Live Music', defaultImg: 'https://images.unsplash.com/photo-1541126274323-dbac58d14741' },
-                    { slug: 'gifts', label: '8. Return Gifts & Favors', defaultImg: 'https://images.unsplash.com/photo-1508899203029-1c9eb493c9bd' },
-                    { slug: 'florists', label: '9. Florists & Garlands', defaultImg: 'https://images.unsplash.com/photo-1617627143750-d86bc21e42bb' },
-                    { slug: 'invitations', label: '10. Invitation Cards & E-Invites', defaultImg: 'https://images.unsplash.com/photo-1656104717095-9d062b0d4e8d' },
-                    { slug: 'planners', label: '11. Event Planners & Concierge', defaultImg: 'https://images.unsplash.com/photo-1527529482837-4698179dc6ce' }
-                  ].map((catItem) => {
-                    const currentImg = cmsDraft.categoryImages?.[catItem.slug] || catItem.defaultImg
-                    return (
-                      <div
-                        key={catItem.slug}
-                        className="p-3 rounded-xl bg-white border border-stone-200 flex flex-col justify-between space-y-2.5 shadow-2xs"
-                      >
-                        <div className="flex items-center gap-2.5">
-                          <div className="w-12 h-12 rounded-lg overflow-hidden bg-stone-100 shrink-0 border border-stone-200">
-                            <img
-                              src={getOptimizedImageUrl(currentImg, { width: 120, quality: 70 })}
-                              alt={catItem.label}
-                              className="w-full h-full object-cover"
-                            />
-                          </div>
-                          <div className="min-w-0 flex-1">
-                            <span className="font-serif font-bold text-xs text-stone-900 block truncate">
-                              {catItem.label}
-                            </span>
-                            <span className="text-[10px] text-stone-500 font-mono">
-                              slug: {catItem.slug}
-                            </span>
-                          </div>
-                        </div>
-
-                        <div>
-                          <input
-                            type="url"
-                            value={cmsDraft.categoryImages?.[catItem.slug] || ''}
-                            onChange={(e) => {
-                              setCmsDraft({
-                                ...cmsDraft,
-                                categoryImages: {
-                                  ...(cmsDraft.categoryImages || {}),
-                                  [catItem.slug]: e.target.value
-                                }
-                              })
-                            }}
-                            placeholder={catItem.defaultImg}
-                            className="w-full px-2 py-1 rounded bg-stone-50 border border-stone-200 text-[10.5px] font-mono focus:outline-none focus:border-[#4a1525]"
-                          />
-                        </div>
-                      </div>
-                    )
-                  })}
-                </div>
-              </div>
-            </div>
+            <AdminSiteImageManager
+              cmsDraft={cmsDraft}
+              setCmsDraft={setCmsDraft}
+              onSaveCMS={handleSaveCMS}
+              cmsSaving={cmsSaving}
+              vendors={vendors}
+              mediaLibrary={mediaLibrary}
+              onUploadMedia={onUploadMedia}
+              onDeleteMedia={onDeleteMedia}
+            />
           )}
 
           {/* ---------------------------------------------------- */}
@@ -2747,6 +2464,20 @@ export default function AdminOperationsSuite({
             </div>
           </div>
         </div>
+      )}
+
+      {/* SUB-TAB: ALL WEBSITE IMAGES & BANNERS MANAGER */}
+      {activeSubTab === 'site_images' && (
+        <AdminSiteImageManager
+          cmsDraft={cmsDraft}
+          setCmsDraft={setCmsDraft}
+          onSaveCMS={handleSaveCMS}
+          cmsSaving={cmsSaving}
+          vendors={vendors}
+          mediaLibrary={mediaLibrary}
+          onUploadMedia={onUploadMedia}
+          onDeleteMedia={onDeleteMedia}
+        />
       )}
 
       {/* NEW SUB-TABS (Indian Luxury Wedding Features) */}

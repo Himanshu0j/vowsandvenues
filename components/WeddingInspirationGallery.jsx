@@ -24,13 +24,17 @@ const GALLERY_CATEGORIES = [
   'Couture & Details'
 ]
 
-export default function WeddingInspirationGallery({ onExploreCategory }) {
+export default function WeddingInspirationGallery({ onExploreCategory, inspirationItems, cmsContent }) {
   const [activeCategory, setActiveCategory] = useState('All Visuals')
   const [activeModalItem, setActiveModalItem] = useState(null)
 
+  const items = (cmsContent?.inspirationGallery && cmsContent.inspirationGallery.length > 0)
+    ? cmsContent.inspirationGallery
+    : (inspirationItems && inspirationItems.length > 0 ? inspirationItems : INSPIRATION_GALLERY_ITEMS)
+
   const filteredItems = activeCategory === 'All Visuals'
-    ? INSPIRATION_GALLERY_ITEMS
-    : INSPIRATION_GALLERY_ITEMS.filter(item => item.category === activeCategory)
+    ? items
+    : items.filter(item => item.category === activeCategory)
 
   return (
     <section className="py-16 sm:py-24 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto select-none border-t border-[#e8dfcf]">

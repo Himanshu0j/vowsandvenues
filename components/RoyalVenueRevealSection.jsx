@@ -17,10 +17,11 @@ import ScrollReveal, { TextLineReveal, ImageReveal } from './ScrollReveal'
 export default function RoyalVenueRevealSection({
   onSelectVenue,
   onCheckAvailability,
-  onExploreVenues
+  onExploreVenues,
+  cmsContent
 }) {
   const palaceImg = getOptimizedImageUrl(
-    'https://images.unsplash.com/photo-1587271407850-8d438ca9fdf2',
+    cmsContent?.banners?.royalRevealImage || cmsContent?.hero?.secondaryHeroImage || 'https://images.unsplash.com/photo-1587271407850-8d438ca9fdf2',
     { width: 1800, quality: 85 }
   )
 

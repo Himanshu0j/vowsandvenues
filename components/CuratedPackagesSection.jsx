@@ -75,7 +75,8 @@ export default function CuratedPackagesSection({
   packages = [],
   onSelectPackage,
   onCustomizePackage,
-  onBookPackage
+  onBookPackage,
+  cmsContent
 }) {
   const rawPackages = packages && packages.length > 0 ? packages : DEFAULT_PACKAGES
   const displayPackages = Array.from(
@@ -124,7 +125,10 @@ export default function CuratedPackagesSection({
       <ScrollStaggerContainer staggerDelay={0.1} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 items-stretch">
         {displayPackages.map((pkg, idx) => {
           const isFeatured = pkg.popular || idx === 0
-          const bannerImg = getOptimizedImageUrl(pkg.bannerImage || pkg.image || 'https://images.unsplash.com/photo-1587271407850-8d438ca9fdf2', { width: 500, quality: 70 })
+          const bannerImg = getOptimizedImageUrl(
+            cmsContent?.packageImages?.[pkg.id] || pkg.bannerImage || pkg.image || 'https://images.unsplash.com/photo-1587271407850-8d438ca9fdf2',
+            { width: 500, quality: 70 }
+          )
 
           return (
             <ScrollStaggerItem key={pkg.id || idx} yOffset={14} className="h-full flex flex-col">

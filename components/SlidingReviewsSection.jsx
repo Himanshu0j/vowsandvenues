@@ -78,31 +78,42 @@ const INDIAN_REVIEWS = [
   }
 ]
 
-export default function SlidingReviewsSection() {
+export default function SlidingReviewsSection({ reviews: customReviews, cmsContent }) {
+  const activeReviews = (cmsContent?.testimonials && cmsContent.testimonials.length > 0)
+    ? cmsContent.testimonials
+    : (customReviews && customReviews.length > 0 ? customReviews : INDIAN_REVIEWS)
+
   const [currentIndex, setCurrentIndex] = useState(0)
   const [isAutoPlaying, setIsAutoPlaying] = useState(true)
   const timerRef = useRef(null)
+
+  // Reset index if count changes
+  useEffect(() => {
+    if (currentIndex >= activeReviews.length) {
+      setCurrentIndex(0)
+    }
+  }, [activeReviews.length, currentIndex])
 
   // Auto sliding every 4.8 seconds
   useEffect(() => {
     if (!isAutoPlaying) return
 
     timerRef.current = setInterval(() => {
-      setCurrentIndex((prev) => (prev + 1) % INDIAN_REVIEWS.length)
+      setCurrentIndex((prev) => (prev + 1) % activeReviews.length)
     }, 4800)
 
     return () => clearInterval(timerRef.current)
-  }, [isAutoPlaying])
+  }, [isAutoPlaying, activeReviews.length])
 
   const handlePrev = () => {
-    setCurrentIndex((prev) => (prev - 1 + INDIAN_REVIEWS.length) % INDIAN_REVIEWS.length)
+    setCurrentIndex((prev) => (prev - 1 + activeReviews.length) % activeReviews.length)
   }
 
   const handleNext = () => {
-    setCurrentIndex((prev) => (prev + 1) % INDIAN_REVIEWS.length)
+    setCurrentIndex((prev) => (prev + 1) % activeReviews.length)
   }
 
-  const currentReview = INDIAN_REVIEWS[currentIndex]
+  const currentReview = activeReviews[currentIndex] || activeReviews[0]
 
   return (
     <section 
@@ -141,7 +152,7 @@ export default function SlidingReviewsSection() {
         <ScrollReveal animation="fade-left" delay={0.25}>
           <div className="flex items-center gap-3 shrink-0">
             <div className="text-xs font-mono font-bold text-stone-500">
-              <span className="text-[#4a1525] text-sm font-bold">{String(currentIndex + 1).padStart(2, '0')}</span> / {String(INDIAN_REVIEWS.length).padStart(2, '0')}
+              <span className="text-[#4a1525] text-sm font-bold">{String(currentIndex + 1).padStart(2, '0')}</span> / {String(activeReviews.length).padStart(2, '0')}
             </div>
           <div className="flex items-center gap-2">
             <button
@@ -250,9 +261,9 @@ export default function SlidingReviewsSection() {
 
       {/* THUMBNAIL PAGINATION STRIP (Click to Jump) */}
       <div className="flex items-center justify-center gap-2 mt-6">
-        {INDIAN_REVIEWS.map((review, idx) => (
+        {activeReviews.map((review, idx) => (
           <button
-            key={review.id}
+            key={review.id || idx}
             onClick={() => setCurrentIndex(idx)}
             aria-label={`Jump to review by ${review.clientNames}`}
             className={`transition-all duration-300 rounded-full cursor-pointer ${

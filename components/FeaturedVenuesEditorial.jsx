@@ -25,7 +25,8 @@ export default function FeaturedVenuesEditorial({
   onSelectVendor,
   onAddToEvent,
   onNegotiate,
-  onViewAll
+  onViewAll,
+  cmsContent
 }) {
   // Filter and strictly deduplicate venues from the vendors list
   const venueVendors = Array.from(
@@ -57,7 +58,10 @@ export default function FeaturedVenuesEditorial({
     ? venueVendors.slice(1, 4)
     : vendors.slice(1, 4)
 
-  const heroImgUrl = getOptimizedImageUrl(heroVenue.heroImage || heroVenue.image, { width: 1080, quality: 75 })
+  const heroImgUrl = getOptimizedImageUrl(
+    cmsContent?.banners?.signaturePalaceBackdrop || heroVenue.heroImage || heroVenue.image,
+    { width: 1080, quality: 75 }
+  )
   const isHeroFavorite = wishlistIds.includes(heroVenue.id)
 
   return (

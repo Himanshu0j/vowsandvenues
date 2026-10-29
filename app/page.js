@@ -1791,6 +1791,7 @@ export default function VowsAndVenuesApp() {
 
             {/* SCENE II · ROYAL VENUE REVEAL (Interactive 3D Perspective Palace Showcase) */}
             <RoyalVenueRevealSection
+              cmsContent={cmsContent}
               onCheckAvailability={() => {
                 setFilterCategory('venues')
                 setActiveTab('explore')
@@ -1840,6 +1841,7 @@ export default function VowsAndVenuesApp() {
             <FeaturedVenuesEditorial
               vendors={vendors}
               wishlistIds={wishlistIds}
+              cmsContent={cmsContent}
               onToggleFavorite={handleToggleWishlist}
               onSelectVendor={(v) => setSelectedVendorModal(v)}
               onAddToEvent={(v) => handleAddVendorToEvent(v)}
@@ -1864,6 +1866,7 @@ export default function VowsAndVenuesApp() {
             {/* CURATED ALL-INCLUSIVE CELEBRATION PACKAGES */}
             <CuratedPackagesSection
               packages={packages}
+              cmsContent={cmsContent}
               onSelectPackage={(pkg) => handleOpenPackageCustomizer(pkg)}
               onCustomizePackage={(pkg) => handleOpenPackageCustomizer(pkg)}
               onBookPackage={(pkg) => handleOpenPackageCustomizer(pkg)}
@@ -1871,6 +1874,7 @@ export default function VowsAndVenuesApp() {
 
             {/* THE WEDDING GAZETTE · INSPIRATION MASONRY GALLERY */}
             <WeddingInspirationGallery
+              cmsContent={cmsContent}
               onExploreCategory={(cat) => {
                 const slugMap = {
                   'Palaces & Forts': 'venues',
@@ -1944,7 +1948,7 @@ export default function VowsAndVenuesApp() {
             <TrustAndConfidenceSection />
 
             {/* REAL CELEBRATIONS & EDITORIAL MEMOIRS — SLIDING INDIAN REVIEWS */}
-            <SlidingReviewsSection />
+            <SlidingReviewsSection cmsContent={cmsContent} />
 
             {/* FREQUENTLY ASKED QUESTIONS */}
             {cmsContent?.faqs?.length > 0 && (
