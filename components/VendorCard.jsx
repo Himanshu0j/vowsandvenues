@@ -104,15 +104,16 @@ export default function VendorCard({
           {/* Vendor Name */}
           <h3 
             onClick={() => onSelectVendor(vendor)}
-            className="font-serif font-bold text-base sm:text-lg text-[#1c1917] group-hover:text-[#4a1525] transition-colors cursor-pointer mb-2 line-clamp-1"
+            title={vendor.name}
+            className="font-serif font-bold text-base sm:text-lg text-[#1c1917] group-hover:text-[#4a1525] transition-colors cursor-pointer mb-2 line-clamp-2 min-h-[2.75rem] leading-snug"
           >
             {vendor.name}
           </h3>
 
           {/* Amenities or Highlights */}
-          {vendor.amenities && vendor.amenities.length > 0 && (
-            <div className="flex flex-wrap gap-1 mb-3">
-              {vendor.amenities.slice(0, 3).map((am, i) => (
+          {((vendor.amenities && vendor.amenities.length > 0) || (vendor.highlights && vendor.highlights.length > 0)) && (
+            <div className="flex flex-wrap gap-1 mb-3 min-h-[1.5rem]">
+              {(vendor.amenities || vendor.highlights).slice(0, 3).map((am, i) => (
                 <span key={i} className="text-[10px] text-amber-950 bg-amber-100/80 hover:bg-amber-200/80 px-2 py-0.5 rounded-md border border-amber-300/60 transition-colors font-medium">
                   {am}
                 </span>
@@ -122,51 +123,60 @@ export default function VendorCard({
         </div>
 
         {/* 3. PRICING & ACTIONS */}
-        <div className="pt-3 border-t border-[#ebdcc9] flex items-center justify-between mt-2">
-          <div>
-            <div className="text-[9.5px] uppercase font-bold text-amber-900 bg-amber-100/90 px-2 py-0.5 rounded-md border border-amber-300/60 inline-block mb-1">
-              Starting From
+        <div className="pt-3 border-t border-[#ebdcc9] mt-2 space-y-2.5">
+          {/* Price & Negotiation Row */}
+          <div className="flex items-center justify-between gap-2">
+            <div>
+              <div className="text-[9.5px] uppercase font-bold text-amber-900 bg-amber-100/90 px-2 py-0.5 rounded-md border border-amber-300/60 inline-block mb-0.5">
+                Starting From
+              </div>
+              <div className="font-serif font-bold text-base sm:text-lg text-emerald-950 leading-tight">
+                ₹{(vendor.startingPrice || 25000).toLocaleString('en-IN')}
+                <span className="text-[11px] font-sans font-normal text-stone-600">
+                  {' '}/{vendor.priceUnit || 'event'}
+                </span>
+              </div>
             </div>
-            <div className="font-serif font-bold text-base sm:text-lg text-emerald-950">
-              ₹{(vendor.startingPrice || 25000).toLocaleString('en-IN')}
-              <span className="text-[11px] font-sans font-normal text-stone-600">
-                {' '}/{vendor.priceUnit || 'event'}
-              </span>
-            </div>
-          </div>
 
-          <div className="flex items-center gap-1.5">
             <button
+              type="button"
               onClick={(e) => {
                 e.stopPropagation()
                 if (onNegotiate) onNegotiate(vendor)
               }}
-              className="px-2.5 py-1.5 rounded-full bg-gradient-to-r from-amber-500/15 to-amber-600/25 hover:from-amber-500/30 hover:to-amber-600/40 text-amber-950 text-xs font-bold transition-all border border-amber-400/60 hover:shadow-xs flex items-center gap-1"
-              title="Think the price is high? Negotiate live with Admin"
+              className="px-2.5 py-1.5 rounded-xl bg-gradient-to-r from-amber-500/15 to-amber-600/25 hover:from-amber-500/30 hover:to-amber-600/40 text-amber-950 text-xs font-bold transition-all border border-amber-400/60 hover:shadow-xs flex items-center gap-1 shrink-0 cursor-pointer"
+              title="Think the price is high? Negotiate live with Concierge"
             >
               <MessageSquare className="w-3.5 h-3.5 text-amber-700" />
               <span>Negotiate</span>
             </button>
+          </div>
+
+          {/* Action Buttons Row */}
+          <div className="grid grid-cols-2 gap-2">
             <button
+              type="button"
               onClick={() => onSelectVendor(vendor)}
-              className="px-3 py-1.5 rounded-full bg-amber-100/90 hover:bg-amber-200 text-stone-900 text-xs font-bold transition-all border border-amber-300/80 hover:shadow-xs"
+              className="w-full py-2 px-2 rounded-xl bg-amber-100/80 hover:bg-amber-200 text-stone-900 text-xs font-bold transition-all border border-amber-300/80 hover:shadow-xs text-center cursor-pointer"
             >
               Details
             </button>
+
             {vendor.category === 'venues' || vendor.categorySlug === 'venues' ? (
               <a
                 href={`/venues/${vendor.id}`}
-                className="btn-3d-wine px-3.5 py-1.5 rounded-full bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-500 hover:to-amber-600 text-white text-xs font-bold transition-all shadow-md flex items-center gap-1 hover:scale-105 active:scale-95 cursor-pointer"
+                className="w-full py-2 px-2 rounded-xl bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-500 hover:to-amber-600 text-white text-xs font-bold transition-all shadow-xs flex items-center justify-center gap-1 active:scale-95 text-center cursor-pointer"
               >
                 <span>Book Venue</span>
                 <ArrowRight className="w-3 h-3" />
               </a>
             ) : (
               <button
+                type="button"
                 onClick={() => onAddToEvent(vendor)}
-                className="btn-3d-wine px-3.5 py-1.5 rounded-full bg-gradient-to-r from-[#4a1525] to-[#6d1e35] hover:from-[#3a101d] hover:to-[#581729] text-[#f5ebd7] text-xs font-bold transition-all shadow-md flex items-center gap-1 hover:scale-105 active:scale-95"
+                className="w-full py-2 px-2 rounded-xl bg-gradient-to-r from-[#4a1525] to-[#6d1e35] hover:from-[#3a101d] hover:to-[#581729] text-[#f5ebd7] text-xs font-bold transition-all shadow-xs flex items-center justify-center gap-1 active:scale-95 text-center cursor-pointer"
               >
-                <span>Add to Plan</span>
+                <span>+ Add to Plan</span>
               </button>
             )}
           </div>
