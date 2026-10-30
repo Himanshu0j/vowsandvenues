@@ -315,10 +315,6 @@ export default function VenueDetailPage({ params }) {
     }
   }
 
-  const fillAuthCustomerDemo = () => {
-    setAuthEmail('devika.wedding@example.com')
-    setAuthPassword('Customer2026!')
-  }
 
   const handleOpenBookingWizard = () => {
     const token = getAuthToken()
@@ -1671,20 +1667,6 @@ export default function VenueDetailPage({ params }) {
                   )}
                 </button>
               </form>
-
-              {/* Quick Demo Autofill */}
-              {authModalTab === 'login' && (
-                <div className="mt-5 pt-4 border-t border-stone-100 text-center">
-                  <span className="text-[11px] text-stone-500 block mb-2 font-medium">Quick Staging Fill:</span>
-                  <button
-                    type="button"
-                    onClick={fillAuthCustomerDemo}
-                    className="inline-flex items-center gap-1.5 bg-stone-100 hover:bg-stone-200 text-stone-700 text-[11px] font-semibold py-1.5 px-3 rounded-lg border border-stone-200 transition-colors cursor-pointer"
-                  >
-                    Customer Demo Fill
-                  </button>
-                </div>
-              )}
             </div>
           </div>
         )}

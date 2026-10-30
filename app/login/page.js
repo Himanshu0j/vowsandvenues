@@ -65,15 +65,6 @@ function LoginContent() {
     }
   }
 
-  const fillCustomerDemo = () => {
-    setEmail('devika.wedding@example.com')
-    setPassword('Customer2026!')
-  }
-
-  const fillAdminDemo = () => {
-    setEmail('admin@vowsandvenues.com')
-    setPassword('RoyalAdmin2026!')
-  }
 
   const exchangeGoogleCredential = async (credential) => {
     try {
@@ -274,27 +265,6 @@ function LoginContent() {
             <ArrowRight className="w-3.5 h-3.5" />
           </button>
         </form>
-
-        {/* Quick Demo Autofill helper */}
-        <div className="mt-6 pt-5 border-t border-stone-100">
-          <span className="text-[11px] font-semibold text-stone-500 block text-center mb-2">Quick Staging Demo Fill</span>
-          <div className="grid grid-cols-2 gap-2">
-            <button
-              type="button"
-              onClick={fillCustomerDemo}
-              className="bg-stone-50 hover:bg-stone-100 border border-stone-200 text-stone-700 text-[11px] font-semibold py-1.5 px-2 rounded-lg"
-            >
-              Customer Demo
-            </button>
-            <button
-              type="button"
-              onClick={fillAdminDemo}
-              className="bg-stone-50 hover:bg-stone-100 border border-stone-200 text-stone-700 text-[11px] font-semibold py-1.5 px-2 rounded-lg"
-            >
-              Admin Demo
-            </button>
-          </div>
-        </div>
 
         <div className="text-center mt-6 text-xs text-stone-600">
           Don't have an account?{' '}

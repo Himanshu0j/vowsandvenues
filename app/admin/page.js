@@ -335,27 +335,6 @@ export default function DedicatedAdminPortalPage() {
               )}
             </button>
           </form>
-
-          {/* Quick Credential Fill for Verification */}
-          <div className="p-3.5 rounded-2xl bg-stone-900/90 border border-stone-800 text-xs space-y-2">
-            <div className="flex items-center justify-between text-stone-400 text-[11px]">
-              <span className="font-semibold text-stone-300">Default Super Admin</span>
-              <button
-                type="button"
-                onClick={() => {
-                  setLoginEmail('admin@vowsandvenues.in')
-                  setLoginPassword('Vows#Stg2026!SecureKey')
-                  toast.info('Super Admin credentials prefilled')
-                }}
-                className="text-[#c5a059] hover:underline font-bold"
-              >
-                Autofill
-              </button>
-            </div>
-            <div className="text-[11px] font-mono text-stone-400 truncate">
-              admin@vowsandvenues.in / Vows#Stg2026!SecureKey
-            </div>
-          </div>
         </div>
 
         {/* Footer */}
