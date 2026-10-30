@@ -840,12 +840,12 @@ export default function AdminSiteImageManager({
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {(cmsDraft.testimonials || [
-              { id: 'test_1', clientNames: 'Aanya & Kabir Kapoor', city: 'Udaipur, Rajasthan', avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb' },
-              { id: 'test_2', clientNames: 'Meera & Devendra Trivedi', city: 'Lucknow, Uttar Pradesh', avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d' },
-              { id: 'test_3', clientNames: 'Priya & Rohan Singhania', city: 'Delhi NCR', avatar: 'https://images.unsplash.com/photo-1517841905240-472988babdf9' },
-              { id: 'test_4', clientNames: 'Tanvi & Siddharth Mehta', city: 'Jaipur, Rajasthan', avatar: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2' },
-              { id: 'test_5', clientNames: 'Dr. Rhea & Arjun Verma', city: 'Bengaluru, Karnataka', avatar: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d' }
+            {(cmsDraft.testimonials || cmsDraft.reviews || [
+              { id: 'test_1', clientNames: 'Palace Wedding Client', city: 'Udaipur, Rajasthan', avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb' },
+              { id: 'test_2', clientNames: 'Heritage Celebration Host', city: 'Lucknow, Uttar Pradesh', avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d' },
+              { id: 'test_3', clientNames: 'Royal Banquet Client', city: 'Delhi NCR', avatar: 'https://images.unsplash.com/photo-1517841905240-472988babdf9' },
+              { id: 'test_4', clientNames: 'Destination Wedding Family', city: 'Jaipur, Rajasthan', avatar: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2' },
+              { id: 'test_5', clientNames: 'Grand Reception Host', city: 'Bengaluru, Karnataka', avatar: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d' }
             ]).map((t, tIdx) => (
               <div key={t.id || tIdx} className="p-4 rounded-2xl bg-white border border-stone-200 flex items-start gap-3 shadow-2xs">
                 <div className="w-16 h-16 rounded-full overflow-hidden bg-stone-900 border-2 border-amber-300 shrink-0">

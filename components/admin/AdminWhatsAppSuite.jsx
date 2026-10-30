@@ -53,16 +53,20 @@ export const INITIAL_TEMPLATES = [
   }
 ]
 
-export const RECENT_WHATSAPP_LOGS = [
-  { id: 'wlog_1', phone: '+919820123456', recipient: 'Aanya & Kabir Kapoor', template: 'Negotiation Counter-Offer Alert', time: '12 mins ago', status: 'DELIVERED' },
-  { id: 'wlog_2', phone: '+919876543210', recipient: 'Simran & Rohan Oberoi', template: 'Token Advance & Contract Confirmation', time: '1 hour ago', status: 'READ' },
-  { id: 'wlog_3', phone: '+919920887766', recipient: 'Tanvi & Advait Deshmukh', template: '24-Hour Site Recce Reminder', time: '3 hours ago', status: 'DELIVERED' },
-  { id: 'wlog_4', phone: '+919845012345', recipient: 'Dr. Meera & Arjun Reddy', template: 'Milestone 2 Payment Reminder', time: 'Yesterday', status: 'READ' }
-]
+export const RECENT_WHATSAPP_LOGS = []
 
 export default function AdminWhatsAppSuite() {
   const [templates, setTemplates] = useState(INITIAL_TEMPLATES)
-  const [logs, setLogs] = useState(RECENT_WHATSAPP_LOGS)
+  const [logs, setLogs] = useState(() => {
+    try {
+      const stored = typeof window !== 'undefined' ? localStorage.getItem('vv_admin_wa_logs') : null
+      if (stored) {
+        const parsed = JSON.parse(stored)
+        if (Array.isArray(parsed) && parsed.length > 0) return parsed
+      }
+    } catch (_) {}
+    return []
+  })
   const [testPhone, setTestPhone] = useState('+919820123456')
   const [selectedTemplateId, setSelectedTemplateId] = useState(INITIAL_TEMPLATES[0].id)
   const [customMsg, setCustomMsg] = useState(INITIAL_TEMPLATES[0].body)
@@ -84,39 +88,43 @@ export default function AdminWhatsAppSuite() {
       return
     }
 
-    // Replace dummy variables
+    // Replace template sample variables
     const filledText = customMsg
-      .replace('{{couple_name}}', 'Aanya & Kabir')
+      .replace('{{couple_name}}', 'Wedding Client')
       .replace('{{vendor_name}}', 'The Royal Nawabi Palace')
-      .replace('{{venue_name}}', 'Rambagh Citadel')
+      .replace('{{venue_name}}', 'The Royal Nawabi Palace')
       .replace('{{counter_price}}', '3,50,000')
       .replace('{{original_price}}', '4,20,000')
-      .replace('{{event_date}}', '14 Dec 2026')
-      .replace('{{booking_id}}', 'VV-8491')
-      .replace('{{receipt_url}}', 'https://vowsandvenues-staging.onrender.com/receipt/VV-8491')
-      .replace('{{link}}', 'https://vowsandvenues-staging.onrender.com/negotiate/neg_01')
+      .replace('{{event_date}}', '15 Dec 2026')
+      .replace('{{booking_id}}', 'VV-2026-2150')
+      .replace('{{receipt_url}}', 'https://www.vowsandvenues.in/dashboard')
+      .replace('{{link}}', 'https://www.vowsandvenues.in')
       .replace('{{time}}', '11:30 AM')
-      .replace('{{coordinator_name}}', 'Maharaj Vikram Singh')
-      .replace('{{coordinator_phone}}', '+91 98290 12345')
-      .replace('{{amount}}', '4,80,000')
+      .replace('{{coordinator_name}}', 'Concierge Lead')
+      .replace('{{coordinator_phone}}', '+91 93059 77591')
+      .replace('{{amount}}', '5,92,500')
       .replace('{{due_date}}', '15 Nov 2026')
-      .replace('{{pay_link}}', 'https://vowsandvenues-staging.onrender.com/pay/milestone_2')
+      .replace('{{pay_link}}', 'https://www.vowsandvenues.in/dashboard')
 
     const encoded = encodeURIComponent(filledText)
     window.open(`https://wa.me/${cleanPhone}?text=${encoded}`, '_blank')
 
     // Add to activity logs
-    setLogs(prev => [
-      {
-        id: `wlog_${Date.now()}`,
-        phone: testPhone,
-        recipient: 'Direct WhatsApp Test',
-        template: templates.find(t => t.id === selectedTemplateId)?.title || 'Custom Ping',
-        time: 'Just now',
-        status: 'SENT'
-      },
-      ...prev
-    ])
+    const newEntry = {
+      id: `wlog_${Date.now()}`,
+      phone: testPhone,
+      recipient: `Client (${testPhone})`,
+      template: templates.find(t => t.id === selectedTemplateId)?.title || 'Custom Ping',
+      time: 'Just now',
+      status: 'SENT'
+    }
+    setLogs(prev => {
+      const next = [newEntry, ...prev]
+      try {
+        localStorage.setItem('vv_admin_wa_logs', JSON.stringify(next))
+      } catch (_) {}
+      return next
+    })
     toast.success('WhatsApp launcher dispatched!')
   }
 
@@ -266,21 +274,27 @@ export default function AdminWhatsAppSuite() {
             </div>
 
             <div className="divide-y divide-stone-100">
-              {logs.map(log => (
-                <div key={log.id} className="py-2.5 flex items-center justify-between gap-2 text-xs">
-                  <div>
-                    <span className="font-semibold text-stone-900 block">{log.recipient}</span>
-                    <span className="text-[10px] text-stone-500">{log.template} · {log.phone}</span>
-                  </div>
-                  <div className="text-right">
-                    <span className="inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">
-                      <CheckCircle2 className="w-2.5 h-2.5" />
-                      {log.status}
-                    </span>
-                    <span className="block text-[10px] text-stone-400 mt-0.5">{log.time}</span>
-                  </div>
+              {logs.length === 0 ? (
+                <div className="py-8 text-center text-stone-400 text-xs">
+                  No WhatsApp messages logged yet. Use the message composer to send concierge alerts.
                 </div>
-              ))}
+              ) : (
+                logs.map(log => (
+                  <div key={log.id} className="py-2.5 flex items-center justify-between gap-2 text-xs">
+                    <div>
+                      <span className="font-semibold text-stone-900 block">{log.recipient}</span>
+                      <span className="text-[10px] text-stone-500">{log.template} · {log.phone}</span>
+                    </div>
+                    <div className="text-right">
+                      <span className="inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">
+                        <CheckCircle2 className="w-2.5 h-2.5" />
+                        {log.status}
+                      </span>
+                      <span className="block text-[10px] text-stone-400 mt-0.5">{log.time}</span>
+                    </div>
+                  </div>
+                ))
+              )}
             </div>
           </div>
 

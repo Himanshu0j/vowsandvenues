@@ -42,91 +42,48 @@ export const CONCIERGE_PLANNERS = [
   'Siddharth Singhania (Palace Concierge)'
 ]
 
-export const INITIAL_LEADS = [
-  {
-    id: 'lead_01',
-    coupleName: 'Aanya Singhania & Kabir Kapoor',
-    phone: '+919820123456',
-    email: 'kabir.kapoor@singhania.com',
-    stage: 'NEW_INQUIRY',
-    budgetTier: 'Ultra-Luxury (₹50L+)',
-    estimatedBudget: 6500000,
-    guestCount: 450,
-    preferredCity: 'Udaipur, Rajasthan',
-    muhuratDate: '2026-12-14',
-    functions: ['Mehendi', 'Sangeet', 'Pheras', 'Reception'],
-    assignedTo: 'Vikramaditya Rathore (Heritage Venues Lead)',
-    notes: 'Bride specifically requested lakeside banquet with illuminated baraat on boats.',
-    createdAt: '2026-10-10T09:30:00Z'
-  },
-  {
-    id: 'lead_02',
-    coupleName: 'Rhea Bahl & Devrat Mehra',
-    phone: '+919811223344',
-    email: 'rhea.bahl@gmail.com',
-    stage: 'CONCIERGE_CALL',
-    budgetTier: 'Royal (₹25L–₹50L)',
-    estimatedBudget: 3800000,
-    guestCount: 300,
-    preferredCity: 'Jaipur, Rajasthan',
-    muhuratDate: '2026-11-28',
-    functions: ['Haldi', 'Sangeet', 'Pheras'],
-    assignedTo: 'Pooja Sharma (Sr. Luxury Planner)',
-    notes: 'Completed 30-min discovery call. Wants Rambagh or Samode Palace. Recce being finalized.',
-    createdAt: '2026-10-08T14:15:00Z'
-  },
-  {
-    id: 'lead_03',
-    coupleName: 'Tanvi Joshi & Advait Deshmukh',
-    phone: '+919920887766',
-    email: 'advait.deshmukh@tcs.com',
-    stage: 'SITE_RECCE',
-    budgetTier: 'Ultra-Luxury (₹50L+)',
-    estimatedBudget: 5500000,
-    guestCount: 400,
-    preferredCity: 'Jodhpur, Rajasthan',
-    muhuratDate: '2027-01-18',
-    functions: ['Welcome Dinner', 'Sangeet', 'Pheras', 'Royal Reception'],
-    assignedTo: 'Vikramaditya Rathore (Heritage Venues Lead)',
-    notes: 'Recce scheduled for Umaid Bhawan Citadel on Nov 2nd with venue general manager.',
-    createdAt: '2026-10-05T11:00:00Z'
-  },
-  {
-    id: 'lead_04',
-    coupleName: 'Dr. Meera Nambiar & Arjun Reddy',
-    phone: '+919845012345',
-    email: 'meera.nambiar@aiims.edu',
-    stage: 'QUOTATION_SENT',
-    budgetTier: 'Royal (₹25L–₹50L)',
-    estimatedBudget: 3200000,
-    guestCount: 250,
-    preferredCity: 'Goa',
-    muhuratDate: '2027-02-06',
-    functions: ['Sundowner Mehendi', 'Beach Pheras', 'White Sangeet'],
-    assignedTo: 'Ayesha Merchant (Coastal & Destination Lead)',
-    notes: 'Custom ₹32L package proposal sent with 3 beachfront resorts. Client reviewing with family.',
-    createdAt: '2026-10-02T16:45:00Z'
-  },
-  {
-    id: 'lead_05',
-    coupleName: 'Simran Chawla & Rohan Oberoi',
-    phone: '+919876543210',
-    email: 'rohan.oberoi@oberoigroup.com',
-    stage: 'WON',
-    budgetTier: 'Ultra-Luxury (₹50L+)',
-    estimatedBudget: 8000000,
-    guestCount: 500,
-    preferredCity: 'Jaipur, Rajasthan',
-    muhuratDate: '2026-12-21',
-    functions: ['Sufi Night', 'Mehendi', 'Grand Sangeet', 'Royal Pheras', 'Post-Wedding Brunch'],
-    assignedTo: 'Pooja Sharma (Sr. Luxury Planner)',
-    notes: 'Token Advance of ₹16,00,000 (20%) verified! Full contract signed. Handed over to ops.',
-    createdAt: '2026-09-25T10:00:00Z'
-  }
-]
+export const INITIAL_LEADS = []
 
-export default function AdminLeadsKanban() {
-  const [leads, setLeads] = useState(INITIAL_LEADS)
+export default function AdminLeadsKanban({ inquiries = [] }) {
+  const [leads, setLeads] = useState(() => {
+    try {
+      const stored = typeof window !== 'undefined' ? localStorage.getItem('vv_admin_crm_leads') : null
+      if (stored) {
+        const parsed = JSON.parse(stored)
+        if (Array.isArray(parsed) && parsed.length > 0) return parsed
+      }
+    } catch (_) {}
+    if (Array.isArray(inquiries) && inquiries.length > 0) {
+      return inquiries.map((inq, idx) => ({
+        id: inq.id || `inq_${idx}`,
+        coupleName: inq.name || inq.clientName || 'Wedding Client',
+        phone: inq.phone || '+91 ••••••••••',
+        email: inq.email || 'client@email.com',
+        stage: inq.status === 'confirmed' ? 'WON' : 'NEW_INQUIRY',
+        budgetTier: inq.budgetTier || 'Royal (₹25L–₹50L)',
+        estimatedBudget: inq.budget || 3500000,
+        guestCount: inq.guestCount || 300,
+        preferredCity: inq.city || 'India',
+        muhuratDate: inq.date || 'Upcoming',
+        functions: ['Wedding Reception'],
+        assignedTo: CONCIERGE_PLANNERS[0],
+        notes: inq.message || inq.notes || 'Inquiry received via marketplace venue page',
+        createdAt: inq.createdAt || new Date().toISOString()
+      }))
+    }
+    return []
+  })
+
+  // Sync to localStorage
+  const updateLeads = (newLeadsOrFn) => {
+    setLeads(prev => {
+      const next = typeof newLeadsOrFn === 'function' ? newLeadsOrFn(prev) : newLeadsOrFn
+      try {
+        localStorage.setItem('vv_admin_crm_leads', JSON.stringify(next))
+      } catch (_) {}
+      return next
+    })
+  }
   const [searchTerm, setSearchTerm] = useState('')
   const [selectedCity, setSelectedCity] = useState('ALL')
   const [selectedTier, setSelectedTier] = useState('ALL')
@@ -164,14 +121,14 @@ export default function AdminLeadsKanban() {
 
   // Move Lead Stage
   const moveLeadStage = (leadId, nextStage) => {
-    setLeads(prev => prev.map(l => l.id === leadId ? { ...l, stage: nextStage } : l))
+    updateLeads(prev => prev.map(l => l.id === leadId ? { ...l, stage: nextStage } : l))
     const stageName = KANBAN_STAGES.find(s => s.id === nextStage)?.label || nextStage
     toast.success(`Lead moved to "${stageName}"`)
   }
 
   // Assign Planner
   const assignPlanner = (leadId, planner) => {
-    setLeads(prev => prev.map(l => l.id === leadId ? { ...l, assignedTo: planner } : l))
+    updateLeads(prev => prev.map(l => l.id === leadId ? { ...l, assignedTo: planner } : l))
     toast.success(`Assigned to ${planner}`)
   }
 
@@ -188,7 +145,7 @@ export default function AdminLeadsKanban() {
       stage: 'NEW_INQUIRY',
       createdAt: new Date().toISOString()
     }
-    setLeads(prev => [created, ...prev])
+    updateLeads(prev => [created, ...prev])
     setIsAddModalOpen(false)
     toast.success('New wedding lead logged into CRM pipeline!')
   }

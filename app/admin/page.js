@@ -360,85 +360,32 @@ export default function DedicatedAdminPortalPage() {
     )
   }
 
-  // 2. LOGGED-IN VIEW: STANDALONE ADMIN OPERATIONS PORTAL
+  // 2. LOGGED-IN VIEW: EXECUTIVE STANDALONE ADMIN OPERATIONS PORTAL
   return (
-    <div className="min-h-screen bg-[#fcf8f2] text-stone-900">
-      {/* Standalone Admin Top Navigation Bar */}
-      <header className="sticky top-0 z-40 bg-[#1c1917] text-white border-b border-stone-800 shadow-md">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-[#c5a059] to-[#8c6b2d] text-[#1c1917] flex items-center justify-center font-serif text-lg font-bold shadow">
-              V
-            </div>
-            <div>
-              <span className="font-serif text-base font-bold tracking-tight">Vows &amp; Venues</span>
-              <span className="block text-[10px] text-[#c5a059] font-mono uppercase tracking-widest font-semibold">
-                Admin Operations
-              </span>
-            </div>
-          </div>
-
-          <div className="flex items-center gap-3">
-            <AdminLiveTicker />
-
-            <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-full bg-stone-900 border border-stone-800 text-xs">
-              <span className="w-2 h-2 rounded-full bg-emerald-400"></span>
-              <span className="text-stone-300">{currentUser?.email}</span>
-              <span className="px-1.5 py-0.5 rounded bg-[#c5a059]/20 text-[#e8d08d] font-bold text-[10px] uppercase font-mono">
-                {currentUser?.role}
-              </span>
-            </div>
-
-            <a
-              href="/"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-xs text-stone-300 hover:text-white px-2.5 py-1.5 rounded-lg hover:bg-stone-800 transition-colors flex items-center gap-1"
-            >
-              <span>Marketplace</span>
-              <ExternalLink className="w-3 h-3 text-stone-400" />
-            </a>
-
-            <button
-              onClick={handleAdminLogout}
-              className="text-xs text-red-400 hover:text-red-300 px-2.5 py-1.5 rounded-lg hover:bg-stone-800 transition-colors flex items-center gap-1 font-semibold"
-            >
-              <LogOut className="w-3.5 h-3.5" />
-              <span className="hidden sm:inline">Sign Out</span>
-            </button>
-          </div>
-        </div>
-      </header>
-
-      {/* Main Content Area */}
-      <main className="py-6">
-        {dataLoading && (
-          <div className="max-w-7xl mx-auto px-4 py-2 text-xs text-stone-500 flex items-center gap-2">
-            <RefreshCw className="w-3.5 h-3.5 animate-spin text-[#c5a059]" />
-            <span>Synchronizing live operational metrics...</span>
-          </div>
-        )}
-
-        <ErrorBoundary fallbackTitle="Admin Operations Center">
-          <AdminOperationsSuite
-            adminStats={adminStats}
-            vendors={vendors}
-            userBookings={bookings}
-            cmsContent={cmsContent}
-            onUpdateCMS={handleUpdateCMS}
-            mediaLibrary={mediaLibrary}
-            onUploadMedia={handleUploadMedia}
-            onDeleteMedia={handleDeleteMedia}
-            coupons={coupons}
-            onCreateCoupon={handleCreateCoupon}
-            settlements={settlements}
-            onUpdateSettlement={handleUpdateSettlement}
-            onVerifyToggle={handleVerifyToggle}
-            onRejectVendor={handleRejectVendor}
-            adminActionBusy={actionBusy}
-          />
-        </ErrorBoundary>
-      </main>
+    <div className="min-h-screen bg-[#141210] text-stone-100 antialiased selection:bg-[#c5a059] selection:text-stone-950">
+      <ErrorBoundary fallbackTitle="Admin Operations Center">
+        <AdminOperationsSuite
+          adminStats={adminStats}
+          vendors={vendors}
+          userBookings={bookings}
+          cmsContent={cmsContent}
+          onUpdateCMS={handleUpdateCMS}
+          mediaLibrary={mediaLibrary}
+          onUploadMedia={handleUploadMedia}
+          onDeleteMedia={handleDeleteMedia}
+          coupons={coupons}
+          onCreateCoupon={handleCreateCoupon}
+          settlements={settlements}
+          onUpdateSettlement={handleUpdateSettlement}
+          onVerifyToggle={handleVerifyToggle}
+          onRejectVendor={handleRejectVendor}
+          adminActionBusy={actionBusy}
+          currentUser={currentUser}
+          onLogout={handleAdminLogout}
+          onRefreshData={() => loadAdminData(authToken)}
+          dataLoading={dataLoading}
+        />
+      </ErrorBoundary>
     </div>
   )
 }

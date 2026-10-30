@@ -20,71 +20,29 @@ import {
 } from 'lucide-react'
 import { toast } from 'sonner'
 
-export const INITIAL_RECCES = [
-  {
-    id: 'recce_01',
-    coupleName: 'Tanvi Joshi & Advait Deshmukh',
-    phone: '+919920887766',
-    venueName: 'Umaid Bhawan Citadel & Lawns',
-    venueCity: 'Jodhpur, Rajasthan',
-    dateTime: '2026-11-05T11:00',
-    guestEstimate: 400,
-    coordinatorName: 'Thakur Gajendra Singh (Venue GM)',
-    coordinatorPhone: '+91 98290 88991',
-    status: 'SCHEDULED',
-    feedback: null,
-    conversionScore: 'HIGH (85%)',
-    specialNotes: 'Couple arriving via private charter. Requested viewing of the central marble dome at sunset.'
-  },
-  {
-    id: 'recce_02',
-    coupleName: 'Aanya Singhania & Kabir Kapoor',
-    phone: '+919820123456',
-    venueName: 'The Royal Lake Palace & Gardens',
-    venueCity: 'Udaipur, Rajasthan',
-    dateTime: '2026-11-12T15:30',
-    guestEstimate: 450,
-    coordinatorName: 'Maharani Vijaylaxmi Rathore (GM Hospitality)',
-    coordinatorPhone: '+91 98291 44556',
-    status: 'SCHEDULED',
-    feedback: null,
-    conversionScore: 'VERY HIGH (95%)',
-    specialNotes: 'Wants to inspect boat arrival jetty for 25-boat baraat procession.'
-  },
-  {
-    id: 'recce_03',
-    coupleName: 'Rhea Bahl & Devrat Mehra',
-    phone: '+919811223344',
-    venueName: 'The Royal Nawabi Palace & Lawns',
-    venueCity: 'Lucknow, UP',
-    dateTime: '2026-10-25T14:00',
-    guestEstimate: 300,
-    coordinatorName: 'Nawab Asad Mirza (Estate Manager)',
-    coordinatorPhone: '+91 94150 11223',
-    status: 'COMPLETED',
-    feedback: 'Loved the Sheesh Mahal ballroom. Requested customized Awadhi royal feast tasting before final token advance.',
-    conversionScore: 'WON (Contract In Progress)',
-    specialNotes: 'Menu tasting scheduled with Chef Imtiaz for next weekend.'
-  },
-  {
-    id: 'recce_04',
-    coupleName: 'Pooja Sharma & Vikramaditya Rathore',
-    phone: '+919829012890',
-    venueName: 'Rambagh Heritage Palace & Courtyards',
-    venueCity: 'Jaipur, Rajasthan',
-    dateTime: '2026-10-09T10:30',
-    guestEstimate: 500,
-    coordinatorName: 'Col. Ranjit Singh (Palace Director)',
-    coordinatorPhone: '+91 98290 77112',
-    status: 'COMPLETED',
-    feedback: 'Walkthrough completed satisfactorily. Confirmed bridal party suites in Maharani wing.',
-    conversionScore: 'WON (Advance Token Verified)',
-    specialNotes: 'Grand courtyard lighting trial approved by couple.'
-  }
-]
+export const INITIAL_RECCES = []
 
 export default function AdminRecceManager() {
-  const [recces, setRecces] = useState(INITIAL_RECCES)
+  const [recces, setRecces] = useState(() => {
+    try {
+      const stored = typeof window !== 'undefined' ? localStorage.getItem('vv_admin_recces') : null
+      if (stored) {
+        const parsed = JSON.parse(stored)
+        if (Array.isArray(parsed) && parsed.length > 0) return parsed
+      }
+    } catch (_) {}
+    return []
+  })
+
+  const updateRecces = (newReccesOrFn) => {
+    setRecces(prev => {
+      const next = typeof newReccesOrFn === 'function' ? newReccesOrFn(prev) : newReccesOrFn
+      try {
+        localStorage.setItem('vv_admin_recces', JSON.stringify(next))
+      } catch (_) {}
+      return next
+    })
+  }
   const [searchTerm, setSearchTerm] = useState('')
   const [filterTab, setFilterTab] = useState('ALL') // 'ALL' | 'SCHEDULED' | 'COMPLETED'
   const [isScheduleModalOpen, setIsScheduleModalOpen] = useState(false)
@@ -129,14 +87,14 @@ export default function AdminRecceManager() {
       feedback: null,
       conversionScore: 'PENDING'
     }
-    setRecces(prev => [created, ...prev])
+    updateRecces(prev => [created, ...prev])
     setIsScheduleModalOpen(false)
     toast.success('Site inspection recce scheduled!')
   }
 
   const handleCompleteRecce = () => {
     if (!activeFeedbackModal) return
-    setRecces(prev => prev.map(r => r.id === activeFeedbackModal.id ? {
+    updateRecces(prev => prev.map(r => r.id === activeFeedbackModal.id ? {
       ...r,
       status: 'COMPLETED',
       feedback: feedbackInput || 'Couple completed walkthrough satisfactorily.'
@@ -282,7 +240,22 @@ export default function AdminRecceManager() {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {filteredRecces.map((recce) => (
+          {filteredRecces.length === 0 ? (
+            <div className="col-span-full py-16 text-center border-2 border-dashed border-stone-200 rounded-3xl bg-stone-50/50">
+              <Building2 className="w-10 h-10 text-stone-300 mx-auto mb-3" />
+              <h4 className="font-serif font-bold text-stone-700 text-sm">No Site Recces Scheduled</h4>
+              <p className="text-xs text-stone-400 mt-1 max-w-sm mx-auto">
+                When couples request an on-site venue walkthrough, log it here to manage coordinator schedules and send WhatsApp invites.
+              </p>
+              <button
+                onClick={() => setIsScheduleModalOpen(true)}
+                className="mt-4 px-4 py-2 rounded-xl bg-stone-900 text-white font-bold text-xs hover:bg-black transition-all"
+              >
+                + Schedule First Recce
+              </button>
+            </div>
+          ) : (
+            filteredRecces.map((recce) => (
             <div
               key={recce.id}
               className="bg-stone-50 rounded-2xl p-4 border border-stone-200 shadow-xs hover:shadow-md transition-all flex flex-col justify-between space-y-3"
@@ -371,7 +344,7 @@ export default function AdminRecceManager() {
                 )}
               </div>
             </div>
-          ))}
+          )))}
         </div>
       </div>
 

@@ -43,10 +43,13 @@ import {
   QrCode,
   CreditCard,
   Camera,
-  Eye
+  Eye,
+  Menu,
+  LogOut
 } from 'lucide-react'
 import { toast } from 'sonner'
 import { getOptimizedImageUrl } from '@/lib/imageUtils'
+import AdminLiveTicker from '@/components/admin/AdminLiveTicker'
 import AdminLeadsKanban from '@/components/admin/AdminLeadsKanban'
 import AdminWhatsAppSuite from '@/components/admin/AdminWhatsAppSuite'
 import AdminRecceManager from '@/components/admin/AdminRecceManager'
@@ -97,10 +100,15 @@ export default function AdminOperationsSuite({
   onUpdateSettlement,
   onVerifyToggle,
   onRejectVendor,
-  adminActionBusy
+  adminActionBusy,
+  currentUser,
+  onLogout,
+  onRefreshData,
+  dataLoading
 }) {
-  // Navigation Tabs (13 Comprehensive Operational Tabs)
+  // Navigation Tabs (Grouped into logical sidebar categories)
   const [activeSubTab, setActiveSubTab] = useState('overview')
+  const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false)
   
   // Date filter for Overview
   const [dateRange, setDateRange] = useState('all') // '7d' | '30d' | 'ytd' | 'all'
@@ -617,98 +625,246 @@ export default function AdminOperationsSuite({
 
   const selectedVendor = vendors.find(v => v.id === selectedVendorForCalendar) || vendors[0]
 
+  const NAV_GROUPS = useMemo(() => [
+    {
+      title: 'Operations & CRM',
+      items: [
+        { id: 'overview', label: 'Overview & KPIs', icon: TrendingUp },
+        { id: 'bookings', label: 'Bookings', icon: CalendarDays, badge: userBookings.length },
+        { id: 'vendors', label: 'Vendors & KYC', icon: Building2, badge: vendors.length },
+        { id: 'leads', label: 'Inquiries CRM', icon: Users },
+        { id: 'availability', label: 'Calendar & Blackout', icon: CalendarOff }
+      ]
+    },
+    {
+      title: 'Finance & Payments',
+      items: [
+        { id: 'payment_gateway', label: 'Payment Gateway & UPI', icon: QrCode },
+        { id: 'milestones', label: 'Escrow & Milestones', icon: ShieldCheck },
+        { id: 'gst_billing', label: 'GST & Invoices', icon: FileText },
+        { id: 'finance', label: 'Vendor Settlements', icon: DollarSign, badge: settlements.length }
+      ]
+    },
+    {
+      title: 'Concierge & Chat',
+      items: [
+        { id: 'negotiations', label: 'Live Negotiations', icon: MessageSquare, badge: negotiations.length },
+        { id: 'whatsapp', label: 'WhatsApp Concierge', icon: Send },
+        { id: 'recces', label: 'Site Recces', icon: Building2 }
+      ]
+    },
+    {
+      title: 'Content & Visuals',
+      items: [
+        { id: 'site_images', label: '📸 All Website Images', icon: Camera, highlight: true },
+        { id: 'cms', label: 'Website Content (CMS)', icon: FileText },
+        { id: 'ugc_reviews', label: 'Reviews & Stories', icon: Sparkles },
+        { id: 'coupons', label: 'Coupons & Promos', icon: Tag, badge: coupons.length },
+        { id: 'media', label: 'Media Library', icon: ImageIcon, badge: mediaLibrary.length }
+      ]
+    },
+    {
+      title: 'Platform & System',
+      items: [
+        { id: 'vendor_sla', label: 'Vendor SLA Scorecard', icon: Award },
+        { id: 'packages_builder', label: 'Package Builder', icon: Layers },
+        { id: 'muhurat', label: 'Muhurat Pricing', icon: Sun },
+        { id: 'seo', label: 'SEO & Meta', icon: Globe },
+        { id: 'support', label: 'Support & Disputes', icon: LifeBuoy, badge: (supportTickets.length + disputesList.length) },
+        { id: 'team', label: 'Staff & Roles (RBAC)', icon: Users, badge: staffUsers.length },
+        { id: 'audit', label: 'Audit Trail', icon: History },
+        { id: 'system', label: 'System Health', icon: Activity }
+      ]
+    }
+  ], [userBookings.length, vendors.length, settlements.length, negotiations.length, coupons.length, mediaLibrary.length, supportTickets.length, disputesList.length, staffUsers.length])
+
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8 animate-in fade-in">
-      
-      {/* 1. OPERATIONS HEADER & NAVIGATION BAR */}
-      <div className="bg-[#1c1917] text-white rounded-3xl p-5 sm:p-7 lg:p-8 shadow-xl border border-stone-800">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-          <div>
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#c5a059]/20 text-[#e8d08d] text-[10px] font-bold uppercase tracking-wider border border-[#c5a059]/30 mb-2">
-              <ShieldCheck className="w-3.5 h-3.5" /> Enterprise Control Center
+    <div className="min-h-screen bg-[#141210] text-stone-100 flex flex-col md:flex-row antialiased">
+      {/* MOBILE BACKDROP */}
+      {isMobileSidebarOpen && (
+        <div
+          onClick={() => setIsMobileSidebarOpen(false)}
+          className="fixed inset-0 bg-black/70 backdrop-blur-xs z-40 md:hidden"
+        />
+      )}
+
+      {/* LEFT SIDEBAR NAVIGATION */}
+      <aside className={`fixed inset-y-0 left-0 z-50 w-72 bg-[#191715] border-r border-stone-800/80 flex flex-col transition-transform duration-300 ease-in-out md:translate-x-0 md:static md:w-64 lg:w-72 shrink-0 ${
+        isMobileSidebarOpen ? 'translate-x-0' : '-translate-x-full'
+      }`}>
+        {/* Brand Header */}
+        <div className="p-4 sm:p-5 border-b border-stone-800/80 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#c5a059] to-[#8c6b2d] text-[#1c1917] flex items-center justify-center font-serif text-xl font-bold shadow-md">
+              V
             </div>
-            <h1 className="font-serif text-2xl sm:text-3xl font-bold tracking-tight">
-              Vows &amp; Venues Operations
-            </h1>
-            <p className="text-xs text-stone-400 mt-1 max-w-2xl">
-              Complete administrative authority over multi-vendor onboarding, bookings lifecycle, financial reconciliation, live CMS, dynamic SEO, and audit trails.
-            </p>
+            <div>
+              <div className="font-serif font-bold text-sm tracking-tight text-white">
+                Vows &amp; Venues
+              </div>
+              <span className="text-[10px] text-[#c5a059] uppercase tracking-wider font-mono font-bold block">
+                Executive Admin
+              </span>
+            </div>
           </div>
-
-          <div className="flex flex-wrap items-center gap-2">
-            <span className="text-xs text-emerald-400 font-bold bg-emerald-950/70 px-3 py-1.5 rounded-full border border-emerald-800 flex items-center gap-1.5">
-              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-              MongoDB Atlas Persistent
-            </span>
-            <span className="text-xs text-amber-300 font-bold bg-amber-950/70 px-3 py-1.5 rounded-full border border-amber-800">
-              Staging Sandbox Safe
-            </span>
-          </div>
+          <button
+            onClick={() => setIsMobileSidebarOpen(false)}
+            className="md:hidden text-stone-400 hover:text-white p-1"
+          >
+            ✕
+          </button>
         </div>
 
-        {/* OPERATIONS NAVIGATION TABS */}
-        <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar pt-6 mt-6 border-t border-stone-800 text-xs">
-          {[
-            { id: 'overview', label: 'Overview & KPIs', icon: TrendingUp },
-            { id: 'site_images', label: '📸 All Website Images', icon: Camera },
-            { id: 'leads', label: 'Wedding Leads CRM', icon: Users },
-            { id: 'whatsapp', label: 'WhatsApp Concierge', icon: Send },
-            { id: 'recces', label: 'Site Recces', icon: Building2 },
-            { id: 'milestones', label: 'Escrow & Milestones', icon: ShieldCheck },
-            { id: 'payment_gateway', label: 'Payment Gateway & UPI/QR', icon: QrCode },
-            { id: 'packages_builder', label: 'Package Builder', icon: Layers },
-            { id: 'vendor_sla', label: 'Vendor SLA Scorecard', icon: Award },
-            { id: 'muhurat', label: 'Muhurat & Peak Pricing', icon: Sun },
-            { id: 'ugc_reviews', label: 'Reviews & Stories', icon: Sparkles },
-            { id: 'gst_billing', label: 'GST & Compliance', icon: FileText },
-            { id: 'vendors', label: `Vendors (${vendors.length})`, icon: Building2 },
-            { id: 'bookings', label: `Bookings (${userBookings.length})`, icon: CalendarDays },
-            { id: 'negotiations', label: `Price Negotiations (${negotiations.length})`, icon: MessageSquare },
-            { id: 'finance', label: `Finance & Payouts (${settlements.length})`, icon: DollarSign },
-            { id: 'availability', label: 'Availability & Calendar', icon: CalendarOff },
-            { id: 'cms', label: 'Live CMS', icon: FileText },
-            { id: 'seo', label: 'SEO & Meta', icon: Globe },
-            { id: 'media', label: `Media Library (${mediaLibrary.length})`, icon: ImageIcon },
-            { id: 'coupons', label: `Coupons (${coupons.length})`, icon: Tag },
-            { id: 'support', label: `Support & Disputes (${supportTickets.length + disputesList.length})`, icon: LifeBuoy },
-            { id: 'team', label: `Staff & RBAC (${staffUsers.length})`, icon: Users },
-            { id: 'audit', label: 'Audit Log Trail', icon: History },
-            { id: 'system', label: 'System Health', icon: Activity },
-          ].map(tab => {
-            const Icon = tab.icon
-            const isActive = activeSubTab === tab.id
-            return (
+        {/* Database Status Strip */}
+        <div className="px-4 py-2 bg-stone-900/60 border-b border-stone-800/60 flex items-center justify-between text-[11px]">
+          <span className="flex items-center gap-1.5 text-emerald-400 font-medium">
+            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+            Atlas Production DB
+          </span>
+          <span className="text-stone-500 font-mono text-[10px]">
+            Live 2.0
+          </span>
+        </div>
+
+        {/* Navigation Categories */}
+        <div className="flex-1 overflow-y-auto p-3 space-y-4 text-xs no-scrollbar">
+          {NAV_GROUPS.map((group, gIdx) => (
+            <div key={gIdx} className="space-y-1">
+              <h4 className="px-3 text-[10px] font-bold text-stone-500 uppercase tracking-wider">
+                {group.title}
+              </h4>
+              <div className="space-y-0.5">
+                {group.items.map(item => {
+                  const Icon = item.icon
+                  const isActive = activeSubTab === item.id
+                  return (
+                    <button
+                      key={item.id}
+                      onClick={() => {
+                        setActiveSubTab(item.id)
+                        setIsMobileSidebarOpen(false)
+                      }}
+                      className={`w-full px-3 py-2 rounded-xl font-medium flex items-center justify-between text-left transition-all ${
+                        isActive
+                          ? 'bg-[#c5a059] text-stone-950 font-bold shadow-md'
+                          : item.highlight
+                          ? 'text-[#e8d08d] bg-[#c5a059]/10 hover:bg-[#c5a059]/20'
+                          : 'text-stone-300 hover:text-white hover:bg-stone-800/60'
+                      }`}
+                    >
+                      <div className="flex items-center gap-2.5 truncate">
+                        <Icon className={`w-4 h-4 shrink-0 ${isActive ? 'text-stone-950' : 'text-stone-400'}`} />
+                        <span className="truncate">{item.label}</span>
+                      </div>
+                      {item.badge !== undefined && item.badge > 0 && (
+                        <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded-full ${
+                          isActive
+                            ? 'bg-stone-950 text-[#c5a059]'
+                            : 'bg-stone-800 text-stone-300'
+                        }`}>
+                          {item.badge}
+                        </span>
+                      )}
+                    </button>
+                  )
+                })}
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* User Profile Footer */}
+        <div className="p-3.5 border-t border-stone-800/80 bg-stone-950/60 space-y-2 text-xs">
+          <div className="flex items-center justify-between">
+            <div className="truncate">
+              <span className="text-[11px] font-semibold text-stone-300 block truncate">
+                {currentUser?.email || 'admin@vowsandvenues.in'}
+              </span>
+              <span className="text-[10px] text-[#c5a059] font-mono uppercase font-bold">
+                {currentUser?.role || 'super_admin'}
+              </span>
+            </div>
+            <a
+              href="/"
+              target="_blank"
+              rel="noopener noreferrer"
+              title="Open Marketplace in new tab"
+              className="p-1.5 rounded-lg bg-stone-800 hover:bg-stone-700 text-stone-300 hover:text-white transition-colors"
+            >
+              <ExternalLink className="w-3.5 h-3.5" />
+            </a>
+          </div>
+          {onLogout && (
+            <button
+              onClick={onLogout}
+              className="w-full py-1.5 rounded-lg bg-rose-950/40 hover:bg-rose-950/70 text-rose-300 border border-rose-900/50 text-[11px] font-bold flex items-center justify-center gap-1.5 transition-colors"
+            >
+              <LogOut className="w-3 h-3" />
+              <span>Sign Out</span>
+            </button>
+          )}
+        </div>
+      </aside>
+
+      {/* RIGHT MAIN WORKSPACE */}
+      <div className="flex-1 flex flex-col min-w-0 bg-[#141210]">
+        {/* Top Header Bar */}
+        <header className="sticky top-0 z-30 bg-[#191715]/95 backdrop-blur-md border-b border-stone-800/80 h-16 px-4 sm:px-6 flex items-center justify-between gap-4">
+          <div className="flex items-center gap-3">
+            <button
+              onClick={() => setIsMobileSidebarOpen(true)}
+              className="md:hidden p-2 rounded-xl bg-stone-800 text-stone-300 hover:text-white"
+            >
+              <Menu className="w-4 h-4" />
+            </button>
+            <div>
+              <div className="text-[10px] font-mono text-[#c5a059] uppercase tracking-wider font-semibold">
+                Administrative Suite
+              </div>
+              <h1 className="font-serif font-bold text-base sm:text-lg text-white capitalize leading-tight">
+                {NAV_GROUPS.flatMap(g => g.items).find(i => i.id === activeSubTab)?.label || 'Console'}
+              </h1>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-3">
+            <AdminLiveTicker
+              bookings={userBookings}
+              vendors={vendors}
+              settlements={settlements}
+              negotiations={negotiations}
+            />
+
+            {onRefreshData && (
               <button
-                key={tab.id}
-                onClick={() => setActiveSubTab(tab.id)}
-                className={`px-3.5 py-2 rounded-xl font-semibold flex items-center gap-1.5 whitespace-nowrap transition-all ${
-                  isActive
-                    ? 'bg-[#c5a059] text-[#1c1917] shadow-md font-bold'
-                    : 'text-stone-300 hover:bg-stone-800/80 hover:text-white'
-                }`}
+                onClick={onRefreshData}
+                disabled={dataLoading}
+                title="Refresh operational data"
+                className="p-2 rounded-xl bg-stone-900 border border-stone-800 hover:bg-stone-800 text-stone-300 hover:text-white transition-colors"
               >
-                <Icon className="w-3.5 h-3.5" />
-                <span>{tab.label}</span>
+                <RefreshCw className={`w-4 h-4 ${dataLoading ? 'animate-spin text-[#c5a059]' : ''}`} />
               </button>
-            )
-          })}
-        </div>
-      </div>
+            )}
+          </div>
+        </header>
+
+        {/* Content Area */}
+        <main className="flex-1 p-4 sm:p-6 lg:p-8 max-w-7xl w-full mx-auto space-y-6">
 
       {/* 2. SUB-TAB: OVERVIEW & KPIS */}
       {activeSubTab === 'overview' && (
         <div className="space-y-6">
           {/* Controls: Date range & Exports */}
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white p-4 rounded-2xl border border-[#e8e2d5] shadow-sm">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-[#191715] p-4 rounded-2xl border border-stone-800 shadow-sm">
             <div className="flex items-center gap-2">
-              <span className="text-xs font-bold text-stone-500 uppercase tracking-wider">Time Window:</span>
-              <div className="inline-flex rounded-xl bg-stone-100 p-1 text-xs">
+              <span className="text-[11px] font-bold text-stone-400 uppercase tracking-wider">Time Window:</span>
+              <div className="inline-flex rounded-xl bg-stone-900 p-1 text-xs border border-stone-800">
                 {['7d', '30d', 'ytd', 'all'].map(r => (
                   <button
                     key={r}
                     onClick={() => setDateRange(r)}
-                    className={`px-2.5 py-1 rounded-lg font-bold uppercase transition-all ${
-                      dateRange === r ? 'bg-white text-stone-900 shadow-sm' : 'text-stone-500 hover:text-stone-900'
+                    className={`px-3 py-1 rounded-lg font-bold uppercase transition-all ${
+                      dateRange === r ? 'bg-[#c5a059] text-stone-950 shadow-sm' : 'text-stone-400 hover:text-white'
                     }`}
                   >
                     {r}
@@ -720,19 +876,19 @@ export default function AdminOperationsSuite({
             <div className="flex items-center gap-2 flex-wrap">
               <button
                 onClick={() => exportToCSV(userBookings, 'vows_venues_bookings')}
-                className="px-3 py-1.5 rounded-xl bg-stone-100 hover:bg-stone-200 text-stone-700 text-xs font-bold flex items-center gap-1.5 border border-stone-200 transition-all"
+                className="px-3 py-1.5 rounded-xl bg-stone-900 hover:bg-stone-800 text-stone-300 hover:text-white text-xs font-bold flex items-center gap-1.5 border border-stone-800 transition-all"
               >
-                <Download className="w-3.5 h-3.5" /> Export Bookings CSV
+                <Download className="w-3.5 h-3.5 text-[#c5a059]" /> Export Bookings CSV
               </button>
               <button
                 onClick={() => exportToCSV(vendors, 'vows_venues_vendors')}
-                className="px-3 py-1.5 rounded-xl bg-stone-100 hover:bg-stone-200 text-stone-700 text-xs font-bold flex items-center gap-1.5 border border-stone-200 transition-all"
+                className="px-3 py-1.5 rounded-xl bg-stone-900 hover:bg-stone-800 text-stone-300 hover:text-white text-xs font-bold flex items-center gap-1.5 border border-stone-800 transition-all"
               >
-                <Download className="w-3.5 h-3.5" /> Export Vendors CSV
+                <Download className="w-3.5 h-3.5 text-[#c5a059]" /> Export Vendors CSV
               </button>
               <button
                 onClick={() => exportToCSV(settlements, 'vows_venues_settlements')}
-                className="px-3 py-1.5 rounded-xl bg-[#c5a059]/15 hover:bg-[#c5a059]/25 text-[#73531b] text-xs font-bold flex items-center gap-1.5 border border-[#c5a059]/30 transition-all"
+                className="px-3 py-1.5 rounded-xl bg-[#c5a059]/15 hover:bg-[#c5a059]/25 text-[#e8d08d] text-xs font-bold flex items-center gap-1.5 border border-[#c5a059]/30 transition-all"
               >
                 <Download className="w-3.5 h-3.5" /> Export Ledger CSV
               </button>
@@ -741,75 +897,75 @@ export default function AdminOperationsSuite({
 
           {/* Metric Cards Grid */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            <div className="bg-white p-5 rounded-2xl border border-[#e8e2d5] shadow-sm">
-              <div className="text-xs font-bold text-stone-500 uppercase tracking-wider flex items-center justify-between">
+            <div className="bg-[#1c1917] p-5 rounded-2xl border border-stone-800 shadow-sm">
+              <div className="text-xs font-bold text-stone-400 uppercase tracking-wider flex items-center justify-between">
                 <span>Gross Booking Value (GMV)</span>
-                <span className="text-[10px] text-emerald-600 font-bold bg-emerald-50 px-2 py-0.5 rounded-full">+18% MoM</span>
+                <span className="text-[10px] text-emerald-400 font-bold bg-emerald-950/60 border border-emerald-800/60 px-2 py-0.5 rounded-full">Platform GMV</span>
               </div>
-              <div className="font-serif text-2xl font-bold text-[#1c1917] mt-1.5">
-                ₹{Number(adminStats?.grossPlatformVolume || 1393300).toLocaleString('en-IN')}
+              <div className="font-serif text-2xl font-bold text-white mt-1.5">
+                ₹{Number(adminStats?.grossPlatformVolume || 0).toLocaleString('en-IN')}
               </div>
-              <div className="text-[11px] text-stone-400 mt-0.5">Total platform processed volume</div>
+              <div className="text-[11px] text-stone-500 mt-0.5">Total platform processed volume</div>
             </div>
 
-            <div className="bg-white p-5 rounded-2xl border border-[#e8e2d5] shadow-sm">
-              <div className="text-xs font-bold text-stone-500 uppercase tracking-wider flex items-center justify-between">
+            <div className="bg-[#1c1917] p-5 rounded-2xl border border-stone-800 shadow-sm">
+              <div className="text-xs font-bold text-stone-400 uppercase tracking-wider flex items-center justify-between">
                 <span>Collected Cash</span>
-                <span className="text-[10px] text-amber-700 font-bold bg-amber-50 px-2 py-0.5 rounded-full">Advance + Paid</span>
+                <span className="text-[10px] text-amber-400 font-bold bg-amber-950/60 border border-amber-800/60 px-2 py-0.5 rounded-full">Advance + Paid</span>
               </div>
-              <div className="font-serif text-2xl font-bold text-emerald-800 mt-1.5">
-                ₹{Number(adminStats?.collectedCash || Math.round((adminStats?.grossPlatformVolume || 1393300) * 0.45)).toLocaleString('en-IN')}
+              <div className="font-serif text-2xl font-bold text-emerald-400 mt-1.5">
+                ₹{Number(adminStats?.collectedCash || 0).toLocaleString('en-IN')}
               </div>
-              <div className="text-[11px] text-stone-400 mt-0.5">Realized escrow deposits</div>
+              <div className="text-[11px] text-stone-500 mt-0.5">Realized escrow deposits</div>
             </div>
 
-            <div className="bg-white p-5 rounded-2xl border border-[#e8e2d5] shadow-sm">
-              <div className="text-xs font-bold text-stone-500 uppercase tracking-wider flex items-center justify-between">
-                <span>Net Platform Commission</span>
-                <span className="text-[10px] text-purple-700 font-bold bg-purple-50 px-2 py-0.5 rounded-full">10% Take Rate</span>
+            <div className="bg-[#1c1917] p-5 rounded-2xl border border-stone-800 shadow-sm">
+              <div className="text-xs font-bold text-stone-400 uppercase tracking-wider flex items-center justify-between">
+                <span>Net Commission</span>
+                <span className="text-[10px] text-[#e8d08d] font-bold bg-[#c5a059]/20 border border-[#c5a059]/30 px-2 py-0.5 rounded-full">10% Take Rate</span>
               </div>
-              <div className="font-serif text-2xl font-bold text-[#4a1525] mt-1.5">
-                ₹{Number(adminStats?.platformCommissionRevenue || 149330).toLocaleString('en-IN')}
+              <div className="font-serif text-2xl font-bold text-[#e8d08d] mt-1.5">
+                ₹{Number(adminStats?.platformCommissionRevenue || 0).toLocaleString('en-IN')}
               </div>
-              <div className="text-[11px] text-stone-400 mt-0.5">Net marketplace revenue</div>
+              <div className="text-[11px] text-stone-500 mt-0.5">Net marketplace revenue</div>
             </div>
 
-            <div className="bg-white p-5 rounded-2xl border border-[#e8e2d5] shadow-sm">
-              <div className="text-xs font-bold text-stone-500 uppercase tracking-wider flex items-center justify-between">
+            <div className="bg-[#1c1917] p-5 rounded-2xl border border-stone-800 shadow-sm">
+              <div className="text-xs font-bold text-stone-400 uppercase tracking-wider flex items-center justify-between">
                 <span>Pending Vendor Payouts</span>
-                <span className="text-[10px] text-stone-500 font-bold bg-stone-100 px-2 py-0.5 rounded-full">Payables</span>
+                <span className="text-[10px] text-stone-400 font-bold bg-stone-800 px-2 py-0.5 rounded-full">Payables</span>
               </div>
-              <div className="font-serif text-2xl font-bold text-stone-800 mt-1.5">
-                ₹{Number(adminStats?.pendingVendorPayable || 428000).toLocaleString('en-IN')}
+              <div className="font-serif text-2xl font-bold text-stone-200 mt-1.5">
+                ₹{Number(adminStats?.pendingVendorPayable || 0).toLocaleString('en-IN')}
               </div>
-              <div className="text-[11px] text-stone-400 mt-0.5">Pending event completion release</div>
+              <div className="text-[11px] text-stone-500 mt-0.5">Pending event completion release</div>
             </div>
           </div>
 
           {/* Quick Metrics Secondary Row */}
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-            <div className="bg-stone-50 p-4 rounded-2xl border border-stone-200">
-              <div className="text-[11px] font-bold text-stone-500 uppercase">Total Verified Vendors</div>
-              <div className="font-serif text-xl font-bold text-stone-900 mt-1">
+            <div className="bg-[#1c1917] p-4 rounded-2xl border border-stone-800">
+              <div className="text-[11px] font-bold text-stone-400 uppercase">Verified Vendors</div>
+              <div className="font-serif text-xl font-bold text-white mt-1">
                 {adminStats?.totalVerifiedVendors || vendors.filter(v => v.verified).length} / {adminStats?.totalVendors || vendors.length}
               </div>
             </div>
-            <div className="bg-stone-50 p-4 rounded-2xl border border-stone-200">
-              <div className="text-[11px] font-bold text-stone-500 uppercase">Active Bookings</div>
-              <div className="font-serif text-xl font-bold text-stone-900 mt-1">
+            <div className="bg-[#1c1917] p-4 rounded-2xl border border-stone-800">
+              <div className="text-[11px] font-bold text-stone-400 uppercase">Active Bookings</div>
+              <div className="font-serif text-xl font-bold text-white mt-1">
                 {adminStats?.totalBookings || userBookings.length}
               </div>
             </div>
-            <div className="bg-stone-50 p-4 rounded-2xl border border-stone-200">
-              <div className="text-[11px] font-bold text-stone-500 uppercase">Customer Inquiries</div>
-              <div className="font-serif text-xl font-bold text-stone-900 mt-1">
-                {adminStats?.totalInquiries || 18}
+            <div className="bg-[#1c1917] p-4 rounded-2xl border border-stone-800">
+              <div className="text-[11px] font-bold text-stone-400 uppercase">Customer Inquiries</div>
+              <div className="font-serif text-xl font-bold text-white mt-1">
+                {adminStats?.totalInquiries || 0}
               </div>
             </div>
-            <div className="bg-stone-50 p-4 rounded-2xl border border-stone-200">
-              <div className="text-[11px] font-bold text-stone-500 uppercase">Disputes &amp; Tickets</div>
-              <div className="font-serif text-xl font-bold text-amber-700 mt-1">
-                {(adminStats?.totalDisputes || 0) + (adminStats?.totalSupportTickets || 0)} Open
+            <div className="bg-[#1c1917] p-4 rounded-2xl border border-stone-800">
+              <div className="text-[11px] font-bold text-stone-400 uppercase">Disputes &amp; Tickets</div>
+              <div className="font-serif text-xl font-bold text-amber-400 mt-1">
+                {(Number(adminStats?.totalDisputes || 0) + Number(adminStats?.totalSupportTickets || 0))} Open
               </div>
             </div>
           </div>
@@ -2481,17 +2637,19 @@ export default function AdminOperationsSuite({
       )}
 
       {/* NEW SUB-TABS (Indian Luxury Wedding Features) */}
-      {activeSubTab === 'leads' && <AdminLeadsKanban />}
+      {activeSubTab === 'leads' && <AdminLeadsKanban inquiries={adminStats?.inquiries || []} />}
       {activeSubTab === 'whatsapp' && <AdminWhatsAppSuite />}
       {activeSubTab === 'recces' && <AdminRecceManager />}
-      {activeSubTab === 'milestones' && <AdminMilestoneEscrow />}
+      {activeSubTab === 'milestones' && <AdminMilestoneEscrow userBookings={userBookings} />}
       {activeSubTab === 'packages_builder' && <AdminPackageBuilder />}
-      {activeSubTab === 'vendor_sla' && <AdminVendorSLAScorecard />}
+      {activeSubTab === 'vendor_sla' && <AdminVendorSLAScorecard vendors={vendors} userBookings={userBookings} />}
       {activeSubTab === 'muhurat' && <AdminMuhuratPricing />}
-      {activeSubTab === 'ugc_reviews' && <AdminReviewUGC />}
-      {activeSubTab === 'gst_billing' && <AdminGSTCompliance />}
-      {activeSubTab === 'payment_gateway' && <AdminPaymentGatewayManager />}
+      {activeSubTab === 'ugc_reviews' && <AdminReviewUGC cmsContent={cmsContent} />}
+      {activeSubTab === 'gst_billing' && <AdminGSTCompliance userBookings={userBookings} />}
+      {activeSubTab === 'payment_gateway' && <AdminPaymentGatewayManager userBookings={userBookings} />}
 
+        </main>
+      </div>
     </div>
   )
 }

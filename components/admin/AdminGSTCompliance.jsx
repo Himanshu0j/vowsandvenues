@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useState, useMemo } from 'react'
 import {
   FileText,
   DollarSign,
@@ -15,45 +15,40 @@ import {
 } from 'lucide-react'
 import { toast } from 'sonner'
 
-export const INITIAL_INVOICES = [
-  {
-    invoiceNumber: 'VV-GST-2026-0089',
-    bookingId: 'VV-8491',
-    date: '2026-10-02',
-    clientName: 'Aanya Singhania & Kabir Kapoor',
-    clientGSTIN: '08AABCS1429B1Z2',
-    venueName: 'The Royal Lake Palace & Gardens',
-    sacCode: '9985 (Event Concierge)',
-    taxableAmount: 1101695,
-    cgst: 99153, // 9%
-    sgst: 99153, // 9%
-    igst: 0,
-    totalInvoiceAmount: 1300000,
-    tcsAmount: 11017, // 1% TCS
-    status: 'PAID'
-  },
-  {
-    invoiceNumber: 'VV-GST-2026-0088',
-    bookingId: 'VV-7201',
-    date: '2026-09-25',
-    clientName: 'Simran Chawla & Rohan Oberoi',
-    clientGSTIN: '07AAACS9821A1Z5',
-    venueName: 'Umaid Bhawan Citadel & Lawns',
-    sacCode: '9972 (Venue Rental)',
-    taxableAmount: 1355932,
-    cgst: 0,
-    sgst: 0,
-    igst: 244068, // 18% IGST
-    totalInvoiceAmount: 1600000,
-    tcsAmount: 13559, // 1% TCS
-    status: 'PAID'
-  }
-]
-
-export default function AdminGSTCompliance() {
-  const [invoices, setInvoices] = useState(INITIAL_INVOICES)
-  const [selectedMonth, setSelectedMonth] = useState('October 2026')
+export default function AdminGSTCompliance({ userBookings = [] }) {
+  const [selectedMonth, setSelectedMonth] = useState('Current Period')
   const [activeInvoicePreview, setActiveInvoicePreview] = useState(null)
+
+  // Dynamically compile invoices from real bookings — NO FAKE DATA
+  const invoices = useMemo(() => {
+    if (!userBookings || userBookings.length === 0) return []
+    return userBookings.map((b, idx) => {
+      const bNum = b.bookingNumber || (b.id ? b.id.slice(-6).toUpperCase() : `BK-${idx + 1}`)
+      const total = Number(b.totalAmount || b.totalPrice || 0)
+      const taxable = Math.round(total / 1.18)
+      const totalTax = total - taxable
+      const cgst = Math.round(totalTax / 2)
+      const sgst = totalTax - cgst
+      const tcs = Math.round(taxable * 0.01)
+
+      return {
+        invoiceNumber: `VV-GST-2026-${bNum}`,
+        bookingId: bNum,
+        date: b.createdAt ? b.createdAt.split('T')[0] : new Date().toISOString().split('T')[0],
+        clientName: b.userName || b.clientName || 'Wedding Client',
+        clientGSTIN: b.gstNumber || 'Unregistered / Consumer',
+        venueName: b.venueName || b.items?.[0]?.name || 'Palace Celebration Booking',
+        sacCode: '9985 (Event Concierge & Venue Rental)',
+        taxableAmount: taxable,
+        cgst,
+        sgst,
+        igst: 0,
+        totalInvoiceAmount: total,
+        tcsAmount: tcs,
+        status: (b.paymentStatus === 'paid' || b.paymentStatus === 'advance_paid') ? 'PAID' : 'PENDING'
+      }
+    })
+  }, [userBookings])
 
   // Monthly totals
   const totalGTV = invoices.reduce((acc, i) => acc + i.totalInvoiceAmount, 0)
@@ -62,6 +57,10 @@ export default function AdminGSTCompliance() {
   const totalTCS = invoices.reduce((acc, i) => acc + i.tcsAmount, 0)
 
   const handleExportCSV = () => {
+    if (invoices.length === 0) {
+      toast.error('No invoice data available to export')
+      return
+    }
     const headers = 'Invoice No,Booking ID,Date,Client,GSTIN,SAC Code,Taxable Value,CGST (9%),SGST (9%),IGST (18%),Total Amount,1% TCS\n'
     const rows = invoices.map(i =>
       `"${i.invoiceNumber}","${i.bookingId}","${i.date}","${i.clientName}","${i.clientGSTIN}","${i.sacCode}",${i.taxableAmount},${i.cgst},${i.sgst},${i.igst},${i.totalInvoiceAmount},${i.tcsAmount}`
@@ -71,7 +70,7 @@ export default function AdminGSTCompliance() {
     const url = URL.createObjectURL(blob)
     const link = document.createElement('a')
     link.href = url
-    link.download = `Vows_Venues_GST_Monthly_Report_${selectedMonth.replace(' ', '_')}.csv`
+    link.download = `Vows_Venues_GST_Report.csv`
     link.click()
     toast.success('GST compliance tax report downloaded for CA / Accountant!')
   }
@@ -79,129 +78,141 @@ export default function AdminGSTCompliance() {
   return (
     <div className="space-y-6">
       {/* Top Banner */}
-      <div className="bg-gradient-to-r from-stone-900 via-stone-950 to-stone-900 text-white rounded-2xl p-6 border border-champagne/30 shadow-xl">
+      <div className="bg-gradient-to-r from-stone-900 via-stone-950 to-stone-900 text-white rounded-3xl p-6 border border-[#c5a059]/30 shadow-xl">
         <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
           <div>
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-champagne/20 border border-champagne/40 text-champagne text-xs font-semibold uppercase tracking-wider mb-2">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#c5a059]/20 border border-[#c5a059]/40 text-[#e8d08d] text-xs font-semibold uppercase tracking-wider mb-2">
               <ShieldCheck className="w-3.5 h-3.5" />
               <span>Government of India GST &amp; E-Commerce Tax Suite</span>
             </div>
             <h2 className="font-serif text-2xl font-bold text-white">Indian GST &amp; Compliance Invoicing</h2>
-            <p className="text-xs text-stone-300 mt-1 max-w-2xl leading-relaxed">
-              Automated 18% GST (SAC 9985 / 9972) calculation, Section 52 TCS 1% collection, CGST/SGST/IGST reconciliation, and monthly CA-ready tax reports.
+            <p className="text-xs text-stone-400 mt-1 max-w-2xl leading-relaxed">
+              Automated 18% GST splits (CGST 9% + SGST 9% / IGST 18%) with SAC codes 9985 and 9972. Includes 1% TCS Section 52 deduction for marketplace e-commerce operators.
             </p>
           </div>
 
-          <button
-            onClick={handleExportCSV}
-            className="px-4 py-2.5 rounded-xl bg-gradient-to-r from-champagne to-amber-400 hover:brightness-105 text-stone-900 font-bold text-xs shadow-md transition-all flex items-center gap-2"
-          >
-            <Download className="w-4 h-4" />
-            <span>Export CA Monthly Report (CSV)</span>
-          </button>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={handleExportCSV}
+              className="px-4 py-2 rounded-xl bg-stone-800 hover:bg-stone-700 text-white border border-stone-700 font-bold text-xs flex items-center gap-1.5 transition-colors"
+            >
+              <Download className="w-3.5 h-3.5" />
+              <span>Export GST CSV (GSTR-1)</span>
+            </button>
+          </div>
         </div>
 
-        {/* GST KPI Row */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mt-6 pt-5 border-t border-white/10 text-xs">
+        {/* GST Tax Overview Row */}
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mt-6 pt-5 border-t border-stone-800">
           <div>
-            <span className="text-[11px] text-stone-400 uppercase tracking-wider block">Gross Turnover (GTV)</span>
+            <span className="text-[11px] text-stone-400 uppercase tracking-wider block">Gross Taxable Value</span>
             <span className="font-serif text-xl font-bold text-white">
-              ₹{(totalGTV).toLocaleString('en-IN')}
+              ₹{totalTaxable.toLocaleString('en-IN')}
             </span>
           </div>
           <div>
-            <span className="text-[11px] text-stone-400 uppercase tracking-wider block">Taxable Base Value</span>
-            <span className="font-serif text-xl font-bold text-stone-200">
-              ₹{(totalTaxable).toLocaleString('en-IN')}
+            <span className="text-[11px] text-stone-400 uppercase tracking-wider block">GST Collected (18%)</span>
+            <span className="font-serif text-xl font-bold text-[#e8d08d]">
+              ₹{totalGST.toLocaleString('en-IN')}
             </span>
           </div>
           <div>
-            <span className="text-[11px] text-stone-400 uppercase tracking-wider block">Total GST Collected (18%)</span>
-            <span className="font-serif text-xl font-bold text-champagne">
-              ₹{(totalGST).toLocaleString('en-IN')}
-            </span>
-          </div>
-          <div>
-            <span className="text-[11px] text-stone-400 uppercase tracking-wider block">1% TCS E-Commerce</span>
+            <span className="text-[11px] text-stone-400 uppercase tracking-wider block">TCS Section 52 (1%)</span>
             <span className="font-serif text-xl font-bold text-emerald-400">
-              ₹{(totalTCS).toLocaleString('en-IN')}
+              ₹{totalTCS.toLocaleString('en-IN')}
+            </span>
+          </div>
+          <div>
+            <span className="text-[11px] text-stone-400 uppercase tracking-wider block">Total Invoiced Volume</span>
+            <span className="font-serif text-xl font-bold text-white">
+              ₹{totalGTV.toLocaleString('en-IN')}
             </span>
           </div>
         </div>
       </div>
 
-      {/* Invoices List Table */}
-      <div className="bg-white rounded-2xl p-5 border border-stone-200 shadow-sm space-y-4">
-        <div className="flex items-center justify-between pb-3 border-b border-stone-200">
-          <div>
-            <h3 className="font-serif font-bold text-base text-stone-900">Tax Invoices Register</h3>
-            <span className="text-xs text-stone-500">Platform GSTIN: 07AAACV9842F1Z8 (Delhi Principal Place of Business)</span>
+      {/* Invoices Table */}
+      <div className="bg-white rounded-2xl border border-stone-200 overflow-hidden shadow-sm">
+        <div className="p-4 bg-stone-50 border-b border-stone-200 flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <FileText className="w-4 h-4 text-[#c5a059]" />
+            <h3 className="font-serif font-bold text-sm text-stone-900">Tax Invoices Register</h3>
           </div>
-          <span className="text-xs font-bold text-stone-600 bg-stone-100 px-3 py-1 rounded-lg">
-            {selectedMonth}
+          <span className="text-xs text-stone-500 font-medium">
+            {invoices.length} invoices generated
           </span>
         </div>
 
-        <div className="overflow-x-auto">
-          <table className="w-full text-left text-xs border-collapse">
-            <thead>
-              <tr className="border-b border-stone-200 text-stone-500 uppercase tracking-wider text-[10px] bg-stone-50/60">
-                <th className="p-3">Invoice # / Date</th>
-                <th className="p-3">Client / GSTIN</th>
-                <th className="p-3">Venue / SAC Code</th>
-                <th className="p-3">Taxable Value</th>
-                <th className="p-3">GST (CGST/SGST/IGST)</th>
-                <th className="p-3">Total Amount</th>
-                <th className="p-3 text-right">Invoice View</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-stone-100">
-              {invoices.map(inv => (
-                <tr key={inv.invoiceNumber} className="hover:bg-stone-50/50 transition-colors">
-                  <td className="p-3">
-                    <span className="font-mono font-bold text-stone-900 block">{inv.invoiceNumber}</span>
-                    <span className="text-[10px] text-stone-400">{inv.date} · Booking {inv.bookingId}</span>
-                  </td>
-
-                  <td className="p-3">
-                    <span className="font-semibold text-stone-800 block">{inv.clientName}</span>
-                    <span className="font-mono text-[10px] text-stone-400">GSTIN: {inv.clientGSTIN}</span>
-                  </td>
-
-                  <td className="p-3">
-                    <span className="text-stone-800 block truncate max-w-[150px]">{inv.venueName}</span>
-                    <span className="text-[10px] text-champagne font-bold font-mono">SAC {inv.sacCode}</span>
-                  </td>
-
-                  <td className="p-3 font-mono font-medium text-stone-700">
-                    ₹{(inv.taxableAmount).toLocaleString('en-IN')}
-                  </td>
-
-                  <td className="p-3 font-mono text-[11px] text-stone-600">
-                    {inv.igst > 0 ? (
-                      <span>IGST: ₹{(inv.igst).toLocaleString('en-IN')}</span>
-                    ) : (
-                      <span>CGST: ₹{(inv.cgst).toLocaleString('en-IN')} + SGST: ₹{(inv.sgst).toLocaleString('en-IN')}</span>
-                    )}
-                  </td>
-
-                  <td className="p-3 font-mono font-bold text-stone-900">
-                    ₹{(inv.totalInvoiceAmount).toLocaleString('en-IN')}
-                  </td>
-
-                  <td className="p-3 text-right">
-                    <button
-                      onClick={() => setActiveInvoicePreview(inv)}
-                      className="px-2.5 py-1.5 rounded-lg border border-stone-200 hover:bg-stone-100 text-stone-700 font-bold text-[11px]"
-                    >
-                      View Invoice
-                    </button>
-                  </td>
+        {invoices.length === 0 ? (
+          <div className="py-16 text-center border-dashed border-stone-200">
+            <FileText className="w-10 h-10 text-stone-300 mx-auto mb-3" />
+            <h4 className="font-serif font-bold text-stone-700 text-sm">No Tax Invoices Yet</h4>
+            <p className="text-xs text-stone-400 mt-1 max-w-sm mx-auto">
+              When confirmed bookings are recorded in the system, formal GST tax invoices with SAC code breakdown will appear here.
+            </p>
+          </div>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="w-full text-left text-xs">
+              <thead className="bg-stone-50 text-stone-500 font-bold uppercase text-[10px] tracking-wider border-b border-stone-200">
+                <tr>
+                  <th className="p-3">Invoice / Booking</th>
+                  <th className="p-3">Client / GSTIN</th>
+                  <th className="p-3">Venue / SAC Code</th>
+                  <th className="p-3">Taxable Value</th>
+                  <th className="p-3">GST (CGST/SGST/IGST)</th>
+                  <th className="p-3">Total Amount</th>
+                  <th className="p-3 text-right">Invoice View</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+              </thead>
+              <tbody className="divide-y divide-stone-100">
+                {invoices.map(inv => (
+                  <tr key={inv.invoiceNumber} className="hover:bg-stone-50/50 transition-colors">
+                    <td className="p-3">
+                      <span className="font-mono font-bold text-stone-900 block">{inv.invoiceNumber}</span>
+                      <span className="text-[10px] text-stone-400">{inv.date} · Booking {inv.bookingId}</span>
+                    </td>
+
+                    <td className="p-3">
+                      <span className="font-semibold text-stone-800 block">{inv.clientName}</span>
+                      <span className="font-mono text-[10px] text-stone-400">GSTIN: {inv.clientGSTIN}</span>
+                    </td>
+
+                    <td className="p-3">
+                      <span className="text-stone-800 block truncate max-w-[150px]">{inv.venueName}</span>
+                      <span className="text-[10px] text-[#c5a059] font-bold font-mono">SAC {inv.sacCode}</span>
+                    </td>
+
+                    <td className="p-3 font-mono font-medium text-stone-700">
+                      ₹{inv.taxableAmount.toLocaleString('en-IN')}
+                    </td>
+
+                    <td className="p-3 font-mono text-[11px] text-stone-600">
+                      {inv.igst > 0 ? (
+                        <span>IGST: ₹{inv.igst.toLocaleString('en-IN')}</span>
+                      ) : (
+                        <span>CGST: ₹{inv.cgst.toLocaleString('en-IN')} + SGST: ₹{inv.sgst.toLocaleString('en-IN')}</span>
+                      )}
+                    </td>
+
+                    <td className="p-3 font-mono font-bold text-stone-900">
+                      ₹{inv.totalInvoiceAmount.toLocaleString('en-IN')}
+                    </td>
+
+                    <td className="p-3 text-right">
+                      <button
+                        onClick={() => setActiveInvoicePreview(inv)}
+                        className="px-2.5 py-1.5 rounded-lg border border-stone-200 hover:bg-stone-100 text-stone-700 font-bold text-[11px]"
+                      >
+                        View Invoice
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
       </div>
 
       {/* INVOICE PREVIEW MODAL */}
@@ -239,7 +250,7 @@ export default function AdminGSTCompliance() {
               </div>
               <div className="pt-2 border-t flex justify-between font-bold text-stone-900 text-xs">
                 <span>Total Amount Paid:</span>
-                <span className="text-champagne">₹{(activeInvoicePreview.totalInvoiceAmount).toLocaleString('en-IN')}</span>
+                <span className="text-[#c5a059]">₹{activeInvoicePreview.totalInvoiceAmount.toLocaleString('en-IN')}</span>
               </div>
             </div>
 

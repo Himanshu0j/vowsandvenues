@@ -59,65 +59,35 @@ export const DEFAULT_PAYMENT_CONFIG = {
   }
 }
 
-export const INITIAL_TRANSACTIONS = [
-  {
-    id: 'tx_pay_101',
-    bookingId: 'BK-2026-9481',
-    clientName: 'Aanya Singhania & Kabir Kapoor',
-    clientPhone: '+919820123456',
-    amount: 160000,
-    method: 'CUSTOM_UPI_QR',
-    payeeUpi: '9305977591@ptaxis',
-    utr: '429188291042',
-    date: '14 Oct 2026, 01:15 AM',
-    status: 'PENDING_VERIFICATION',
-    notes: '20% Token advance paid via Paytm UPI QR'
-  },
-  {
-    id: 'tx_pay_102',
-    bookingId: 'BK-2026-8812',
-    clientName: 'Simran Chawla & Rohan Oberoi',
-    clientPhone: '+919811223344',
-    amount: 220000,
-    method: 'PAYMENT_GATEWAY',
-    gatewayProvider: 'Razorpay',
-    paymentId: 'pay_Or92jks8921Lk',
-    utr: 'RZP-8921849102',
-    date: '13 Oct 2026, 06:40 PM',
-    status: 'VERIFIED',
-    notes: 'Instant settlement via HDFC NetBanking Gateway'
-  },
-  {
-    id: 'tx_pay_103',
-    bookingId: 'BK-2026-7734',
-    clientName: 'Dr. Meera Nambiar',
-    clientPhone: '+919845012345',
-    amount: 500000,
-    method: 'BANK_NEFT_RTGS',
-    bankName: 'HDFC Escrow Account',
-    utr: 'HDFCR5202610120098',
-    date: '12 Oct 2026, 03:20 PM',
-    status: 'VERIFIED',
-    notes: 'NEFT Corporate Payout advance verified with bank statement'
-  },
-  {
-    id: 'tx_pay_104',
-    bookingId: 'BK-2026-6621',
-    clientName: 'Vikram & Radhika Seth',
-    clientPhone: '+919876543210',
-    amount: 75000,
-    method: 'CUSTOM_UPI_QR',
-    payeeUpi: '9305977591@ptaxis',
-    utr: '000000000000',
-    date: '11 Oct 2026, 11:10 AM',
-    status: 'REJECTED',
-    notes: 'Invalid dummy UTR reference submitted'
-  }
-]
+export const INITIAL_TRANSACTIONS = []
 
-export default function AdminPaymentGatewayManager() {
+export default function AdminPaymentGatewayManager({ userBookings = [] }) {
   const [config, setConfig] = useState(DEFAULT_PAYMENT_CONFIG)
-  const [transactions, setTransactions] = useState(INITIAL_TRANSACTIONS)
+  const [transactions, setTransactions] = useState(() => {
+    try {
+      const storedTxs = typeof window !== 'undefined' ? localStorage.getItem('vv_payment_transactions') : null
+      if (storedTxs) {
+        const parsed = JSON.parse(storedTxs)
+        if (Array.isArray(parsed) && parsed.length > 0) return parsed
+      }
+    } catch (_) {}
+    if (Array.isArray(userBookings) && userBookings.length > 0) {
+      return userBookings.map((b, idx) => ({
+        id: `tx_${b.id || idx}`,
+        bookingId: b.bookingNumber || (b.id ? b.id.slice(-6).toUpperCase() : `BK-${idx + 1}`),
+        clientName: b.userName || b.clientName || 'Wedding Client',
+        clientPhone: b.userPhone || '+91 ••••••••••',
+        amount: Number(b.advancePaid || b.advanceAmount || b.totalAmount || 0),
+        method: b.paymentMethod === 'card' ? 'PAYMENT_GATEWAY' : 'CUSTOM_UPI_QR',
+        payeeUpi: '9305977591@ptaxis',
+        utr: b.utr || b.paymentId || (b.paymentStatus === 'paid' ? 'UTR-VERIFIED' : 'PENDING_SUBMISSION'),
+        date: b.createdAt ? new Date(b.createdAt).toLocaleDateString('en-IN') : 'Recent',
+        status: b.paymentStatus === 'paid' ? 'VERIFIED' : (b.paymentStatus === 'advance_paid' ? 'VERIFIED' : 'PENDING_VERIFICATION'),
+        notes: `${b.venueName || b.items?.[0]?.name || 'Palace'} Booking Advance`
+      }))
+    }
+    return []
+  })
   const [activeTab, setActiveTab] = useState('settings') // 'settings' | 'inbox'
   const [showSecret, setShowSecret] = useState(false)
   const [isSaving, setIsSaving] = useState(false)
@@ -131,10 +101,6 @@ export default function AdminPaymentGatewayManager() {
       const stored = localStorage.getItem('vv_payment_gateway_config')
       if (stored) {
         setConfig(JSON.parse(stored))
-      }
-      const storedTxs = localStorage.getItem('vv_payment_transactions')
-      if (storedTxs) {
-        setTransactions(JSON.parse(storedTxs))
       }
     } catch (_) {}
   }, [])

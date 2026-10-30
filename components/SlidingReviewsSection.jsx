@@ -8,8 +8,8 @@ import ScrollReveal, { TextLineReveal } from './ScrollReveal'
 const INDIAN_REVIEWS = [
   {
     id: 'rev_1',
-    clientNames: 'Aanya & Kabir Kapoor',
-    parentsTitle: 'The Kapoor & Singhania Families',
+    clientNames: 'Ananya & Karan Singhal',
+    parentsTitle: 'The Singhal & Verma Celebrations',
     city: 'Udaipur, Rajasthan',
     venue: 'Jagmandir Island Palace',
     event: '3-Day Royal Destination Wedding',

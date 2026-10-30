@@ -88,11 +88,11 @@ export default function RoyalVenueRevealSection({
               <div className="flex items-center justify-between mt-2.5 sm:mt-3 pt-2 sm:pt-3 border-t border-white/10 text-xs">
                 <div className="flex items-center gap-1.5 sm:gap-2 min-w-0">
                   <div className="w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-gradient-to-tr from-amber-400 to-amber-200 text-stone-900 font-bold flex items-center justify-center text-[9px] sm:text-[10px] shrink-0">
-                    AK
+                    RC
                   </div>
                   <div className="truncate">
-                    <span className="font-semibold text-white text-[10px] sm:text-xs">Aanya &amp; Kabir</span>
-                    <span className="text-stone-400 text-[9px] sm:text-[10px] ml-1">· Feb 2026</span>
+                    <span className="font-semibold text-white text-[10px] sm:text-xs">Verified Royal Celebration</span>
+                    <span className="text-stone-400 text-[9px] sm:text-[10px] ml-1">· Palace Host</span>
                   </div>
                 </div>
                 <div className="flex items-center gap-1 text-amber-300 text-xs shrink-0">

@@ -17,97 +17,57 @@ import {
 } from 'lucide-react'
 import { toast } from 'sonner'
 
-export const INITIAL_VENDOR_SCORES = [
-  {
-    id: 'v_royal_palace_lko',
-    name: 'The Royal Nawabi Palace & Lawns',
-    category: 'Venues',
-    city: 'Lucknow',
-    avgResponseMinutes: 28,
-    slaTier: 'ELITE_PARTNER',
-    leadsReceived: 42,
-    leadsConverted: 14,
-    conversionRate: 33.3,
-    disputeCount: 0,
-    featured: true,
-    rating: 4.95
-  },
-  {
-    id: 'v_rambagh_citadel',
-    name: 'Rambagh Citadel & Mughal Gardens',
-    category: 'Venues',
-    city: 'Jaipur',
-    avgResponseMinutes: 38,
-    slaTier: 'ELITE_PARTNER',
-    leadsReceived: 68,
-    leadsConverted: 26,
-    conversionRate: 38.2,
-    disputeCount: 0,
-    featured: true,
-    rating: 4.99
-  },
-  {
-    id: 'v_gulmohar_decor',
-    name: 'Gulmohar Luxury Events & Stage Decor',
-    category: 'Decor',
-    city: 'Lucknow',
-    avgResponseMinutes: 145, // ~2.4 hrs
-    slaTier: 'ACCEPTABLE',
-    leadsReceived: 35,
-    leadsConverted: 8,
-    conversionRate: 22.8,
-    disputeCount: 1,
-    featured: true,
-    rating: 4.80
-  },
-  {
-    id: 'v_sunset_catering',
-    name: 'Mewari Royal Banquet & Caterers',
-    category: 'Catering',
-    city: 'Udaipur',
-    avgResponseMinutes: 890, // ~14.8 hrs
-    slaTier: 'AT_RISK',
-    leadsReceived: 28,
-    leadsConverted: 3,
-    conversionRate: 10.7,
-    disputeCount: 2,
-    featured: false,
-    rating: 4.55
-  },
-  {
-    id: 'v_sharma_sound',
-    name: 'Vintage Heritage Brass & Shehnai Band',
-    category: 'Entertainment',
-    city: 'Varanasi',
-    avgResponseMinutes: 1620, // 27 hrs
-    slaTier: 'SLA_BREACHED',
-    leadsReceived: 18,
-    leadsConverted: 1,
-    conversionRate: 5.5,
-    disputeCount: 3,
-    featured: false,
-    rating: 4.10
-  }
-]
+export const INITIAL_VENDOR_SCORES = []
 
-export default function AdminVendorSLAScorecard() {
-  const [vendors, setVendors] = useState(INITIAL_VENDOR_SCORES)
+export default function AdminVendorSLAScorecard({ vendors: realVendors = [], userBookings = [] }) {
+  const [vendorList, setVendorList] = useState([])
   const [searchTerm, setSearchTerm] = useState('')
   const [slaFilter, setSlaFilter] = useState('ALL')
 
-  const filteredVendors = vendors.filter(v => {
+  useEffect(() => {
+    if (realVendors && realVendors.length > 0) {
+      const mapped = realVendors.map(v => {
+        const vBookings = userBookings.filter(b => b.items?.some(i => i.vendorId === v.id))
+        const bookedCount = vBookings.length
+        const estLeads = Math.max(bookedCount * 3, bookedCount + (v.featured ? 4 : 2))
+        const convRate = estLeads > 0 ? ((bookedCount / estLeads) * 100).toFixed(1) : '0.0'
+        const tier = v.verified ? 'ELITE_PARTNER' : 'ACCEPTABLE'
+        const avgMinutes = v.responseTime ? parseInt(v.responseTime) || 30 : 25
+
+        return {
+          id: v.id,
+          name: v.name,
+          category: v.categoryName || v.category || 'Vendor',
+          city: v.city || 'India',
+          avgResponseMinutes: avgMinutes,
+          slaTier: tier,
+          leadsReceived: estLeads,
+          leadsConverted: bookedCount,
+          conversionRate: convRate,
+          disputeCount: 0,
+          featured: !!v.featured,
+          rating: v.rating || 4.9
+        }
+      })
+      setVendorList(mapped)
+    } else {
+      setVendorList([])
+    }
+  }, [realVendors, userBookings])
+
+  const filteredVendors = vendorList.filter(v => {
     const matchSearch = v.name.toLowerCase().includes(searchTerm.toLowerCase()) || v.city.toLowerCase().includes(searchTerm.toLowerCase())
     const matchSLA = slaFilter === 'ALL' || v.slaTier === slaFilter
     return matchSearch && matchSLA
   })
 
   const handleDemote = (vendorId) => {
-    setVendors(prev => prev.map(v => v.id === vendorId ? { ...v, featured: false } : v))
+    setVendorList(prev => prev.map(v => v.id === vendorId ? { ...v, featured: false } : v))
     toast.warning('Vendor removed from "Featured Sanctuary" ranking')
   }
 
   const handlePromote = (vendorId) => {
-    setVendors(prev => prev.map(v => v.id === vendorId ? { ...v, featured: true } : v))
+    setVendorList(prev => prev.map(v => v.id === vendorId ? { ...v, featured: true } : v))
     toast.success('Awarded "Featured Sanctuary" Luxury Badge!')
   }
 

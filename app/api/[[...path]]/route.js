@@ -2984,7 +2984,7 @@ async function handleRoute(request, { params }) {
       if (unauth) return cors(unauth)
       const ctx = getAuthContext(request)
       const filter = {}
-      if (ctx.role === 'admin') {
+      if (ctx.role === 'admin' || ctx.role === 'super_admin' || ALL_ADMIN_ROLES.includes(ctx.role)) {
         // admin can filter by any userId / vendorId via query
         if (query.userId) filter.userId = query.userId
         if (query.vendorId) filter['items.vendorId'] = query.vendorId

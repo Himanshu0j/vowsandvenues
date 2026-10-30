@@ -47,27 +47,19 @@ export const VENDOR_OPTIONS = {
   ]
 }
 
-export const INITIAL_PROPOSALS = [
-  {
-    id: 'prop_01',
-    title: 'The 3-Day Mewari Citadel Extravaganza',
-    coupleName: 'Aanya Singhania & Kabir Kapoor',
-    phone: '+919820123456',
-    venue: 'Rambagh Citadel & Mughal Gardens (Jaipur)',
-    decor: 'Gulmohar Artisanal Mogra & Cascading Mandap',
-    catering: 'Mewari Royal Thali & Live Charcoal Kebabs (400 pax)',
-    photography: 'Drishti Royal Memoirs (3-Day 4K Cinematic Crew + Drone)',
-    entertainment: 'Manganiyar Folk Symphony & Rajasthani Ghoomar Troupe',
-    grossTotal: 4350000,
-    bundleDiscountPercent: 10,
-    finalPrice: 3915000,
-    status: 'SENT_TO_CLIENT',
-    createdAt: '2026-10-10'
-  }
-]
+export const INITIAL_PROPOSALS = []
 
 export default function AdminPackageBuilder() {
-  const [proposals, setProposals] = useState(INITIAL_PROPOSALS)
+  const [proposals, setProposals] = useState(() => {
+    try {
+      const stored = typeof window !== 'undefined' ? localStorage.getItem('vv_admin_custom_proposals') : null
+      if (stored) {
+        const parsed = JSON.parse(stored)
+        if (Array.isArray(parsed)) return parsed
+      }
+    } catch (_) {}
+    return INITIAL_PROPOSALS
+  })
   const [isBuilderOpen, setIsBuilderOpen] = useState(false)
 
   // Builder Form State
@@ -115,18 +107,26 @@ export default function AdminPackageBuilder() {
       createdAt: new Date().toISOString().split('T')[0]
     }
 
-    setProposals(prev => [newProp, ...prev])
+    const updated = [newProp, ...proposals]
+    setProposals(updated)
+    try {
+      localStorage.setItem('vv_admin_custom_proposals', JSON.stringify(updated))
+    } catch (_) {}
     setIsBuilderOpen(false)
+    setCoupleName('')
+    setPhone('')
     toast.success('Bespoke wedding package proposal generated!')
   }
 
   const copyProposalLink = (prop) => {
-    const link = `https://vowsandvenues-staging.onrender.com/proposal/${prop.id}`
+    const origin = typeof window !== 'undefined' ? window.location.origin : 'https://www.vowsandvenues.in'
+    const link = `${origin}/proposal/${prop.id}`
     navigator.clipboard.writeText(link)
     toast.success('Private proposal link copied!')
   }
 
   const sendViaWhatsApp = (prop) => {
+    const origin = typeof window !== 'undefined' ? window.location.origin : 'https://www.vowsandvenues.in'
     const cleanPhone = prop.phone.replace(/[^0-9]/g, '')
     const msg = encodeURIComponent(
       `Namaste ${prop.coupleName}! ✨\n\n` +
@@ -139,7 +139,7 @@ export default function AdminPackageBuilder() {
       `Itemized Total: ₹${(prop.grossTotal).toLocaleString('en-IN')}\n` +
       `*Exclusive Concierge Rate (${prop.bundleDiscountPercent}% off): ₹${(prop.finalPrice).toLocaleString('en-IN')}*\n\n` +
       `Review your interactive proposal & lock with 20% token:\n` +
-      `https://vowsandvenues-staging.onrender.com/proposal/${prop.id}\n\n` +
+      `${origin}/proposal/${prop.id}\n\n` +
       `Warm regards,\nVows & Venues Royal Concierge`
     )
     window.open(`https://wa.me/${cleanPhone}?text=${msg}`, '_blank')
@@ -178,7 +178,27 @@ export default function AdminPackageBuilder() {
           <span className="text-xs text-stone-500 font-medium">{proposals.length} Proposals Active</span>
         </div>
 
-        {proposals.map(prop => (
+        {proposals.length === 0 ? (
+          <div className="bg-white rounded-2xl p-10 border border-stone-200 text-center space-y-3 shadow-xs">
+            <div className="w-12 h-12 mx-auto rounded-xl bg-[#c5a059]/10 border border-[#c5a059]/30 flex items-center justify-center text-[#c5a059]">
+              <Layers className="w-6 h-6" />
+            </div>
+            <div>
+              <h4 className="font-serif font-bold text-base text-stone-900">No Multi-Vendor Packages Created</h4>
+              <p className="text-xs text-stone-500 max-w-md mx-auto mt-0.5">
+                Build bespoke multi-vendor packages (Venue + Decor + Royal Feast + Photography + Shehnai) with bundled discounts for VIP wedding inquiries.
+              </p>
+            </div>
+            <button
+              onClick={() => setIsBuilderOpen(true)}
+              className="px-4 py-2 rounded-xl bg-gradient-to-r from-[#c5a059] to-[#8c6b2d] text-stone-950 font-bold text-xs shadow-md hover:brightness-105 transition-all inline-flex items-center gap-1.5"
+            >
+              <Plus className="w-4 h-4" />
+              <span>Compose First Proposal</span>
+            </button>
+          </div>
+        ) : (
+          proposals.map(prop => (
           <div
             key={prop.id}
             className="bg-white rounded-2xl p-5 border border-stone-200 shadow-sm space-y-4"
@@ -257,7 +277,7 @@ export default function AdminPackageBuilder() {
               </span>
             </div>
           </div>
-        ))}
+        )))}
       </div>
 
       {/* BUILDER MODAL */}
