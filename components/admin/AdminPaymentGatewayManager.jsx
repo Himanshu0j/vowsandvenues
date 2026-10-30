@@ -42,20 +42,20 @@ export const DEFAULT_PAYMENT_CONFIG = {
   gateway: {
     provider: 'razorpay', // 'razorpay' | 'cashfree' | 'stripe' | 'paytm'
     isLive: false,
-    keyId: 'rzp_test_9A2bKx89mQpL4z',
-    keySecret: '••••••••••••••••••••••••',
-    webhookSecret: '••••••••••••••••••••••••',
-    convenienceFeeType: 'flat', // 'flat' | 'percent' | 'zero'
-    convenienceFeeAmount: 2500,
-    autoRefund: true
+    keyId: '',
+    keySecret: '',
+    webhookSecret: '',
+    convenienceFeeType: 'zero', // 'flat' | 'percent' | 'zero'
+    convenienceFeeAmount: 0,
+    autoRefund: false
   },
   bank: {
-    bankName: 'HDFC Bank, Fort Branch, Mumbai',
-    accountHolder: 'Vows & Venues Escrow Services LLP',
-    accountNumber: '50200088991122',
-    ifsc: 'HDFC0000060',
-    branch: 'Fort / Hazratganj Commercial Branch',
-    virtualEscrowPrefix: 'VVESC'
+    bankName: '',
+    accountHolder: '',
+    accountNumber: '',
+    ifsc: '',
+    branch: '',
+    virtualEscrowPrefix: ''
   }
 }
 

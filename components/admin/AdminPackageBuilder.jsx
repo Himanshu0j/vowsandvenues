@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useState, useMemo, useEffect } from 'react'
 import {
   Layers,
   Sparkles,
@@ -20,36 +20,41 @@ import {
 } from 'lucide-react'
 import { toast } from 'sonner'
 
-export const VENDOR_OPTIONS = {
-  venues: [
-    { id: 'v_1', name: 'Rambagh Citadel & Mughal Gardens (Jaipur)', price: 1800000 },
-    { id: 'v_2', name: 'The Royal Lake Palace & Courtyards (Udaipur)', price: 2400000 },
-    { id: 'v_3', name: 'Umaid Bhawan Citadel & Lawns (Jodhpur)', price: 3200000 }
-  ],
-  decor: [
-    { id: 'd_1', name: 'Gulmohar Artisanal Mogra & Cascading Mandap', price: 650000 },
-    { id: 'd_2', name: 'Rajwada Royal Velvet & Brass Diya Courtyard', price: 950000 },
-    { id: 'd_3', name: 'Minimalist Starlit Glasshouse Floral Atelier', price: 500000 }
-  ],
-  catering: [
-    { id: 'c_1', name: 'Mewari Royal Thali & Live Charcoal Kebabs (400 pax)', price: 1200000 },
-    { id: 'c_2', name: 'Gourmet Pan-Asian & Awadhi Nizami Dastarkhwan (350 pax)', price: 1050000 },
-    { id: 'c_3', name: 'Artisanal Global Grazing Tables & Saffron Banquets', price: 850000 }
-  ],
-  photography: [
-    { id: 'p_1', name: 'Drishti Royal Memoirs (3-Day 4K Cinematic Crew + Drone)', price: 450000 },
-    { id: 'p_2', name: 'Stories by Joseph Radhik Style Luxury Editorial Team', price: 750000 }
-  ],
-  entertainment: [
-    { id: 'e_1', name: 'Manganiyar Folk Symphony & Rajasthani Ghoomar Troupe', price: 250000 },
-    { id: 'e_2', name: 'Royal Shehnai Masters of Banaras (Baraat & Pheras)', price: 180000 },
-    { id: 'e_3', name: 'Live Sufi Fusion Ensemble for Sangeet Night', price: 350000 }
-  ]
-}
-
 export const INITIAL_PROPOSALS = []
 
-export default function AdminPackageBuilder() {
+export default function AdminPackageBuilder({ vendors = [] }) {
+  const dynamicVendorOptions = useMemo(() => {
+    const list = Array.isArray(vendors) && vendors.length > 0 ? vendors : []
+    const getCat = (cat, fallback) => {
+      const filtered = list.filter(v => v.category === cat)
+      if (filtered.length > 0) {
+        return filtered.map(v => ({ id: v.id, name: `${v.name} (${v.city || 'India'})`, price: v.startingPrice || 50000 }))
+      }
+      return fallback
+    }
+
+    return {
+      venues: getCat('venues', [
+        { id: 'v_royal_palace_lko', name: 'The Royal Nawabi Palace & Lawns (Lucknow)', price: 125000 },
+        { id: 'v_mewar_lake_udaipur', name: 'Mewar Lakeside Haveli & Jagmandir Views (Udaipur)', price: 280000 },
+        { id: 'v_rajwada_jaipur', name: 'Rajwada Palace Heritage Resort (Jaipur)', price: 220000 }
+      ]),
+      decor: getCat('decor', [
+        { id: 'v_utsav_decor_lko', name: 'Gulmohar Luxury Events & Stage Decor (Lucknow)', price: 45000 }
+      ]),
+      catering: getCat('catering', [
+        { id: 'v_dastarkhwan_catering', name: 'Dastarkhwan Awadhi & Royal Caterers (Lucknow)', price: 1200 },
+        { id: 'v_nizami_dawat_hyd', name: 'Nizami Dawat-e-Khas Catering (Hyderabad)', price: 900 }
+      ]),
+      photography: getCat('photography', [
+        { id: 'v_drishti_cinema_lko', name: 'Drishti Wedding Films & Photography (Lucknow)', price: 45000 }
+      ]),
+      entertainment: getCat('music', [
+        { id: 'v_rajputana_shehnai_jaipur', name: 'Rajputana Royal Shehnai & Sitar Ensemble (Jaipur)', price: 18000 }
+      ])
+    }
+  }, [vendors])
+
   const [proposals, setProposals] = useState(() => {
     try {
       const stored = typeof window !== 'undefined' ? localStorage.getItem('vv_admin_custom_proposals') : null
@@ -66,12 +71,20 @@ export default function AdminPackageBuilder() {
   const [coupleName, setCoupleName] = useState('')
   const [phone, setPhone] = useState('')
   const [title, setTitle] = useState('Bespoke Royal Wedding Proposal')
-  const [selectedVenue, setSelectedVenue] = useState(VENDOR_OPTIONS.venues[0])
-  const [selectedDecor, setSelectedDecor] = useState(VENDOR_OPTIONS.decor[0])
-  const [selectedCatering, setSelectedCatering] = useState(VENDOR_OPTIONS.catering[0])
-  const [selectedPhoto, setSelectedPhoto] = useState(VENDOR_OPTIONS.photography[0])
-  const [selectedEntertainment, setSelectedEntertainment] = useState(VENDOR_OPTIONS.entertainment[0])
+  const [selectedVenue, setSelectedVenue] = useState(dynamicVendorOptions.venues[0])
+  const [selectedDecor, setSelectedDecor] = useState(dynamicVendorOptions.decor[0])
+  const [selectedCatering, setSelectedCatering] = useState(dynamicVendorOptions.catering[0])
+  const [selectedPhoto, setSelectedPhoto] = useState(dynamicVendorOptions.photography[0])
+  const [selectedEntertainment, setSelectedEntertainment] = useState(dynamicVendorOptions.entertainment[0])
   const [discountPercent, setDiscountPercent] = useState(10)
+
+  useEffect(() => {
+    setSelectedVenue(dynamicVendorOptions.venues[0])
+    setSelectedDecor(dynamicVendorOptions.decor[0])
+    setSelectedCatering(dynamicVendorOptions.catering[0])
+    setSelectedPhoto(dynamicVendorOptions.photography[0])
+    setSelectedEntertainment(dynamicVendorOptions.entertainment[0])
+  }, [dynamicVendorOptions])
 
   // Calculations
   const grossTotal = (selectedVenue?.price || 0) +
@@ -335,11 +348,11 @@ export default function AdminPackageBuilder() {
                 <div>
                   <label className="block font-medium text-stone-600 mb-1">1. Heritage Venue</label>
                   <select
-                    value={selectedVenue.id}
-                    onChange={(e) => setSelectedVenue(VENDOR_OPTIONS.venues.find(v => v.id === e.target.value))}
+                    value={selectedVenue?.id}
+                    onChange={(e) => setSelectedVenue(dynamicVendorOptions.venues.find(v => v.id === e.target.value))}
                     className="w-full px-3 py-2 border rounded-lg bg-stone-50"
                   >
-                    {VENDOR_OPTIONS.venues.map(v => (
+                    {dynamicVendorOptions.venues.map(v => (
                       <option key={v.id} value={v.id}>{v.name} — ₹{(v.price / 100000).toFixed(1)}L</option>
                     ))}
                   </select>
@@ -348,11 +361,11 @@ export default function AdminPackageBuilder() {
                 <div>
                   <label className="block font-medium text-stone-600 mb-1">2. Floral &amp; Stage Decor Atelier</label>
                   <select
-                    value={selectedDecor.id}
-                    onChange={(e) => setSelectedDecor(VENDOR_OPTIONS.decor.find(d => d.id === e.target.value))}
+                    value={selectedDecor?.id}
+                    onChange={(e) => setSelectedDecor(dynamicVendorOptions.decor.find(d => d.id === e.target.value))}
                     className="w-full px-3 py-2 border rounded-lg bg-stone-50"
                   >
-                    {VENDOR_OPTIONS.decor.map(d => (
+                    {dynamicVendorOptions.decor.map(d => (
                       <option key={d.id} value={d.id}>{d.name} — ₹{(d.price / 100000).toFixed(1)}L</option>
                     ))}
                   </select>
@@ -361,11 +374,11 @@ export default function AdminPackageBuilder() {
                 <div>
                   <label className="block font-medium text-stone-600 mb-1">3. Royal Banquet &amp; Catering</label>
                   <select
-                    value={selectedCatering.id}
-                    onChange={(e) => setSelectedCatering(VENDOR_OPTIONS.catering.find(c => c.id === e.target.value))}
+                    value={selectedCatering?.id}
+                    onChange={(e) => setSelectedCatering(dynamicVendorOptions.catering.find(c => c.id === e.target.value))}
                     className="w-full px-3 py-2 border rounded-lg bg-stone-50"
                   >
-                    {VENDOR_OPTIONS.catering.map(c => (
+                    {dynamicVendorOptions.catering.map(c => (
                       <option key={c.id} value={c.id}>{c.name} — ₹{(c.price / 100000).toFixed(1)}L</option>
                     ))}
                   </select>
@@ -375,11 +388,11 @@ export default function AdminPackageBuilder() {
                   <div>
                     <label className="block font-medium text-stone-600 mb-1">4. Cinematography</label>
                     <select
-                      value={selectedPhoto.id}
-                      onChange={(e) => setSelectedPhoto(VENDOR_OPTIONS.photography.find(p => p.id === e.target.value))}
+                      value={selectedPhoto?.id}
+                      onChange={(e) => setSelectedPhoto(dynamicVendorOptions.photography.find(p => p.id === e.target.value))}
                       className="w-full px-3 py-2 border rounded-lg bg-stone-50"
                     >
-                      {VENDOR_OPTIONS.photography.map(p => (
+                      {dynamicVendorOptions.photography.map(p => (
                         <option key={p.id} value={p.id}>{p.name} — ₹{(p.price / 100000).toFixed(1)}L</option>
                       ))}
                     </select>
@@ -387,11 +400,11 @@ export default function AdminPackageBuilder() {
                   <div>
                     <label className="block font-medium text-stone-600 mb-1">5. Entertainment</label>
                     <select
-                      value={selectedEntertainment.id}
-                      onChange={(e) => setSelectedEntertainment(VENDOR_OPTIONS.entertainment.find(ent => ent.id === e.target.value))}
+                      value={selectedEntertainment?.id}
+                      onChange={(e) => setSelectedEntertainment(dynamicVendorOptions.entertainment.find(ent => ent.id === e.target.value))}
                       className="w-full px-3 py-2 border rounded-lg bg-stone-50"
                     >
-                      {VENDOR_OPTIONS.entertainment.map(ent => (
+                      {dynamicVendorOptions.entertainment.map(ent => (
                         <option key={ent.id} value={ent.id}>{ent.name} — ₹{(ent.price / 100000).toFixed(1)}L</option>
                       ))}
                     </select>

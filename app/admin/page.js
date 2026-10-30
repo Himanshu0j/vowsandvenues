@@ -43,7 +43,7 @@ export default function DedicatedAdminPortalPage() {
   // Check stored session
   useEffect(() => {
     try {
-      const storedToken = localStorage.getItem('vv_token')
+      const storedToken = localStorage.getItem('vv_token') || localStorage.getItem('vv_auth_token') || localStorage.getItem('auth_token')
       const storedUser = localStorage.getItem('vv_user')
       if (storedToken && storedUser) {
         const u = JSON.parse(storedUser)
@@ -55,6 +55,7 @@ export default function DedicatedAdminPortalPage() {
         if (adminRoles.includes(u.role)) {
           setAuthToken(storedToken)
           setCurrentUser(u)
+          loadAdminData(storedToken)
         }
       }
     } catch (_) {}
@@ -121,9 +122,12 @@ export default function DedicatedAdminPortalPage() {
       }
 
       localStorage.setItem('vv_token', data.token)
+      localStorage.setItem('vv_auth_token', data.token)
+      localStorage.setItem('auth_token', data.token)
       localStorage.setItem('vv_user', JSON.stringify(data.user))
       setAuthToken(data.token)
       setCurrentUser(data.user)
+      loadAdminData(data.token)
       toast.success(`Welcome back, ${data.user.name}!`)
     } catch (err) {
       toast.error(err.message)
@@ -135,6 +139,8 @@ export default function DedicatedAdminPortalPage() {
   // Logout handler
   const handleAdminLogout = () => {
     localStorage.removeItem('vv_token')
+    localStorage.removeItem('vv_auth_token')
+    localStorage.removeItem('auth_token')
     localStorage.removeItem('vv_user')
     setAuthToken(null)
     setCurrentUser(null)

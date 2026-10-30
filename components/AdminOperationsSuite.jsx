@@ -2641,7 +2641,7 @@ export default function AdminOperationsSuite({
       {activeSubTab === 'whatsapp' && <AdminWhatsAppSuite />}
       {activeSubTab === 'recces' && <AdminRecceManager />}
       {activeSubTab === 'milestones' && <AdminMilestoneEscrow userBookings={userBookings} />}
-      {activeSubTab === 'packages_builder' && <AdminPackageBuilder />}
+      {activeSubTab === 'packages_builder' && <AdminPackageBuilder vendors={vendors} />}
       {activeSubTab === 'vendor_sla' && <AdminVendorSLAScorecard vendors={vendors} userBookings={userBookings} />}
       {activeSubTab === 'muhurat' && <AdminMuhuratPricing />}
       {activeSubTab === 'ugc_reviews' && <AdminReviewUGC cmsContent={cmsContent} />}
