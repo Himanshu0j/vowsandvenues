@@ -3736,7 +3736,7 @@ async function handleRoute(request, { params }) {
 
       const sampleErrors = [
         {
-          message: 'TypeError: Cannot read properties of undefined (reading "venuePricingTier")',
+          message: '[SIMULATION TEST] TypeError: Cannot read properties of undefined (reading "venuePricingTier")',
           stack: 'TypeError: Cannot read properties of undefined (reading "venuePricingTier")\n    at VenuePriceCalculator (components/venues/PriceCalculator.jsx:42:15)\n    at renderWithHooks (react-dom.development.js:14985:18)',
           source: 'frontend_runtime',
           severity: 'critical',
@@ -3745,7 +3745,7 @@ async function handleRoute(request, { params }) {
           metadata: { simulated: true, guestCount: 450, eventDate: '2026-11-20' }
         },
         {
-          message: 'PaymentGatewayTimeout: Razorpay webhook handshake timeout after 15000ms',
+          message: '[SIMULATION TEST] PaymentGatewayTimeout: Razorpay webhook handshake timeout after 15000ms',
           stack: 'PaymentGatewayTimeout: Razorpay webhook handshake timeout after 15000ms\n    at RazorpayClient.verifySignature (lib/razorpay.js:88:12)\n    at handleRoute (app/api/[[...path]]/route.js:3120:9)',
           source: 'backend_api',
           severity: 'critical',
@@ -3754,7 +3754,7 @@ async function handleRoute(request, { params }) {
           metadata: { simulated: true, gateway: 'razorpay', orderId: 'order_test_9941' }
         },
         {
-          message: 'UnhandledPromiseRejection: Failed to load Google Maps Places Autocomplete SDK',
+          message: '[SIMULATION TEST] UnhandledPromiseRejection: Failed to load Google Maps Places Autocomplete SDK',
           stack: 'UnhandledPromiseRejection: Script error at https://maps.googleapis.com/maps/api/js\n    at loadGoogleMapsApi (components/venues/LocationPicker.jsx:19:11)',
           source: 'unhandled_promise',
           severity: 'warning',
@@ -3791,8 +3791,8 @@ async function handleRoute(request, { params }) {
       if (unauth) return cors(unauth)
       const ctx = getAuthContext(request)
 
-      const cleanRoute = route.startsWith('/api/') ? route.slice(4) : route
-      const errId = cleanRoute.split('/')[2]
+      const parts = route.split('/').filter(Boolean)
+      const errId = parts[parts.length - 1]
       const body = await readJson()
 
       const updateFields = {
