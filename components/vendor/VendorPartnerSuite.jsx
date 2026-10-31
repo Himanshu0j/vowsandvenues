@@ -45,6 +45,9 @@ function compressImage(file, maxWidth = 1200, maxHeight = 1200, quality = 0.8) {
   return new Promise((resolve, reject) => {
     const reader = new FileReader()
     reader.onload = (e) => {
+      if (file?.type === 'application/pdf' || (file?.name && file.name.toLowerCase().endsWith('.pdf'))) {
+        return resolve(e.target.result)
+      }
       const img = new Image()
       img.onload = () => {
         let w = img.width
@@ -1672,6 +1675,8 @@ export default function VendorPartnerSuite() {
             accept="image/*"
             capture="environment"
             className="hidden"
+            id="kyc-pan-camera"
+            data-testid="kyc-pan-camera"
             onChange={e => {
               const f = e.target.files?.[0]
               if (f) handleUpdateSinglePhoto('pan', f)
@@ -1682,6 +1687,8 @@ export default function VendorPartnerSuite() {
             type="file"
             accept="image/*,.pdf"
             className="hidden"
+            id="kyc-pan-file"
+            data-testid="kyc-pan-file"
             onChange={e => {
               const f = e.target.files?.[0]
               if (f) handleUpdateSinglePhoto('pan', f)
@@ -1694,6 +1701,8 @@ export default function VendorPartnerSuite() {
             accept="image/*"
             capture="environment"
             className="hidden"
+            id="kyc-aadhaar-front-camera"
+            data-testid="kyc-aadhaar-front-camera"
             onChange={e => {
               const f = e.target.files?.[0]
               if (f) handleUpdateSinglePhoto('aadhaar_front', f)
@@ -1704,6 +1713,8 @@ export default function VendorPartnerSuite() {
             type="file"
             accept="image/*,.pdf"
             className="hidden"
+            id="kyc-aadhaar-front-file"
+            data-testid="kyc-aadhaar-front-file"
             onChange={e => {
               const f = e.target.files?.[0]
               if (f) handleUpdateSinglePhoto('aadhaar_front', f)
@@ -1716,6 +1727,8 @@ export default function VendorPartnerSuite() {
             accept="image/*"
             capture="environment"
             className="hidden"
+            id="kyc-aadhaar-back-camera"
+            data-testid="kyc-aadhaar-back-camera"
             onChange={e => {
               const f = e.target.files?.[0]
               if (f) handleUpdateSinglePhoto('aadhaar_back', f)
@@ -1726,6 +1739,8 @@ export default function VendorPartnerSuite() {
             type="file"
             accept="image/*,.pdf"
             className="hidden"
+            id="kyc-aadhaar-back-file"
+            data-testid="kyc-aadhaar-back-file"
             onChange={e => {
               const f = e.target.files?.[0]
               if (f) handleUpdateSinglePhoto('aadhaar_back', f)
@@ -1738,6 +1753,8 @@ export default function VendorPartnerSuite() {
             accept="image/*"
             capture="environment"
             className="hidden"
+            id="kyc-gst-camera"
+            data-testid="kyc-gst-camera"
             onChange={e => {
               const f = e.target.files?.[0]
               if (f) handleUpdateSinglePhoto('gst', f)
@@ -1748,6 +1765,8 @@ export default function VendorPartnerSuite() {
             type="file"
             accept="image/*,.pdf"
             className="hidden"
+            id="kyc-gst-file"
+            data-testid="kyc-gst-file"
             onChange={e => {
               const f = e.target.files?.[0]
               if (f) handleUpdateSinglePhoto('gst', f)
@@ -1760,6 +1779,8 @@ export default function VendorPartnerSuite() {
             accept="image/*"
             capture="environment"
             className="hidden"
+            id="kyc-verification-camera"
+            data-testid="kyc-verification-camera"
             onChange={e => {
               const f = e.target.files?.[0]
               if (f) handleUpdateSinglePhoto('verification', f)
@@ -1770,6 +1791,8 @@ export default function VendorPartnerSuite() {
             type="file"
             accept="image/*"
             className="hidden"
+            id="kyc-verification-file"
+            data-testid="kyc-verification-file"
             onChange={e => {
               const f = e.target.files?.[0]
               if (f) handleUpdateSinglePhoto('verification', f)
