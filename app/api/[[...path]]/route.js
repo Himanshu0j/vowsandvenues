@@ -2663,12 +2663,36 @@ async function handleRoute(request, { params }) {
       return cors(NextResponse.json(cleanMeeting))
     }
 
-    // VENDOR BY LOGGED-IN USER: GET /api/vendors/mine (auth required, role: vendor)
+    // VENDOR BY LOGGED-IN USER: GET /api/vendors/mine (auth required, role: vendor or admin)
     if (route === '/vendors/mine' && method === 'GET') {
       const unauth = requireAuth(request, ['vendor', 'admin'])
       if (unauth) return cors(unauth)
       const ctx = getAuthContext(request)
-      const vendor = await db.collection('vendors').findOne({ userId: ctx.userId })
+      const isAdmin = ctx.role === 'admin' || ctx.role === 'super_admin' || ALL_ADMIN_ROLES.includes(ctx.role)
+
+      let vendor = null
+      if (isAdmin && query.vendorId) {
+        vendor = await db.collection('vendors').findOne({ id: query.vendorId })
+      } else {
+        vendor = await db.collection('vendors').findOne({ userId: ctx.userId })
+        if (!vendor && ctx.email) {
+          vendor = await db.collection('vendors').findOne({ email: { $regex: `^${ctx.email.trim()}$`, $options: 'i' } })
+          if (vendor && !vendor.userId) {
+            await db.collection('vendors').updateOne({ id: vendor.id }, { $set: { userId: ctx.userId } })
+            vendor.userId = ctx.userId
+          }
+        }
+        if (!vendor) {
+          const userDoc = await db.collection('users').findOne({ id: ctx.userId })
+          if (userDoc?.vendorId) {
+            vendor = await db.collection('vendors').findOne({ id: userDoc.vendorId })
+            if (vendor && !vendor.userId) {
+              await db.collection('vendors').updateOne({ id: vendor.id }, { $set: { userId: ctx.userId } })
+              vendor.userId = ctx.userId
+            }
+          }
+        }
+      }
       if (!vendor) return cors(NextResponse.json({ vendor: null }))
       const { _id, ...rest } = vendor
       return cors(NextResponse.json({ vendor: rest }))
@@ -2759,13 +2783,26 @@ async function handleRoute(request, { params }) {
       const vendorId = route.split('/')[2]
       const existing = await db.collection('vendors').findOne({ id: vendorId })
       if (!existing) return cors(NextResponse.json({ error: 'Vendor not found' }, { status: 404 }))
-      if (ctx.role !== 'admin' && existing.userId !== ctx.userId) {
+
+      const isAdmin = ctx.role === 'admin' || ctx.role === 'super_admin' || ALL_ADMIN_ROLES.includes(ctx.role)
+      const userDoc = await db.collection('users').findOne({ id: ctx.userId })
+      const isOwner = existing.userId === ctx.userId || 
+                      (existing.email && ctx.email && existing.email.toLowerCase() === ctx.email.toLowerCase()) ||
+                      (userDoc?.vendorId && userDoc.vendorId === vendorId)
+
+      if (!isAdmin && !isOwner) {
         return cors(NextResponse.json({ error: 'Forbidden: not your vendor' }, { status: 403 }))
       }
+
+      // Automatically link userId to existing vendor if not yet linked
+      if (!existing.userId && ctx.userId) {
+        await db.collection('vendors').updateOne({ id: vendorId }, { $set: { userId: ctx.userId } })
+      }
+
       const body = await request.json()
       delete body._id
       // Non-admins cannot self-verify or reassign ownership
-      if (ctx.role !== 'admin') {
+      if (!isAdmin) {
         delete body.verified
         delete body.status
         delete body.userId
@@ -2776,6 +2813,25 @@ async function handleRoute(request, { params }) {
           body.status = 'pending'
           body.verificationRequestedAt = new Date().toISOString()
         }
+      }
+
+      // Convert numeric fields safely if provided
+      if (body.startingPrice !== undefined && body.startingPrice !== null && body.startingPrice !== '') {
+        body.startingPrice = Number(body.startingPrice)
+      }
+      if (body.vegPlate !== undefined && body.vegPlate !== null && body.vegPlate !== '') {
+        body.vegPlate = Number(body.vegPlate)
+      }
+      if (body.nonVegPlate !== undefined && body.nonVegPlate !== null && body.nonVegPlate !== '') {
+        body.nonVegPlate = Number(body.nonVegPlate)
+      }
+      if (body.capacity !== undefined && body.capacity !== null && body.capacity !== '') {
+        body.capacity = Number(body.capacity)
+      }
+
+      // Ensure gallery is an array of strings if provided
+      if (body.gallery && !Array.isArray(body.gallery)) {
+        body.gallery = [body.gallery].filter(Boolean)
       }
 
       const result = await db.collection('vendors').findOneAndUpdate(
