@@ -1240,7 +1240,7 @@ export default function AdminOperationsSuite({
                 </div>
 
                 {/* Modal Scrollable Body */}
-                <div className="p-4 sm:p-6 space-y-5 overflow-y-auto flex-1 text-xs">
+                <div id="admin-kyc-modal-body" className="p-4 sm:p-6 space-y-5 overflow-y-auto flex-1 text-xs">
                   {/* Vendor Summary Card */}
                   <div className="p-4 bg-stone-50 rounded-2xl border border-stone-200 grid grid-cols-2 sm:grid-cols-4 gap-3">
                     <div>
@@ -1309,7 +1309,10 @@ export default function AdminOperationsSuite({
 
                       <div>
                         {inspectedVerificationVendor.panDoc ? (
-                          <div className="relative group rounded-xl overflow-hidden border border-amber-300 bg-stone-900 h-28 max-w-xs mx-auto md:ml-auto">
+                          <div 
+                            onClick={() => setInspectedDocZoom({ title: 'PAN Card Document Proof', url: inspectedVerificationVendor.panDoc })}
+                            className="relative group rounded-xl overflow-hidden border border-amber-300 bg-stone-900 h-28 max-w-xs mx-auto md:ml-auto cursor-pointer"
+                          >
                             <img
                               src={inspectedVerificationVendor.panDoc}
                               alt="PAN Card"
@@ -1317,7 +1320,10 @@ export default function AdminOperationsSuite({
                             />
                             <button
                               type="button"
-                              onClick={() => setInspectedDocZoom({ title: 'PAN Card Document Proof', url: inspectedVerificationVendor.panDoc })}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setInspectedDocZoom({ title: 'PAN Card Document Proof', url: inspectedVerificationVendor.panDoc });
+                              }}
                               className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 flex items-center justify-center text-white text-xs font-bold gap-1.5 transition-opacity cursor-pointer"
                             >
                               <Eye className="w-4 h-4" /> Click to Zoom
@@ -1375,7 +1381,10 @@ export default function AdminOperationsSuite({
                         <div>
                           <span className="text-[10px] text-stone-500 block mb-1 font-bold">Front Side (Photo &amp; DOB)</span>
                           {inspectedVerificationVendor.aadhaarDocFront ? (
-                            <div className="relative group rounded-xl overflow-hidden border border-amber-300 bg-stone-900 h-24">
+                            <div 
+                              onClick={() => setInspectedDocZoom({ title: 'Aadhaar Card Front Side', url: inspectedVerificationVendor.aadhaarDocFront })}
+                              className="relative group rounded-xl overflow-hidden border border-amber-300 bg-stone-900 h-24 cursor-pointer"
+                            >
                               <img
                                 src={inspectedVerificationVendor.aadhaarDocFront}
                                 alt="Aadhaar Front"
@@ -1383,7 +1392,10 @@ export default function AdminOperationsSuite({
                               />
                               <button
                                 type="button"
-                                onClick={() => setInspectedDocZoom({ title: 'Aadhaar Card Front Side', url: inspectedVerificationVendor.aadhaarDocFront })}
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setInspectedDocZoom({ title: 'Aadhaar Card Front Side', url: inspectedVerificationVendor.aadhaarDocFront });
+                                }}
                                 className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 flex items-center justify-center text-white text-[11px] font-bold gap-1 transition-opacity cursor-pointer"
                               >
                                 <Eye className="w-3.5 h-3.5" /> Zoom
@@ -1400,7 +1412,10 @@ export default function AdminOperationsSuite({
                         <div>
                           <span className="text-[10px] text-stone-500 block mb-1 font-bold">Back Side (Address)</span>
                           {inspectedVerificationVendor.aadhaarDocBack ? (
-                            <div className="relative group rounded-xl overflow-hidden border border-amber-300 bg-stone-900 h-24">
+                            <div 
+                              onClick={() => setInspectedDocZoom({ title: 'Aadhaar Card Back Side (Address)', url: inspectedVerificationVendor.aadhaarDocBack })}
+                              className="relative group rounded-xl overflow-hidden border border-amber-300 bg-stone-900 h-24 cursor-pointer"
+                            >
                               <img
                                 src={inspectedVerificationVendor.aadhaarDocBack}
                                 alt="Aadhaar Back"
@@ -1408,7 +1423,10 @@ export default function AdminOperationsSuite({
                               />
                               <button
                                 type="button"
-                                onClick={() => setInspectedDocZoom({ title: 'Aadhaar Card Back Side (Address)', url: inspectedVerificationVendor.aadhaarDocBack })}
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setInspectedDocZoom({ title: 'Aadhaar Card Back Side (Address)', url: inspectedVerificationVendor.aadhaarDocBack });
+                                }}
                                 className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 flex items-center justify-center text-white text-[11px] font-bold gap-1 transition-opacity cursor-pointer"
                               >
                                 <Eye className="w-3.5 h-3.5" /> Zoom
@@ -1462,7 +1480,10 @@ export default function AdminOperationsSuite({
 
                       <div>
                         {inspectedVerificationVendor.gstDoc ? (
-                          <div className="relative group rounded-xl overflow-hidden border border-amber-300 bg-stone-900 h-28 max-w-xs mx-auto md:ml-auto">
+                          <div 
+                            onClick={() => setInspectedDocZoom({ title: 'GST Registration Certificate', url: inspectedVerificationVendor.gstDoc })}
+                            className="relative group rounded-xl overflow-hidden border border-amber-300 bg-stone-900 h-28 max-w-xs mx-auto md:ml-auto cursor-pointer"
+                          >
                             <img
                               src={inspectedVerificationVendor.gstDoc}
                               alt="GST Certificate"
@@ -1470,7 +1491,10 @@ export default function AdminOperationsSuite({
                             />
                             <button
                               type="button"
-                              onClick={() => setInspectedDocZoom({ title: 'GST Registration Certificate', url: inspectedVerificationVendor.gstDoc })}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setInspectedDocZoom({ title: 'GST Registration Certificate', url: inspectedVerificationVendor.gstDoc });
+                              }}
                               className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 flex items-center justify-center text-white text-xs font-bold gap-1.5 transition-opacity cursor-pointer"
                             >
                               <Eye className="w-4 h-4" /> Click to Zoom
@@ -1535,7 +1559,10 @@ export default function AdminOperationsSuite({
                         </p>
                       </div>
 
-                      <div className="relative group rounded-xl overflow-hidden border border-amber-300 bg-stone-900 h-36 max-w-xs mx-auto md:ml-auto">
+                      <div 
+                        onClick={() => setInspectedDocZoom({ title: 'On-Site Physical Venue Proof', url: inspectedVerificationVendor.verificationSelfie || inspectedVerificationVendor.image })}
+                        className="relative group rounded-xl overflow-hidden border border-amber-300 bg-stone-900 h-36 max-w-xs mx-auto md:ml-auto cursor-pointer"
+                      >
                         <img
                           src={inspectedVerificationVendor.verificationSelfie || inspectedVerificationVendor.image}
                           alt="Vendor On-Site Proof"
@@ -1543,7 +1570,10 @@ export default function AdminOperationsSuite({
                         />
                         <button
                           type="button"
-                          onClick={() => setInspectedDocZoom({ title: 'On-Site Physical Venue Proof', url: inspectedVerificationVendor.verificationSelfie || inspectedVerificationVendor.image })}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setInspectedDocZoom({ title: 'On-Site Physical Venue Proof', url: inspectedVerificationVendor.verificationSelfie || inspectedVerificationVendor.image });
+                          }}
                           className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 flex items-center justify-center text-white text-xs font-bold gap-1.5 transition-opacity cursor-pointer"
                         >
                           <Eye className="w-4 h-4" /> Click to Zoom
