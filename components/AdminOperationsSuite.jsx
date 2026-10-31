@@ -61,6 +61,7 @@ import AdminReviewUGC from '@/components/admin/AdminReviewUGC'
 import AdminGSTCompliance from '@/components/admin/AdminGSTCompliance'
 import AdminPaymentGatewayManager from '@/components/admin/AdminPaymentGatewayManager'
 import AdminSiteImageManager from '@/components/admin/AdminSiteImageManager'
+import AdminErrorLogsManager from '@/components/admin/AdminErrorLogsManager'
 
 function exportToCSV(data, filename) {
   if (!data || !data.length) {
@@ -172,6 +173,27 @@ export default function AdminOperationsSuite({
   // Audit Logs State
   const [auditLogs, setAuditLogs] = useState([])
   const [auditLoading, setAuditLoading] = useState(false)
+
+  // Real-Time System Error Logs State
+  const [unreadErrorsCount, setUnreadErrorsCount] = useState(0)
+
+  useEffect(() => {
+    const fetchUnreadErrorsCount = async () => {
+      try {
+        const token = localStorage.getItem('vv_token') || localStorage.getItem('vv_auth_token') || ''
+        const res = await fetch('/api/admin/errors?status=unresolved&limit=1', {
+          headers: token ? { Authorization: `Bearer ${token}` } : {}
+        })
+        if (res.ok) {
+          const data = await res.json()
+          setUnreadErrorsCount(data.unresolvedCount || 0)
+        }
+      } catch (_) {}
+    }
+    fetchUnreadErrorsCount()
+    const timer = setInterval(fetchUnreadErrorsCount, 25000)
+    return () => clearInterval(timer)
+  }, [])
 
   // Payout Busy State
   const [payoutProcessing, setPayoutProcessing] = useState({})
@@ -666,6 +688,7 @@ export default function AdminOperationsSuite({
     {
       title: 'Platform & System',
       items: [
+        { id: 'error_logs', label: '🚨 Error Logs & Telemetry', icon: AlertTriangle, highlight: unreadErrorsCount > 0, badge: unreadErrorsCount },
         { id: 'vendor_sla', label: 'Vendor SLA Scorecard', icon: Award },
         { id: 'packages_builder', label: 'Package Builder', icon: Layers },
         { id: 'muhurat', label: 'Muhurat Pricing', icon: Sun },
@@ -676,7 +699,7 @@ export default function AdminOperationsSuite({
         { id: 'system', label: 'System Health', icon: Activity }
       ]
     }
-  ], [userBookings.length, vendors.length, settlements.length, negotiations.length, coupons.length, mediaLibrary.length, supportTickets.length, disputesList.length, staffUsers.length])
+  ], [userBookings.length, vendors.length, settlements.length, negotiations.length, coupons.length, mediaLibrary.length, supportTickets.length, disputesList.length, staffUsers.length, unreadErrorsCount])
 
   return (
     <div className="min-h-screen bg-[#141210] text-stone-100 flex flex-col md:flex-row antialiased">
@@ -854,6 +877,33 @@ export default function AdminOperationsSuite({
       {/* 2. SUB-TAB: OVERVIEW & KPIS */}
       {activeSubTab === 'overview' && (
         <div className="space-y-6">
+          {/* Active Error Alert Banner */}
+          {unreadErrorsCount > 0 && (
+            <div className="p-4 sm:p-5 rounded-2xl bg-rose-950/40 border border-rose-800/80 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-lg animate-in fade-in">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-rose-500/20 text-rose-400 border border-rose-500/30 flex items-center justify-center shrink-0">
+                  <AlertTriangle className="w-5 h-5 animate-pulse" />
+                </div>
+                <div>
+                  <div className="text-sm font-bold text-white flex items-center gap-2">
+                    <span>{unreadErrorsCount} Unresolved Website Errors Captured</span>
+                    <span className="w-2 h-2 rounded-full bg-rose-500 animate-ping" />
+                  </div>
+                  <p className="text-xs text-rose-300/80 mt-0.5">
+                    Real-time error telemetry detected runtime exceptions on the website. Immediate review recommended.
+                  </p>
+                </div>
+              </div>
+              <button
+                onClick={() => setActiveSubTab('error_logs')}
+                className="px-4 py-2 rounded-xl bg-rose-600 hover:bg-rose-500 text-white font-bold text-xs shrink-0 transition-all shadow-md cursor-pointer flex items-center gap-1.5"
+              >
+                <span>Inspect Error Logs</span>
+                <ArrowUpRight className="w-3.5 h-3.5" />
+              </button>
+            </div>
+          )}
+
           {/* Controls: Date range & Exports */}
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-[#191715] p-4 rounded-2xl border border-stone-800 shadow-sm">
             <div className="flex items-center gap-2">
@@ -2647,6 +2697,7 @@ export default function AdminOperationsSuite({
       {activeSubTab === 'ugc_reviews' && <AdminReviewUGC cmsContent={cmsContent} />}
       {activeSubTab === 'gst_billing' && <AdminGSTCompliance userBookings={userBookings} />}
       {activeSubTab === 'payment_gateway' && <AdminPaymentGatewayManager userBookings={userBookings} />}
+      {activeSubTab === 'error_logs' && <AdminErrorLogsManager onUpdateUnresolvedCount={setUnreadErrorsCount} />}
 
         </main>
       </div>

@@ -423,6 +423,94 @@ async function logAuditEvent(db, { actorId, actorEmail, actorRole, action, entit
   }
 }
 
+// Centralized system error logging helper with auto-deduplication
+async function recordSystemError(dbInstance, {
+  message,
+  stack = null,
+  source = 'backend_api',
+  severity = 'error',
+  path = '',
+  method = '',
+  statusCode = 500,
+  component = '',
+  ip = 'unknown',
+  userId = null,
+  userEmail = null,
+  userRole = 'guest',
+  userAgent = '',
+  metadata = {}
+}) {
+  try {
+    let db = dbInstance
+    if (!db) {
+      db = await connectToMongo().catch(() => null)
+    }
+    if (!db) return null
+
+    const safeMsg = String(message || 'Unknown runtime error').slice(0, 2000)
+    const safePath = String(path || '').slice(0, 500)
+    const safeSource = String(source || 'general').slice(0, 50)
+    const safeSeverity = ['critical', 'error', 'warning'].includes(severity) ? severity : 'error'
+
+    // Deduplication check: if identical unresolved error on same path within 5 minutes, increment counter
+    const fiveMinutesAgo = new Date(Date.now() - 5 * 60 * 1000).toISOString()
+    const existing = await db.collection('system_errors').findOne({
+      message: safeMsg,
+      path: safePath,
+      source: safeSource,
+      status: 'unresolved',
+      timestamp: { $gte: fiveMinutesAgo }
+    }).catch(() => null)
+
+    const nowIso = new Date().toISOString()
+
+    if (existing) {
+      await db.collection('system_errors').updateOne(
+        { id: existing.id },
+        {
+          $inc: { occurrenceCount: 1 },
+          $set: {
+            timestamp: nowIso,
+            lastOccurrence: nowIso,
+            ...(stack && !existing.stack ? { stack: String(stack).slice(0, 8000) } : {})
+          }
+        }
+      ).catch(() => null)
+      return existing.id
+    }
+
+    const id = `err_${Date.now()}_${uuidv4().slice(0, 8)}`
+    const entry = {
+      id,
+      message: safeMsg,
+      stack: stack ? String(stack).slice(0, 8000) : null,
+      source: safeSource,
+      severity: safeSeverity,
+      path: safePath,
+      method: String(method || '').toUpperCase(),
+      statusCode: Number(statusCode) || (safeSeverity === 'critical' ? 500 : 400),
+      component: component ? String(component).slice(0, 100) : null,
+      ip: String(ip || 'unknown'),
+      userId: userId || null,
+      userEmail: userEmail || null,
+      userRole: userRole || 'guest',
+      userAgent: String(userAgent || '').slice(0, 500),
+      metadata: metadata && typeof metadata === 'object' ? metadata : {},
+      status: 'unresolved', // 'unresolved' | 'investigating' | 'resolved' | 'ignored'
+      occurrenceCount: 1,
+      firstSeen: nowIso,
+      timestamp: nowIso
+    }
+
+    await db.collection('system_errors').insertOne(entry)
+    return id
+  } catch (err) {
+    console.warn('[SYSTEM_ERROR] Failed to record error log:', err.message)
+    return null
+  }
+}
+
+
 // Initial Seed Data for Vows & Venues Marketplace
 const SEED_CATEGORIES = [
   {
@@ -3552,6 +3640,250 @@ async function handleRoute(request, { params }) {
       }))
     }
 
+    // ==============================================================
+    // 🚨 SYSTEM ERROR LOGGING & TELEMETRY
+    // ==============================================================
+
+    // 1. INGEST CLIENT ERRORS: POST /api/system/errors or /api/errors
+    if ((route === '/system/errors' || route === '/errors') && method === 'POST') {
+      const ip = clientIP(request)
+      const rl = rateLimit(`err_${ip}`, 60, 60 * 1000)
+      if (rl.limited) {
+        return cors(NextResponse.json({ error: 'Too many error reports. Please slow down.' }, { status: 429 }))
+      }
+
+      const body = await readJson()
+      const ctx = getAuthContext(request)
+
+      const errorId = await recordSystemError(db, {
+        message: body.message,
+        stack: body.stack,
+        source: body.source || 'frontend_runtime',
+        severity: body.severity || 'error',
+        path: body.path || '',
+        method: body.method || '',
+        statusCode: body.statusCode,
+        component: body.component,
+        ip,
+        userId: ctx?.userId || body.userId,
+        userEmail: ctx?.email || body.userEmail,
+        userRole: ctx?.role || body.userRole || 'guest',
+        userAgent: request.headers.get('user-agent') || body.userAgent || '',
+        metadata: body.metadata || {}
+      })
+
+      return cors(NextResponse.json({ success: true, errorId }, { status: 201 }))
+    }
+
+    // 2. ADMIN ERROR LOGS LIST & METRICS: GET /api/admin/errors or /api/system/errors
+    if ((route === '/admin/errors' || route === '/system/errors') && method === 'GET') {
+      const unauth = requireAuth(request, ['admin', 'super_admin', 'operations_manager', 'analyst'])
+      if (unauth) return cors(unauth)
+
+      const filter = {}
+      if (query.severity && query.severity !== 'all') {
+        filter.severity = query.severity
+      }
+      if (query.source && query.source !== 'all') {
+        filter.source = query.source
+      }
+      if (query.status && query.status !== 'all') {
+        filter.status = query.status
+      }
+      if (query.search) {
+        filter.$or = [
+          { message: { $regex: query.search, $options: 'i' } },
+          { path: { $regex: query.search, $options: 'i' } },
+          { component: { $regex: query.search, $options: 'i' } },
+          { userEmail: { $regex: query.search, $options: 'i' } }
+        ]
+      }
+
+      const limit = Math.min(200, Math.max(1, Number(query.limit) || 50))
+      const skip = Math.max(0, Number(query.skip) || 0)
+
+      const [total, unresolvedCount, criticalCount, frontendCount, backendCount, errors] = await Promise.all([
+        db.collection('system_errors').countDocuments(filter).catch(() => 0),
+        db.collection('system_errors').countDocuments({ status: 'unresolved' }).catch(() => 0),
+        db.collection('system_errors').countDocuments({ severity: 'critical', status: 'unresolved' }).catch(() => 0),
+        db.collection('system_errors').countDocuments({ source: { $regex: 'frontend', $options: 'i' } }).catch(() => 0),
+        db.collection('system_errors').countDocuments({ source: { $regex: 'backend', $options: 'i' } }).catch(() => 0),
+        db.collection('system_errors')
+          .find(filter)
+          .sort({ timestamp: -1 })
+          .skip(skip)
+          .limit(limit)
+          .toArray()
+          .catch(() => [])
+      ])
+
+      return cors(NextResponse.json({
+        total,
+        unresolvedCount,
+        criticalCount,
+        frontendCount,
+        backendCount,
+        errors: errors.map(({ _id, ...r }) => r)
+      }))
+    }
+
+    // 3. ADMIN SIMULATE TEST ERROR: POST /api/admin/errors/simulate or /api/admin/errors/test
+    if ((route === '/admin/errors/simulate' || route === '/admin/errors/test') && method === 'POST') {
+      const unauth = requireAuth(request, ['admin', 'super_admin', 'operations_manager'])
+      if (unauth) return cors(unauth)
+      const ctx = getAuthContext(request)
+      const body = await readJson()
+
+      const sampleErrors = [
+        {
+          message: 'TypeError: Cannot read properties of undefined (reading "venuePricingTier")',
+          stack: 'TypeError: Cannot read properties of undefined (reading "venuePricingTier")\n    at VenuePriceCalculator (components/venues/PriceCalculator.jsx:42:15)\n    at renderWithHooks (react-dom.development.js:14985:18)',
+          source: 'frontend_runtime',
+          severity: 'critical',
+          path: '/venues/taj-mahal-palace-lucknow',
+          component: 'PriceCalculator.jsx',
+          metadata: { simulated: true, guestCount: 450, eventDate: '2026-11-20' }
+        },
+        {
+          message: 'PaymentGatewayTimeout: Razorpay webhook handshake timeout after 15000ms',
+          stack: 'PaymentGatewayTimeout: Razorpay webhook handshake timeout after 15000ms\n    at RazorpayClient.verifySignature (lib/razorpay.js:88:12)\n    at handleRoute (app/api/[[...path]]/route.js:3120:9)',
+          source: 'backend_api',
+          severity: 'critical',
+          path: '/api/payments/razorpay/webhook',
+          component: 'RazorpayClient',
+          metadata: { simulated: true, gateway: 'razorpay', orderId: 'order_test_9941' }
+        },
+        {
+          message: 'UnhandledPromiseRejection: Failed to load Google Maps Places Autocomplete SDK',
+          stack: 'UnhandledPromiseRejection: Script error at https://maps.googleapis.com/maps/api/js\n    at loadGoogleMapsApi (components/venues/LocationPicker.jsx:19:11)',
+          source: 'unhandled_promise',
+          severity: 'warning',
+          path: '/vendor/onboarding',
+          component: 'LocationPicker.jsx',
+          metadata: { simulated: true, networkStatus: 'offline_or_blocked' }
+        }
+      ]
+
+      const randomSample = sampleErrors[Math.floor(Math.random() * sampleErrors.length)]
+      const chosen = body.message ? body : randomSample
+
+      const errorId = await recordSystemError(db, {
+        message: chosen.message,
+        stack: chosen.stack,
+        source: chosen.source || 'frontend_runtime',
+        severity: chosen.severity || 'error',
+        path: chosen.path || '/venues/royal-heritage-resort',
+        component: chosen.component || 'TestSimulator',
+        ip: clientIP(request),
+        userId: ctx.userId,
+        userEmail: ctx.email,
+        userRole: ctx.role,
+        userAgent: request.headers.get('user-agent') || '',
+        metadata: { ...chosen.metadata, simulatedBy: ctx.email, simulatedAt: new Date().toISOString() }
+      })
+
+      return cors(NextResponse.json({ success: true, simulatedErrorId: errorId }, { status: 201 }))
+    }
+
+    // 4. ADMIN RESOLVE / UPDATE ERROR: PATCH /api/admin/errors/:id
+    if (route.startsWith('/admin/errors/') && method === 'PATCH') {
+      const unauth = requireAuth(request, ['admin', 'super_admin', 'operations_manager'])
+      if (unauth) return cors(unauth)
+      const ctx = getAuthContext(request)
+
+      const cleanRoute = route.startsWith('/api/') ? route.slice(4) : route
+      const errId = cleanRoute.split('/')[2]
+      const body = await readJson()
+
+      const updateFields = {
+        updatedAt: new Date().toISOString()
+      }
+      if (body.status) {
+        updateFields.status = body.status
+        if (body.status === 'resolved') {
+          updateFields.resolvedAt = new Date().toISOString()
+          updateFields.resolvedBy = ctx.email
+        }
+      }
+      if (body.adminNote !== undefined) {
+        updateFields.adminNote = body.adminNote
+      }
+
+      await db.collection('system_errors').updateOne(
+        { id: errId },
+        { $set: updateFields }
+      )
+
+      const updated = await db.collection('system_errors').findOne({ id: errId })
+      if (updated) delete updated._id
+
+      // Audit log
+      await logAuditEvent(db, {
+        actorId: ctx.userId,
+        actorEmail: ctx.email,
+        actorRole: ctx.role,
+        action: 'UPDATE_SYSTEM_ERROR',
+        entityType: 'system_error',
+        entityId: errId,
+        details: { status: body.status, note: body.adminNote },
+        ip: clientIP(request)
+      })
+
+      return cors(NextResponse.json({ success: true, error: updated }))
+    }
+
+    // 5. ADMIN DELETE / CLEAR ERRORS: DELETE /api/admin/errors
+    if ((route === '/admin/errors' || route === '/system/errors') && method === 'DELETE') {
+      const unauth = requireAuth(request, ['admin', 'super_admin'])
+      if (unauth) return cors(unauth)
+      const ctx = getAuthContext(request)
+
+      if (query.id) {
+        await db.collection('system_errors').deleteOne({ id: query.id })
+        await logAuditEvent(db, {
+          actorId: ctx.userId,
+          actorEmail: ctx.email,
+          actorRole: ctx.role,
+          action: 'DELETE_SYSTEM_ERROR',
+          entityType: 'system_error',
+          entityId: query.id,
+          details: {},
+          ip: clientIP(request)
+        })
+        return cors(NextResponse.json({ success: true, deletedId: query.id }))
+      }
+
+      if (query.action === 'clear_resolved') {
+        const res = await db.collection('system_errors').deleteMany({ status: 'resolved' })
+        await logAuditEvent(db, {
+          actorId: ctx.userId,
+          actorEmail: ctx.email,
+          actorRole: ctx.role,
+          action: 'CLEAR_RESOLVED_SYSTEM_ERRORS',
+          entityType: 'system_error',
+          details: { count: res.deletedCount },
+          ip: clientIP(request)
+        })
+        return cors(NextResponse.json({ success: true, deletedCount: res.deletedCount }))
+      }
+
+      if (query.action === 'clear_all') {
+        const res = await db.collection('system_errors').deleteMany({})
+        await logAuditEvent(db, {
+          actorId: ctx.userId,
+          actorEmail: ctx.email,
+          actorRole: ctx.role,
+          action: 'CLEAR_ALL_SYSTEM_ERRORS',
+          entityType: 'system_error',
+          details: { count: res.deletedCount },
+          ip: clientIP(request)
+        })
+        return cors(NextResponse.json({ success: true, deletedCount: res.deletedCount }))
+      }
+
+      return cors(NextResponse.json({ error: 'Specify ?id=... or ?action=clear_resolved or ?action=clear_all' }, { status: 400 }))
+    }
+
     // ADMIN USERS & RBAC TEAM MANAGEMENT (Phase 4 & Phase 12)
     if (route === '/admin/users' && method === 'GET') {
       const unauth = requireAuth(request, ['admin', 'super_admin'])
@@ -5228,6 +5560,19 @@ async function handleRoute(request, { params }) {
 
   } catch (error) {
     console.error('API Error in Vows & Venues route:', error)
+    try {
+      await recordSystemError(null, {
+        message: error.message,
+        stack: error.stack,
+        source: 'backend_api',
+        severity: 'critical',
+        path: route,
+        method,
+        statusCode: 500,
+        ip: clientIP(request),
+        userAgent: request.headers.get('user-agent') || ''
+      })
+    } catch (_) {}
     return cors(NextResponse.json(
       { error: "Internal server error: " + error.message }, 
       { status: 500 }

@@ -14,6 +14,33 @@ export default class ErrorBoundary extends React.Component {
 
   componentDidCatch(error, errorInfo) {
     console.error('[VOWS & VENUES] Client component caught exception:', error, errorInfo)
+    try {
+      if (typeof window !== 'undefined') {
+        if (typeof window.__vv_reportError === 'function') {
+          window.__vv_reportError(error, {
+            source: 'react_boundary',
+            severity: 'critical',
+            component: this.props.fallbackTitle || 'ErrorBoundary',
+            metadata: { componentStack: errorInfo?.componentStack }
+          })
+        } else {
+          fetch('/api/system/errors', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              message: error?.message || 'Component exception',
+              stack: error?.stack || null,
+              source: 'react_boundary',
+              severity: 'critical',
+              path: window.location.pathname,
+              component: this.props.fallbackTitle || 'ErrorBoundary',
+              metadata: { componentStack: errorInfo?.componentStack }
+            }),
+            keepalive: true
+          }).catch(() => {})
+        }
+      }
+    } catch (_) {}
   }
 
   render() {
