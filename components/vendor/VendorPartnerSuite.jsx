@@ -33,7 +33,10 @@ import {
   MapPin,
   LogOut,
   Mail,
-  Info
+  Info,
+  FileText,
+  Eye,
+  CreditCard
 } from 'lucide-react'
 import { toast } from 'sonner'
 
@@ -135,14 +138,19 @@ export default function VendorPartnerSuite() {
   const [newHighlight, setNewHighlight] = useState('')
   const [savingStorefront, setSavingStorefront] = useState(false)
 
-  // Bank KYC edit state
+  // Bank & Government ID Proof KYC state
   const [bankForm, setBankForm] = useState({
     accountHolder: '',
     bankName: '',
     accountNumber: '',
     ifsc: '',
     pan: '',
-    gstin: ''
+    panName: '',
+    aadhaar: '',
+    aadhaarName: '',
+    gstin: '',
+    gstBusinessName: '',
+    gstType: 'regular'
   })
   const [savingBank, setSavingBank] = useState(false)
 
@@ -151,6 +159,11 @@ export default function VendorPartnerSuite() {
   const [uploadingHero, setUploadingHero] = useState(false)
   const [uploadingGallery, setUploadingGallery] = useState(false)
   const [uploadingVerification, setUploadingVerification] = useState(false)
+  const [uploadingPanDoc, setUploadingPanDoc] = useState(false)
+  const [uploadingAadhaarFront, setUploadingAadhaarFront] = useState(false)
+  const [uploadingAadhaarBack, setUploadingAadhaarBack] = useState(false)
+  const [uploadingGstDoc, setUploadingGstDoc] = useState(false)
+  const [previewDocModal, setPreviewDocModal] = useState(null)
   const [customCoverUrl, setCustomCoverUrl] = useState('')
   const [customHeroUrl, setCustomHeroUrl] = useState('')
   const [customGalleryUrl, setCustomGalleryUrl] = useState('')
@@ -164,6 +177,14 @@ export default function VendorPartnerSuite() {
   const galleryFileRef = useRef(null)
   const verificationCameraRef = useRef(null)
   const verificationFileRef = useRef(null)
+  const panCameraRef = useRef(null)
+  const panFileRef = useRef(null)
+  const aadhaarFrontCameraRef = useRef(null)
+  const aadhaarFrontFileRef = useRef(null)
+  const aadhaarBackCameraRef = useRef(null)
+  const aadhaarBackFileRef = useRef(null)
+  const gstCameraRef = useRef(null)
+  const gstFileRef = useRef(null)
 
   // Calendar / Blackout state
   const [blockedDates, setBlockedDates] = useState([])
@@ -222,8 +243,13 @@ export default function VendorPartnerSuite() {
         bankName: activeVendor.bankName || '',
         accountNumber: activeVendor.accountNumber || '',
         ifsc: activeVendor.ifsc || '',
-        pan: activeVendor.pan || '',
-        gstin: activeVendor.gstin || ''
+        pan: activeVendor.pan || activeVendor.panNumber || '',
+        panName: activeVendor.panName || '',
+        aadhaar: activeVendor.aadhaar || activeVendor.aadhaarNumber || '',
+        aadhaarName: activeVendor.aadhaarName || '',
+        gstin: activeVendor.gstin || '',
+        gstBusinessName: activeVendor.gstBusinessName || '',
+        gstType: activeVendor.gstType || 'regular'
       })
 
       // Load blackout dates
@@ -418,19 +444,25 @@ export default function VendorPartnerSuite() {
     setSavingBank(true)
     try {
       const token = authToken || localStorage.getItem('vv_token') || localStorage.getItem('vv_auth_token')
+      const payload = {
+        ...bankForm,
+        kycStatus: activeVendor.verified ? 'verified' : 'pending_review',
+        verificationRequestedAt: new Date().toISOString()
+      }
       const res = await fetch(`/api/vendors/${activeVendor.id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
           ...(token ? { Authorization: `Bearer ${token}` } : {})
         },
-        body: JSON.stringify(bankForm)
+        body: JSON.stringify(payload)
       })
       const data = await res.json()
-      if (!res.ok) throw new Error(data.error || 'Failed to update bank details')
+      if (!res.ok) throw new Error(data.error || 'Failed to update bank & ID details')
 
       setActiveVendor(prev => ({ ...prev, ...data }))
-      toast.success('Bank & tax registration details saved!')
+      setVendorsList(prev => prev.map(v => v.id === activeVendor.id ? { ...v, ...data } : v))
+      toast.success('KYC ID details & bank coordinates saved for admin verification!')
     } catch (err) {
       toast.error(err.message)
     } finally {
@@ -438,7 +470,7 @@ export default function VendorPartnerSuite() {
     }
   }
 
-  // UPDATE SINGLE PHOTO (COVER IMAGE OR HERO IMAGE)
+  // UPDATE SINGLE PHOTO OR KYC DOCUMENT
   const handleUpdateSinglePhoto = async (photoType, fileOrUrl) => {
     if (!activeVendor?.id) {
       toast.error('No vendor selected')
@@ -448,15 +480,23 @@ export default function VendorPartnerSuite() {
     const isCover = photoType === 'cover'
     const isHero = photoType === 'hero'
     const isVerification = photoType === 'verification'
+    const isPan = photoType === 'pan'
+    const isAadhaarFront = photoType === 'aadhaar_front'
+    const isAadhaarBack = photoType === 'aadhaar_back'
+    const isGst = photoType === 'gst'
 
     if (isCover) setUploadingCover(true)
     if (isHero) setUploadingHero(true)
     if (isVerification) setUploadingVerification(true)
+    if (isPan) setUploadingPanDoc(true)
+    if (isAadhaarFront) setUploadingAadhaarFront(true)
+    if (isAadhaarBack) setUploadingAadhaarBack(true)
+    if (isGst) setUploadingGstDoc(true)
 
     try {
       let finalImageUrl = fileOrUrl
       if (typeof fileOrUrl !== 'string') {
-        finalImageUrl = await compressImage(fileOrUrl, 1200, 1200, 0.8)
+        finalImageUrl = await compressImage(fileOrUrl, 1400, 1400, 0.85)
       }
 
       if (!finalImageUrl) throw new Error('No valid image provided')
@@ -466,6 +506,15 @@ export default function VendorPartnerSuite() {
       if (isCover) payload.image = finalImageUrl
       if (isHero) payload.heroImage = finalImageUrl
       if (isVerification) payload.verificationSelfie = finalImageUrl
+      if (isPan) payload.panDoc = finalImageUrl
+      if (isAadhaarFront) payload.aadhaarDocFront = finalImageUrl
+      if (isAadhaarBack) payload.aadhaarDocBack = finalImageUrl
+      if (isGst) payload.gstDoc = finalImageUrl
+
+      if (isPan || isAadhaarFront || isAadhaarBack || isGst || isVerification) {
+        payload.kycStatus = 'pending_review'
+        payload.status = 'pending'
+      }
 
       const res = await fetch(`/api/vendors/${activeVendor.id}`, {
         method: 'PUT',
@@ -477,21 +526,31 @@ export default function VendorPartnerSuite() {
       })
 
       const data = await res.json()
-      if (!res.ok) throw new Error(data.error || 'Failed to update photo')
+      if (!res.ok) throw new Error(data.error || 'Failed to update photo/document')
 
       setActiveVendor(prev => ({ ...prev, ...data }))
       setVendorsList(prev => prev.map(v => v.id === activeVendor.id ? { ...v, ...data } : v))
-      toast.success(
-        isVerification
-          ? 'On-site verification photo updated and submitted for review!'
-          : `${isCover ? 'Cover photo' : 'Hero banner'} updated successfully!`
-      )
+      
+      const successLabels = {
+        pan: 'PAN Card document photo uploaded successfully!',
+        aadhaar_front: 'Aadhaar Card Front photo uploaded successfully!',
+        aadhaar_back: 'Aadhaar Card Back photo uploaded successfully!',
+        gst: 'GST Certificate document uploaded successfully!',
+        verification: 'On-site verification photo updated and submitted for review!',
+        cover: 'Cover photo updated successfully!',
+        hero: 'Hero banner updated successfully!'
+      }
+      toast.success(successLabels[photoType] || 'Document updated successfully!')
     } catch (err) {
       toast.error(err.message)
     } finally {
       if (isCover) setUploadingCover(false)
       if (isHero) setUploadingHero(false)
       if (isVerification) setUploadingVerification(false)
+      if (isPan) setUploadingPanDoc(false)
+      if (isAadhaarFront) setUploadingAadhaarFront(false)
+      if (isAadhaarBack) setUploadingAadhaarBack(false)
+      if (isGst) setUploadingGstDoc(false)
     }
   }
 
@@ -956,7 +1015,7 @@ export default function VendorPartnerSuite() {
           {[
             { id: 'photos', label: `📸 Photos & Gallery (${(activeVendor.gallery || []).length + 2})`, icon: ImageIcon },
             { id: 'storefront', label: '✏️ Details & Pricing', icon: Building2 },
-            { id: 'kyc_finance', label: '🛡️ On-Site KYC & Bank', icon: ShieldCheck },
+            { id: 'kyc_finance', label: '🛡️ KYC & ID Proofs', icon: ShieldCheck },
             { id: 'calendar', label: `📅 Calendar (${blockedDates.length})`, icon: CalendarDays },
             { id: 'negotiations', label: `💬 Inquiries (${leads.length})`, icon: MessageSquare },
             { id: 'overview', label: '📊 Performance', icon: TrendingUp }
@@ -1602,40 +1661,650 @@ export default function VendorPartnerSuite() {
       )}
 
       {/* ======================================================== */}
-      {/* TAB 3: 🛡️ ON-SITE VERIFICATION & BANK KYC */}
+      {/* TAB 3: 🛡️ GOVERNMENT ID PROOFS & BANK KYC */}
       {/* ======================================================== */}
       {activeTab === 'kyc_finance' && (
-        <div className="space-y-6">
-          {/* 1. ON-SITE PHYSICAL VENUE PHOTO VERIFICATION */}
+        <form onSubmit={handleSaveBank} className="space-y-6">
+          {/* Hidden File & Camera Inputs for all documents */}
+          <input
+            ref={panCameraRef}
+            type="file"
+            accept="image/*"
+            capture="environment"
+            className="hidden"
+            onChange={e => {
+              const f = e.target.files?.[0]
+              if (f) handleUpdateSinglePhoto('pan', f)
+            }}
+          />
+          <input
+            ref={panFileRef}
+            type="file"
+            accept="image/*,.pdf"
+            className="hidden"
+            onChange={e => {
+              const f = e.target.files?.[0]
+              if (f) handleUpdateSinglePhoto('pan', f)
+            }}
+          />
+
+          <input
+            ref={aadhaarFrontCameraRef}
+            type="file"
+            accept="image/*"
+            capture="environment"
+            className="hidden"
+            onChange={e => {
+              const f = e.target.files?.[0]
+              if (f) handleUpdateSinglePhoto('aadhaar_front', f)
+            }}
+          />
+          <input
+            ref={aadhaarFrontFileRef}
+            type="file"
+            accept="image/*,.pdf"
+            className="hidden"
+            onChange={e => {
+              const f = e.target.files?.[0]
+              if (f) handleUpdateSinglePhoto('aadhaar_front', f)
+            }}
+          />
+
+          <input
+            ref={aadhaarBackCameraRef}
+            type="file"
+            accept="image/*"
+            capture="environment"
+            className="hidden"
+            onChange={e => {
+              const f = e.target.files?.[0]
+              if (f) handleUpdateSinglePhoto('aadhaar_back', f)
+            }}
+          />
+          <input
+            ref={aadhaarBackFileRef}
+            type="file"
+            accept="image/*,.pdf"
+            className="hidden"
+            onChange={e => {
+              const f = e.target.files?.[0]
+              if (f) handleUpdateSinglePhoto('aadhaar_back', f)
+            }}
+          />
+
+          <input
+            ref={gstCameraRef}
+            type="file"
+            accept="image/*"
+            capture="environment"
+            className="hidden"
+            onChange={e => {
+              const f = e.target.files?.[0]
+              if (f) handleUpdateSinglePhoto('gst', f)
+            }}
+          />
+          <input
+            ref={gstFileRef}
+            type="file"
+            accept="image/*,.pdf"
+            className="hidden"
+            onChange={e => {
+              const f = e.target.files?.[0]
+              if (f) handleUpdateSinglePhoto('gst', f)
+            }}
+          />
+
+          <input
+            ref={verificationCameraRef}
+            type="file"
+            accept="image/*"
+            capture="environment"
+            className="hidden"
+            onChange={e => {
+              const f = e.target.files?.[0]
+              if (f) handleUpdateSinglePhoto('verification', f)
+            }}
+          />
+          <input
+            ref={verificationFileRef}
+            type="file"
+            accept="image/*"
+            className="hidden"
+            onChange={e => {
+              const f = e.target.files?.[0]
+              if (f) handleUpdateSinglePhoto('verification', f)
+            }}
+          />
+
+          {/* 1. COMPLIANCE & STATUS HEADER */}
           <div className="bg-white rounded-2xl p-5 sm:p-6 border border-stone-200 shadow-sm space-y-4">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-stone-200">
-              <div className="flex items-center gap-2.5">
-                <ShieldCheck className="w-6 h-6 text-amber-700" />
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-amber-100 text-amber-800 flex items-center justify-center font-bold">
+                  <ShieldCheck className="w-6 h-6 text-amber-700" />
+                </div>
                 <div>
                   <h3 className="font-serif font-bold text-lg text-stone-900">
-                    On-Site Verification Status (वेन्यू के साथ फोटो)
+                    Vendor KYC &amp; Government ID Proofs (पहचान व कर प्रमाण पत्र)
                   </h3>
                   <p className="text-xs text-stone-500">
-                    Official proof: Vendor photo standing in front of their physical venue / property.
+                    Upload your PAN Card, Aadhaar Card, GST/e-GST Certificate, and Escrow Bank details for admin verification and storefront activation.
                   </p>
                 </div>
               </div>
-              <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold w-fit ${
-                isVerified
-                  ? 'bg-emerald-100 text-emerald-800 border border-emerald-300'
-                  : 'bg-amber-100 text-amber-900 border border-amber-300'
-              }`}>
+
+              {/* Status Badge */}
+              <div className="shrink-0">
                 {isVerified ? (
-                  <>
-                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-700" />
-                    <span>Verified Official Partner</span>
-                  </>
+                  <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800 border border-emerald-300">
+                    <CheckCircle2 className="w-4 h-4 text-emerald-700" />
+                    <span>Verified Official Partner • Escrow Active</span>
+                  </span>
+                ) : activeVendor.kycStatus === 'rejected' ? (
+                  <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-bold bg-rose-100 text-rose-800 border border-rose-300">
+                    <XCircle className="w-4 h-4 text-rose-700" />
+                    <span>KYC Needs Revision • Re-upload Proofs</span>
+                  </span>
                 ) : (
-                  <>
-                    <Clock className="w-3.5 h-3.5 text-amber-700" />
+                  <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-bold bg-amber-100 text-amber-900 border border-amber-300">
+                    <Clock className="w-4 h-4 text-amber-700" />
                     <span>Submitted • Pending Admin Verification</span>
-                  </>
+                  </span>
                 )}
+              </div>
+            </div>
+
+            <div className="p-4 bg-gradient-to-r from-amber-50 to-orange-50 rounded-xl border border-amber-200/80 text-xs text-stone-700 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+              <div className="flex items-start gap-2.5">
+                <Info className="w-4 h-4 text-amber-700 shrink-0 mt-0.5" />
+                <span>
+                  <strong>Compliance Protocol:</strong> Photos are encrypted and stored safely. Our compliance team verifies your business credentials within 2–4 hours to enable direct customer inquiries and token payment releases.
+                </span>
+              </div>
+              <div className="text-[11px] font-mono font-bold text-amber-900 bg-white/80 px-3 py-1 rounded-lg border border-amber-200 shrink-0">
+                Docs Uploaded: {[activeVendor.panDoc, activeVendor.aadhaarDocFront, activeVendor.aadhaarDocBack, activeVendor.gstDoc, activeVendor.verificationSelfie].filter(Boolean).length} / 5
+              </div>
+            </div>
+          </div>
+
+          {/* CARD 1: PAN CARD (Permanent Account Number) */}
+          <div className="bg-white rounded-2xl p-5 sm:p-6 border border-stone-200 shadow-sm space-y-4">
+            <div className="flex items-center justify-between pb-3 border-b border-stone-100">
+              <div className="flex items-center gap-2.5">
+                <CreditCard className="w-5 h-5 text-amber-700" />
+                <div>
+                  <h4 className="font-serif font-bold text-base text-stone-900">
+                    1. PAN Card Details (स्थायी खाता संख्या)
+                  </h4>
+                  <p className="text-[11px] text-stone-500">
+                    Mandatory for tax compliance, invoicing, and escrow settlement payouts.
+                  </p>
+                </div>
+              </div>
+              <span className={`text-[11px] font-bold px-2.5 py-0.5 rounded-full ${
+                activeVendor.panDoc ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-stone-100 text-stone-500'
+              }`}>
+                {activeVendor.panDoc ? '✓ Document Uploaded' : 'Photo Required'}
+              </span>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
+              <div>
+                <label className="block font-bold text-stone-700 mb-1">PAN Number *</label>
+                <input
+                  type="text"
+                  maxLength={10}
+                  value={bankForm.pan}
+                  onChange={e => setBankForm(prev => ({ ...prev, pan: e.target.value.toUpperCase() }))}
+                  placeholder="e.g. ABCDE1234F"
+                  className="w-full px-3 py-2 border rounded-xl bg-white font-mono font-bold uppercase tracking-wider text-sm"
+                />
+                <span className="text-[10px] text-stone-400 mt-1 block">10-character alphanumeric PAN</span>
+              </div>
+
+              <div>
+                <label className="block font-bold text-stone-700 mb-1">Full Name as per PAN Card *</label>
+                <input
+                  type="text"
+                  value={bankForm.panName}
+                  onChange={e => setBankForm(prev => ({ ...prev, panName: e.target.value }))}
+                  placeholder="e.g. Asad Mirza / Asad Mirza Hospitality"
+                  className="w-full px-3 py-2 border rounded-xl bg-white font-semibold text-sm"
+                />
+                <span className="text-[10px] text-stone-400 mt-1 block">Must match exactly with your PAN card</span>
+              </div>
+            </div>
+
+            {/* PAN Card Photo Upload Box */}
+            <div className="p-4 bg-stone-50 rounded-2xl border border-stone-200 flex flex-col md:flex-row items-center gap-4">
+              <div className="relative shrink-0">
+                {activeVendor.panDoc ? (
+                  <img
+                    src={activeVendor.panDoc}
+                    alt="PAN Card Document"
+                    className="w-32 h-24 object-cover rounded-xl border-2 border-amber-400 shadow-sm bg-white"
+                  />
+                ) : (
+                  <div className="w-32 h-24 rounded-xl border-2 border-dashed border-stone-300 bg-stone-100 flex flex-col items-center justify-center text-stone-400">
+                    <FileText className="w-6 h-6 mb-1 text-stone-400" />
+                    <span className="text-[10px] font-bold">No PAN Photo</span>
+                  </div>
+                )}
+              </div>
+
+              <div className="flex-1 text-center md:text-left space-y-1.5">
+                <div className="flex flex-wrap items-center justify-center md:justify-start gap-2">
+                  <h5 className="font-bold text-xs text-stone-900">PAN Card Document Photo</h5>
+                  {activeVendor.panDoc && (
+                    <button
+                      type="button"
+                      onClick={() => setPreviewDocModal({ title: 'PAN Card Document Proof', url: activeVendor.panDoc })}
+                      className="inline-flex items-center gap-1 text-[11px] text-amber-700 hover:text-amber-800 font-bold underline cursor-pointer"
+                    >
+                      <Eye className="w-3 h-3" />
+                      <span>View Full Resolution</span>
+                    </button>
+                  )}
+                </div>
+                <p className="text-[11px] text-stone-500 leading-relaxed">
+                  Capture a clear photo of the original PAN card. Ensure name, photo, and 10-digit number are clearly visible without flash glare.
+                </p>
+
+                <div className="flex flex-wrap items-center justify-center md:justify-start gap-2 pt-1">
+                  <button
+                    type="button"
+                    disabled={uploadingPanDoc}
+                    onClick={() => panCameraRef.current?.click()}
+                    className="px-3 py-1.5 rounded-xl bg-amber-700 hover:bg-amber-800 text-white font-bold text-xs flex items-center gap-1.5 shadow-xs cursor-pointer disabled:opacity-50"
+                  >
+                    <Camera className="w-3.5 h-3.5" />
+                    <span>{uploadingPanDoc ? 'Compressing...' : 'Capture PAN Photo'}</span>
+                  </button>
+                  <button
+                    type="button"
+                    disabled={uploadingPanDoc}
+                    onClick={() => panFileRef.current?.click()}
+                    className="px-3 py-1.5 rounded-xl bg-white hover:bg-stone-100 border border-stone-300 text-stone-700 font-bold text-xs flex items-center gap-1.5 shadow-xs cursor-pointer disabled:opacity-50"
+                  >
+                    <Upload className="w-3.5 h-3.5 text-stone-500" />
+                    <span>Upload PAN File</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* CARD 2: AADHAAR CARD (12 Digits UIDAI) */}
+          <div className="bg-white rounded-2xl p-5 sm:p-6 border border-stone-200 shadow-sm space-y-4">
+            <div className="flex items-center justify-between pb-3 border-b border-stone-100">
+              <div className="flex items-center gap-2.5">
+                <ShieldCheck className="w-5 h-5 text-amber-700" />
+                <div>
+                  <h4 className="font-serif font-bold text-base text-stone-900">
+                    2. Aadhaar Card Verification (आधार कार्ड)
+                  </h4>
+                  <p className="text-[11px] text-stone-500">
+                    Primary identity and address verification as required for vendor escrow registration.
+                  </p>
+                </div>
+              </div>
+              <span className={`text-[11px] font-bold px-2.5 py-0.5 rounded-full ${
+                (activeVendor.aadhaarDocFront && activeVendor.aadhaarDocBack)
+                  ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
+                  : activeVendor.aadhaarDocFront
+                    ? 'bg-amber-50 text-amber-800 border border-amber-200'
+                    : 'bg-stone-100 text-stone-500'
+              }`}>
+                {(activeVendor.aadhaarDocFront && activeVendor.aadhaarDocBack)
+                  ? '✓ Both Sides Uploaded'
+                  : activeVendor.aadhaarDocFront
+                    ? 'Front Side Uploaded (Back Pending)'
+                    : 'Photos Required'}
+              </span>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
+              <div>
+                <label className="block font-bold text-stone-700 mb-1">Aadhaar Number (12 Digits) *</label>
+                <input
+                  type="text"
+                  maxLength={14}
+                  value={bankForm.aadhaar}
+                  onChange={e => {
+                    const val = e.target.value.replace(/\D/g, '').slice(0, 12)
+                    setBankForm(prev => ({ ...prev, aadhaar: val }))
+                  }}
+                  placeholder="e.g. 5678 1234 9876"
+                  className="w-full px-3 py-2 border rounded-xl bg-white font-mono font-bold text-sm tracking-wider"
+                />
+                <span className="text-[10px] text-stone-400 mt-1 block">12-digit UIDAI number</span>
+              </div>
+
+              <div>
+                <label className="block font-bold text-stone-700 mb-1">Full Name as per Aadhaar Card *</label>
+                <input
+                  type="text"
+                  value={bankForm.aadhaarName}
+                  onChange={e => setBankForm(prev => ({ ...prev, aadhaarName: e.target.value }))}
+                  placeholder="e.g. Asad Mirza"
+                  className="w-full px-3 py-2 border rounded-xl bg-white font-semibold text-sm"
+                />
+                <span className="text-[10px] text-stone-400 mt-1 block">Exact name printed on your Aadhaar</span>
+              </div>
+            </div>
+
+            {/* Aadhaar Two-Sided Document Uploads */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-1">
+              {/* Front Side */}
+              <div className="p-4 bg-stone-50 rounded-2xl border border-stone-200 space-y-3">
+                <div className="flex items-center justify-between">
+                  <span className="font-bold text-xs text-stone-900">Side 1: Aadhaar Front Photo (फोटो साइड)</span>
+                  {activeVendor.aadhaarDocFront && (
+                    <button
+                      type="button"
+                      onClick={() => setPreviewDocModal({ title: 'Aadhaar Card Front Photo', url: activeVendor.aadhaarDocFront })}
+                      className="text-[11px] text-amber-700 hover:text-amber-800 font-bold underline cursor-pointer flex items-center gap-1"
+                    >
+                      <Eye className="w-3 h-3" />
+                      <span>Preview</span>
+                    </button>
+                  )}
+                </div>
+
+                <div className="flex items-center gap-3">
+                  {activeVendor.aadhaarDocFront ? (
+                    <img
+                      src={activeVendor.aadhaarDocFront}
+                      alt="Aadhaar Front"
+                      className="w-24 h-16 object-cover rounded-lg border border-amber-300 shadow-xs bg-white shrink-0"
+                    />
+                  ) : (
+                    <div className="w-24 h-16 rounded-lg border-2 border-dashed border-stone-300 bg-stone-100 flex flex-col items-center justify-center text-stone-400 shrink-0">
+                      <FileText className="w-4 h-4 mb-0.5 text-stone-400" />
+                      <span className="text-[9px]">Front Side</span>
+                    </div>
+                  )}
+
+                  <div className="flex flex-col gap-1.5 flex-1">
+                    <button
+                      type="button"
+                      disabled={uploadingAadhaarFront}
+                      onClick={() => aadhaarFrontCameraRef.current?.click()}
+                      className="w-full px-2.5 py-1.5 rounded-lg bg-amber-700 hover:bg-amber-800 text-white font-bold text-[11px] flex items-center justify-center gap-1 shadow-xs cursor-pointer disabled:opacity-50"
+                    >
+                      <Camera className="w-3 h-3" />
+                      <span>{uploadingAadhaarFront ? 'Uploading...' : 'Capture Front'}</span>
+                    </button>
+                    <button
+                      type="button"
+                      disabled={uploadingAadhaarFront}
+                      onClick={() => aadhaarFrontFileRef.current?.click()}
+                      className="w-full px-2.5 py-1.5 rounded-lg bg-white hover:bg-stone-100 border border-stone-300 text-stone-700 font-bold text-[11px] flex items-center justify-center gap-1 cursor-pointer disabled:opacity-50"
+                    >
+                      <Upload className="w-3 h-3 text-stone-500" />
+                      <span>Upload File</span>
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              {/* Back Side */}
+              <div className="p-4 bg-stone-50 rounded-2xl border border-stone-200 space-y-3">
+                <div className="flex items-center justify-between">
+                  <span className="font-bold text-xs text-stone-900">Side 2: Aadhaar Back Photo (पता साइड)</span>
+                  {activeVendor.aadhaarDocBack && (
+                    <button
+                      type="button"
+                      onClick={() => setPreviewDocModal({ title: 'Aadhaar Card Back Photo (Address)', url: activeVendor.aadhaarDocBack })}
+                      className="text-[11px] text-amber-700 hover:text-amber-800 font-bold underline cursor-pointer flex items-center gap-1"
+                    >
+                      <Eye className="w-3 h-3" />
+                      <span>Preview</span>
+                    </button>
+                  )}
+                </div>
+
+                <div className="flex items-center gap-3">
+                  {activeVendor.aadhaarDocBack ? (
+                    <img
+                      src={activeVendor.aadhaarDocBack}
+                      alt="Aadhaar Back"
+                      className="w-24 h-16 object-cover rounded-lg border border-amber-300 shadow-xs bg-white shrink-0"
+                    />
+                  ) : (
+                    <div className="w-24 h-16 rounded-lg border-2 border-dashed border-stone-300 bg-stone-100 flex flex-col items-center justify-center text-stone-400 shrink-0">
+                      <FileText className="w-4 h-4 mb-0.5 text-stone-400" />
+                      <span className="text-[9px]">Back Side</span>
+                    </div>
+                  )}
+
+                  <div className="flex flex-col gap-1.5 flex-1">
+                    <button
+                      type="button"
+                      disabled={uploadingAadhaarBack}
+                      onClick={() => aadhaarBackCameraRef.current?.click()}
+                      className="w-full px-2.5 py-1.5 rounded-lg bg-amber-700 hover:bg-amber-800 text-white font-bold text-[11px] flex items-center justify-center gap-1 shadow-xs cursor-pointer disabled:opacity-50"
+                    >
+                      <Camera className="w-3 h-3" />
+                      <span>{uploadingAadhaarBack ? 'Uploading...' : 'Capture Back'}</span>
+                    </button>
+                    <button
+                      type="button"
+                      disabled={uploadingAadhaarBack}
+                      onClick={() => aadhaarBackFileRef.current?.click()}
+                      className="w-full px-2.5 py-1.5 rounded-lg bg-white hover:bg-stone-100 border border-stone-300 text-stone-700 font-bold text-[11px] flex items-center justify-center gap-1 cursor-pointer disabled:opacity-50"
+                    >
+                      <Upload className="w-3 h-3 text-stone-500" />
+                      <span>Upload File</span>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* CARD 3: GST / e-GST REGISTRATION */}
+          <div className="bg-white rounded-2xl p-5 sm:p-6 border border-stone-200 shadow-sm space-y-4">
+            <div className="flex items-center justify-between pb-3 border-b border-stone-100">
+              <div className="flex items-center gap-2.5">
+                <Building2 className="w-5 h-5 text-amber-700" />
+                <div>
+                  <h4 className="font-serif font-bold text-base text-stone-900">
+                    3. GST / e-GST Registration Details (वस्तु एवं सेवा कर)
+                  </h4>
+                  <p className="text-[11px] text-stone-500">
+                    Fill in your official GSTIN or indicate composition / exemption status.
+                  </p>
+                </div>
+              </div>
+              <span className={`text-[11px] font-bold px-2.5 py-0.5 rounded-full ${
+                activeVendor.gstDoc ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-stone-100 text-stone-500'
+              }`}>
+                {activeVendor.gstDoc ? '✓ Certificate Uploaded' : 'Optional / If Applicable'}
+              </span>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-xs">
+              <div>
+                <label className="block font-bold text-stone-700 mb-1">GSTIN (15 Digits)</label>
+                <input
+                  type="text"
+                  maxLength={15}
+                  value={bankForm.gstin}
+                  onChange={e => setBankForm(prev => ({ ...prev, gstin: e.target.value.toUpperCase() }))}
+                  placeholder="e.g. 09AABCN8291F1Z4"
+                  className="w-full px-3 py-2 border rounded-xl bg-white font-mono font-bold uppercase text-sm"
+                />
+                <span className="text-[10px] text-stone-400 mt-1 block">State code + PAN + 1Z4 format</span>
+              </div>
+
+              <div>
+                <label className="block font-bold text-stone-700 mb-1">Registered Business / Trade Name</label>
+                <input
+                  type="text"
+                  value={bankForm.gstBusinessName}
+                  onChange={e => setBankForm(prev => ({ ...prev, gstBusinessName: e.target.value }))}
+                  placeholder="e.g. Asad Mirza Banquets &amp; Resorts LLP"
+                  className="w-full px-3 py-2 border rounded-xl bg-white font-semibold text-sm"
+                />
+                <span className="text-[10px] text-stone-400 mt-1 block">Trade name on GST certificate</span>
+              </div>
+
+              <div>
+                <label className="block font-bold text-stone-700 mb-1">Registration Scheme</label>
+                <select
+                  value={bankForm.gstType}
+                  onChange={e => setBankForm(prev => ({ ...prev, gstType: e.target.value }))}
+                  className="w-full px-3 py-2 border rounded-xl bg-white font-semibold text-sm"
+                >
+                  <option value="regular">Regular Taxpayer (18% / 5% GST)</option>
+                  <option value="composition">Composition Scheme (1% / 5%)</option>
+                  <option value="exempt">Turnover &lt; ₹20L / Exempted / Unregistered</option>
+                </select>
+                <span className="text-[10px] text-stone-400 mt-1 block">Applicable tax classification</span>
+              </div>
+            </div>
+
+            {/* GST Certificate Photo Upload Box */}
+            <div className="p-4 bg-stone-50 rounded-2xl border border-stone-200 flex flex-col md:flex-row items-center gap-4">
+              <div className="relative shrink-0">
+                {activeVendor.gstDoc ? (
+                  <img
+                    src={activeVendor.gstDoc}
+                    alt="GST Certificate"
+                    className="w-32 h-24 object-cover rounded-xl border-2 border-amber-400 shadow-sm bg-white"
+                  />
+                ) : (
+                  <div className="w-32 h-24 rounded-xl border-2 border-dashed border-stone-300 bg-stone-100 flex flex-col items-center justify-center text-stone-400">
+                    <Building2 className="w-6 h-6 mb-1 text-stone-400" />
+                    <span className="text-[10px] font-bold">No GST Doc</span>
+                  </div>
+                )}
+              </div>
+
+              <div className="flex-1 text-center md:text-left space-y-1.5">
+                <div className="flex flex-wrap items-center justify-center md:justify-start gap-2">
+                  <h5 className="font-bold text-xs text-stone-900">GST Registration Certificate Photo</h5>
+                  {activeVendor.gstDoc && (
+                    <button
+                      type="button"
+                      onClick={() => setPreviewDocModal({ title: 'GST Registration Certificate', url: activeVendor.gstDoc })}
+                      className="inline-flex items-center gap-1 text-[11px] text-amber-700 hover:text-amber-800 font-bold underline cursor-pointer"
+                    >
+                      <Eye className="w-3 h-3" />
+                      <span>View Full Resolution</span>
+                    </button>
+                  )}
+                </div>
+                <p className="text-[11px] text-stone-500 leading-relaxed">
+                  Upload a clear snapshot or photo of your Form GST REG-06 registration certificate or e-GST dashboard profile.
+                </p>
+
+                <div className="flex flex-wrap items-center justify-center md:justify-start gap-2 pt-1">
+                  <button
+                    type="button"
+                    disabled={uploadingGstDoc}
+                    onClick={() => gstCameraRef.current?.click()}
+                    className="px-3 py-1.5 rounded-xl bg-amber-700 hover:bg-amber-800 text-white font-bold text-xs flex items-center gap-1.5 shadow-xs cursor-pointer disabled:opacity-50"
+                  >
+                    <Camera className="w-3.5 h-3.5" />
+                    <span>{uploadingGstDoc ? 'Compressing...' : 'Capture Certificate'}</span>
+                  </button>
+                  <button
+                    type="button"
+                    disabled={uploadingGstDoc}
+                    onClick={() => gstFileRef.current?.click()}
+                    className="px-3 py-1.5 rounded-xl bg-white hover:bg-stone-100 border border-stone-300 text-stone-700 font-bold text-xs flex items-center gap-1.5 shadow-xs cursor-pointer disabled:opacity-50"
+                  >
+                    <Upload className="w-3.5 h-3.5 text-stone-500" />
+                    <span>Upload Certificate Doc</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* CARD 4: ESCROW BANK ACCOUNT COORDINATES */}
+          <div className="bg-white rounded-2xl p-5 sm:p-6 border border-stone-200 shadow-sm space-y-4">
+            <div className="flex items-center justify-between pb-3 border-b border-stone-100">
+              <div className="flex items-center gap-2.5">
+                <DollarSign className="w-5 h-5 text-amber-700" />
+                <div>
+                  <h4 className="font-serif font-bold text-base text-stone-900">
+                    4. Escrow Payout Bank Account Coordinates (बैंक खाता विवरण)
+                  </h4>
+                  <p className="text-[11px] text-stone-500">
+                    Official business bank account where customer token advances and milestone payments are transferred.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 text-xs">
+              <div>
+                <label className="block font-bold text-stone-700 mb-1">Beneficiary Account Name *</label>
+                <input
+                  type="text"
+                  value={bankForm.accountHolder}
+                  onChange={e => setBankForm(prev => ({ ...prev, accountHolder: e.target.value }))}
+                  placeholder="e.g. Asad Mirza Hospitality Pvt Ltd"
+                  className="w-full px-3 py-2 border rounded-xl bg-white font-semibold text-sm"
+                />
+              </div>
+
+              <div>
+                <label className="block font-bold text-stone-700 mb-1">Bank Name &amp; Branch *</label>
+                <input
+                  type="text"
+                  value={bankForm.bankName}
+                  onChange={e => setBankForm(prev => ({ ...prev, bankName: e.target.value }))}
+                  placeholder="e.g. HDFC Bank, Hazratganj Branch"
+                  className="w-full px-3 py-2 border rounded-xl bg-white font-semibold text-sm"
+                />
+              </div>
+
+              <div>
+                <label className="block font-bold text-stone-700 mb-1">Account Number *</label>
+                <input
+                  type="text"
+                  value={bankForm.accountNumber}
+                  onChange={e => setBankForm(prev => ({ ...prev, accountNumber: e.target.value }))}
+                  placeholder="e.g. 50200088991122"
+                  className="w-full px-3 py-2 border rounded-xl bg-white font-mono font-bold text-sm"
+                />
+              </div>
+
+              <div>
+                <label className="block font-bold text-stone-700 mb-1">IFSC Code *</label>
+                <input
+                  type="text"
+                  value={bankForm.ifsc}
+                  onChange={e => setBankForm(prev => ({ ...prev, ifsc: e.target.value.toUpperCase() }))}
+                  placeholder="e.g. HDFC0001245"
+                  className="w-full px-3 py-2 border rounded-xl bg-white font-mono font-bold uppercase text-sm"
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* CARD 5: PHYSICAL ON-SITE PROPERTY PHOTO */}
+          <div className="bg-white rounded-2xl p-5 sm:p-6 border border-stone-200 shadow-sm space-y-4">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-stone-200">
+              <div className="flex items-center gap-2.5">
+                <Camera className="w-5 h-5 text-amber-700" />
+                <div>
+                  <h4 className="font-serif font-bold text-base text-stone-900">
+                    5. On-Site Physical Premises Proof (वेन्यू के सामने फोटो)
+                  </h4>
+                  <p className="text-[11px] text-stone-500">
+                    Photo of owner/manager standing in front of the venue entrance or property facade.
+                  </p>
+                </div>
+              </div>
+              <span className={`text-[11px] font-bold px-2.5 py-0.5 rounded-full ${
+                activeVendor.verificationSelfie ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-stone-100 text-stone-500'
+              }`}>
+                {activeVendor.verificationSelfie ? '✓ Photo Attached' : 'Photo Required'}
               </span>
             </div>
 
@@ -1644,7 +2313,7 @@ export default function VendorPartnerSuite() {
                 <img
                   src={activeVendor.verificationSelfie || activeVendor.image || 'https://images.unsplash.com/photo-1587271407850-8d438ca9fdf2'}
                   alt="On-Site Venue Proof"
-                  className="w-32 h-32 md:w-36 md:h-36 object-cover rounded-xl border-2 border-amber-400 shadow-sm"
+                  className="w-32 h-32 md:w-36 md:h-36 object-cover rounded-xl border-2 border-amber-400 shadow-sm bg-white"
                 />
                 <span className="absolute bottom-1.5 left-1.5 bg-black/75 text-white text-[9px] px-2 py-0.5 rounded font-mono">
                   {activeVendor.verificationSelfie ? 'On-Site Proof' : 'Cover Photo'}
@@ -1652,35 +2321,24 @@ export default function VendorPartnerSuite() {
               </div>
 
               <div className="flex-1 text-center md:text-left space-y-2">
-                <h4 className="font-serif font-bold text-sm text-stone-900">
-                  {activeVendor.verificationSelfie ? 'Live On-Site Photograph Attached' : 'Capture On-Site Photo with Venue'}
-                </h4>
+                <div className="flex flex-wrap items-center justify-center md:justify-start gap-2">
+                  <h5 className="font-serif font-bold text-sm text-stone-900">
+                    {activeVendor.verificationSelfie ? 'Live On-Site Photograph Attached' : 'Capture On-Site Photo with Venue'}
+                  </h5>
+                  {activeVendor.verificationSelfie && (
+                    <button
+                      type="button"
+                      onClick={() => setPreviewDocModal({ title: 'On-Site Physical Venue Proof', url: activeVendor.verificationSelfie })}
+                      className="inline-flex items-center gap-1 text-[11px] text-amber-700 hover:text-amber-800 font-bold underline cursor-pointer"
+                    >
+                      <Eye className="w-3 h-3" />
+                      <span>View Full Resolution</span>
+                    </button>
+                  )}
+                </div>
                 <p className="text-xs text-stone-600 leading-relaxed">
-                  Our compliance team reviews your physical photo to protect couples and enable direct escrow releases. You can retake or update your on-site photo anytime.
+                  Our compliance team reviews this photograph to confirm physical ownership and legitimacy. You can retake or update your photo anytime.
                 </p>
-
-                {/* Hidden File & Camera Inputs */}
-                <input
-                  ref={verificationCameraRef}
-                  type="file"
-                  accept="image/*"
-                  capture="environment"
-                  className="hidden"
-                  onChange={e => {
-                    const f = e.target.files?.[0]
-                    if (f) handleUpdateSinglePhoto('verification', f)
-                  }}
-                />
-                <input
-                  ref={verificationFileRef}
-                  type="file"
-                  accept="image/*"
-                  className="hidden"
-                  onChange={e => {
-                    const f = e.target.files?.[0]
-                    if (f) handleUpdateSinglePhoto('verification', f)
-                  }}
-                />
 
                 <div className="flex flex-wrap items-center justify-center md:justify-start gap-2.5 pt-1">
                   <button
@@ -1707,92 +2365,30 @@ export default function VendorPartnerSuite() {
             </div>
           </div>
 
-          {/* 2. BANK ACCOUNT & TAX DETAILS (EDITABLE) */}
-          <form onSubmit={handleSaveBank} className="bg-white rounded-2xl p-5 sm:p-6 border border-stone-200 shadow-sm space-y-4 text-xs">
-            <div className="flex items-center justify-between pb-2 border-b border-stone-100">
-              <div>
-                <h3 className="font-serif font-bold text-base text-stone-900">Escrow Bank Account &amp; Tax Registration</h3>
-                <span className="text-[11px] text-stone-500">Official coordinates where milestone payments are wired</span>
+          {/* SUBMIT BUTTON BAR */}
+          <div className="bg-stone-900 text-white rounded-2xl p-5 sm:p-6 shadow-xl flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div>
+              <div className="flex items-center gap-2">
+                <ShieldCheck className="w-5 h-5 text-amber-400" />
+                <h4 className="font-serif font-bold text-base text-white">
+                  Ready to Submit ID Proofs for Admin Verification?
+                </h4>
               </div>
-              <button
-                type="submit"
-                disabled={savingBank}
-                className="px-4 py-2 bg-stone-900 hover:bg-black text-white font-bold rounded-xl flex items-center gap-1.5 shadow-sm disabled:opacity-50"
-              >
-                {savingBank ? <RefreshCw className="w-3.5 h-3.5 animate-spin text-amber-400" /> : <Save className="w-3.5 h-3.5 text-amber-400" />}
-                <span>{savingBank ? 'Saving...' : 'Save Bank Details'}</span>
-              </button>
+              <p className="text-xs text-stone-300 mt-1">
+                Saving updates your details in the database and dispatches a notification to the Vows &amp; Venues admin team for instant audit.
+              </p>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3.5">
-              <div>
-                <label className="block font-bold text-stone-700 mb-1">Beneficiary Name</label>
-                <input
-                  type="text"
-                  value={bankForm.accountHolder}
-                  onChange={e => setBankForm(prev => ({ ...prev, accountHolder: e.target.value }))}
-                  placeholder="e.g. Asad Mirza Hospitality Pvt Ltd"
-                  className="w-full px-3 py-2 border rounded-xl bg-white font-semibold"
-                />
-              </div>
-
-              <div>
-                <label className="block font-bold text-stone-700 mb-1">Bank Name &amp; Branch</label>
-                <input
-                  type="text"
-                  value={bankForm.bankName}
-                  onChange={e => setBankForm(prev => ({ ...prev, bankName: e.target.value }))}
-                  placeholder="e.g. HDFC Bank, Hazratganj Branch"
-                  className="w-full px-3 py-2 border rounded-xl bg-white font-semibold"
-                />
-              </div>
-
-              <div>
-                <label className="block font-bold text-stone-700 mb-1">Account Number</label>
-                <input
-                  type="text"
-                  value={bankForm.accountNumber}
-                  onChange={e => setBankForm(prev => ({ ...prev, accountNumber: e.target.value }))}
-                  placeholder="e.g. 50200088991122"
-                  className="w-full px-3 py-2 border rounded-xl bg-white font-mono font-bold"
-                />
-              </div>
-
-              <div>
-                <label className="block font-bold text-stone-700 mb-1">IFSC Code</label>
-                <input
-                  type="text"
-                  value={bankForm.ifsc}
-                  onChange={e => setBankForm(prev => ({ ...prev, ifsc: e.target.value.toUpperCase() }))}
-                  placeholder="e.g. HDFC0001245"
-                  className="w-full px-3 py-2 border rounded-xl bg-white font-mono font-bold uppercase"
-                />
-              </div>
-
-              <div>
-                <label className="block font-bold text-stone-700 mb-1">PAN Number</label>
-                <input
-                  type="text"
-                  value={bankForm.pan}
-                  onChange={e => setBankForm(prev => ({ ...prev, pan: e.target.value.toUpperCase() }))}
-                  placeholder="e.g. AABCN8291F"
-                  className="w-full px-3 py-2 border rounded-xl bg-white font-mono uppercase"
-                />
-              </div>
-
-              <div>
-                <label className="block font-bold text-stone-700 mb-1">GSTIN Number</label>
-                <input
-                  type="text"
-                  value={bankForm.gstin}
-                  onChange={e => setBankForm(prev => ({ ...prev, gstin: e.target.value.toUpperCase() }))}
-                  placeholder="e.g. 09AABCN8291F1Z4"
-                  className="w-full px-3 py-2 border rounded-xl bg-white font-mono uppercase"
-                />
-              </div>
-            </div>
-          </form>
-        </div>
+            <button
+              type="submit"
+              disabled={savingBank}
+              className="px-6 py-3 bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-300 hover:to-amber-400 text-stone-950 font-bold rounded-xl flex items-center gap-2 shadow-lg cursor-pointer disabled:opacity-50 shrink-0 text-sm"
+            >
+              {savingBank ? <RefreshCw className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
+              <span>{savingBank ? 'Submitting ID Proofs...' : 'Save & Submit ID Proofs for Admin Audit'}</span>
+            </button>
+          </div>
+        </form>
       )}
 
       {/* ======================================================== */}
@@ -2043,6 +2639,55 @@ export default function VendorPartnerSuite() {
                 <button type="submit" className="px-5 py-2 bg-stone-900 hover:bg-black text-white font-bold rounded-xl shadow cursor-pointer">Dispatch Counter-Offer</button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+      {/* DOCUMENT PREVIEW LIGHTBOX MODAL */}
+      {previewDocModal && (
+        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4 animate-in fade-in duration-150">
+          <div className="bg-white rounded-3xl max-w-2xl w-full overflow-hidden shadow-2xl border border-stone-200">
+            <div className="p-4 sm:p-5 border-b border-stone-200 bg-stone-50 flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <ShieldCheck className="w-5 h-5 text-amber-700" />
+                <h3 className="font-serif font-bold text-base text-stone-900">{previewDocModal.title}</h3>
+              </div>
+              <button
+                type="button"
+                onClick={() => setPreviewDocModal(null)}
+                className="w-8 h-8 rounded-full bg-stone-200 hover:bg-stone-300 text-stone-700 flex items-center justify-center font-bold text-sm cursor-pointer"
+              >
+                ✕
+              </button>
+            </div>
+            <div className="p-4 bg-stone-950 flex items-center justify-center min-h-[300px] max-h-[70vh] overflow-auto">
+              <img
+                src={previewDocModal.url}
+                alt={previewDocModal.title}
+                className="max-h-[65vh] w-auto object-contain rounded-lg shadow-lg"
+              />
+            </div>
+            <div className="p-4 bg-stone-50 border-t border-stone-200 flex items-center justify-between text-xs">
+              <span className="text-stone-500 font-mono">Government ID Proof Preview</span>
+              <div className="flex items-center gap-2">
+                <a
+                  href={previewDocModal.url}
+                  target="_blank"
+                  rel="noreferrer"
+                  download
+                  className="px-3.5 py-1.5 rounded-xl bg-stone-200 hover:bg-stone-300 text-stone-800 font-bold flex items-center gap-1.5"
+                >
+                  <ExternalLink className="w-3.5 h-3.5" />
+                  <span>Open Full Size</span>
+                </a>
+                <button
+                  type="button"
+                  onClick={() => setPreviewDocModal(null)}
+                  className="px-4 py-1.5 rounded-xl bg-stone-900 text-white font-bold cursor-pointer"
+                >
+                  Close
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       )}

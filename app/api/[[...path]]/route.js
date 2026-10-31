@@ -2895,10 +2895,13 @@ async function handleRoute(request, { params }) {
         delete body.status
         delete body.userId
         delete body.id
-        // If updating verification selfie, reset status to pending for review
-        if (body.verificationSelfie || body.onSitePhoto) {
-          body.verificationSelfie = body.verificationSelfie || body.onSitePhoto
+        // If updating verification selfie or ID proofs (PAN, Aadhaar, GST), set status to pending for admin audit
+        if (body.verificationSelfie || body.onSitePhoto || body.panDoc || body.aadhaarDocFront || body.aadhaarDocBack || body.gstDoc || body.pan || body.aadhaar) {
+          if (body.verificationSelfie || body.onSitePhoto) {
+            body.verificationSelfie = body.verificationSelfie || body.onSitePhoto
+          }
           body.status = 'pending'
+          body.kycStatus = 'pending_review'
           body.verificationRequestedAt = new Date().toISOString()
         }
       }
@@ -4401,13 +4404,13 @@ async function handleRoute(request, { params }) {
       const status = body.status || (verified ? 'approved' : 'pending')
       await db.collection('vendors').updateOne(
         { id: vendorId },
-        { $set: { verified, status, verifiedAt: new Date().toISOString() } }
+        { $set: { verified, status, kycStatus: verified ? 'verified' : 'pending', verifiedAt: new Date().toISOString() } }
       )
       const vDoc = await db.collection('vendors').findOne({ id: vendorId })
       if (vDoc?.userId) {
         await db.collection('users').updateOne(
           { id: vDoc.userId },
-          { $set: { verified, status, verifiedAt: new Date().toISOString() } }
+          { $set: { verified, status, kycStatus: verified ? 'verified' : 'pending', verifiedAt: new Date().toISOString() } }
         )
       }
       await logAuditEvent(db, {
@@ -4433,13 +4436,13 @@ async function handleRoute(request, { params }) {
       const vendorId = parts[3]
       await db.collection('vendors').updateOne(
         { id: vendorId },
-        { $set: { verified: false, status: 'rejected', rejectedAt: new Date().toISOString() } }
+        { $set: { verified: false, status: 'rejected', kycStatus: 'rejected', rejectedAt: new Date().toISOString() } }
       )
       const vDoc = await db.collection('vendors').findOne({ id: vendorId })
       if (vDoc?.userId) {
         await db.collection('users').updateOne(
           { id: vDoc.userId },
-          { $set: { verified: false, status: 'rejected', rejectedAt: new Date().toISOString() } }
+          { $set: { verified: false, status: 'rejected', kycStatus: 'rejected', rejectedAt: new Date().toISOString() } }
         )
       }
       await logAuditEvent(db, {

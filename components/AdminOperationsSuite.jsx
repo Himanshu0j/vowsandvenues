@@ -200,6 +200,7 @@ export default function AdminOperationsSuite({
 
   // Live Price Negotiations & Chat State (Client Requested)
   const [inspectedVerificationVendor, setInspectedVerificationVendor] = useState(null)
+  const [inspectedDocZoom, setInspectedDocZoom] = useState(null)
   const [negotiations, setNegotiations] = useState([])
   const [selectedNegId, setSelectedNegId] = useState(null)
   const [negSearch, setNegSearch] = useState('')
@@ -1090,7 +1091,7 @@ export default function AdminOperationsSuite({
                   <th className="py-3 px-4 font-bold">Category</th>
                   <th className="py-3 px-4 font-bold">City</th>
                   <th className="py-3 px-4 font-bold">Starting Price</th>
-                  <th className="py-3 px-4 font-bold">On-Site Photo</th>
+                  <th className="py-3 px-4 font-bold">KYC &amp; ID Proofs</th>
                   <th className="py-3 px-4 font-bold">KYC / Verification</th>
                   <th className="py-3 px-4 font-bold text-right">Actions</th>
                 </tr>
@@ -1121,24 +1122,46 @@ export default function AdminOperationsSuite({
                       ₹{Number(v.startingPrice || 0).toLocaleString('en-IN')} <span className="text-[10px] text-stone-400 font-normal">/{v.priceUnit || 'event'}</span>
                     </td>
                     <td className="py-3.5 px-4">
-                      {v.verificationSelfie ? (
-                        <button
-                          type="button"
-                          onClick={() => setInspectedVerificationVendor(v)}
-                          className="flex items-center gap-1.5 px-2.5 py-1 bg-amber-50 hover:bg-amber-100 text-amber-900 border border-amber-300 rounded-lg text-[11px] font-bold transition-all shadow-xs cursor-pointer"
-                          title="Click to audit submitted on-site verification photo"
-                        >
-                          <img
-                            src={getOptimizedImageUrl(v.verificationSelfie, 40, 40)}
-                            alt="On-Site Proof"
-                            className="w-5 h-5 rounded object-cover border border-amber-400"
-                          />
-                          <Camera className="w-3 h-3 text-amber-700" />
-                          <span>View Photo</span>
-                        </button>
-                      ) : (
-                        <span className="text-[10px] text-stone-400 italic">No photo uploaded</span>
-                      )}
+                      {(() => {
+                        const docs = [
+                          v.panDoc && 'PAN',
+                          v.aadhaarDocFront && 'Aadhaar (F)',
+                          v.aadhaarDocBack && 'Aadhaar (B)',
+                          v.gstDoc && 'GST',
+                          v.verificationSelfie && 'Venue Photo'
+                        ].filter(Boolean)
+                        const hasIdDetails = !!(v.pan || v.aadhaar || v.gstin || v.panDoc || v.aadhaarDocFront || v.gstDoc || v.verificationSelfie)
+                        if (docs.length > 0) {
+                          return (
+                            <button
+                              type="button"
+                              onClick={() => setInspectedVerificationVendor(v)}
+                              className="flex items-center gap-1.5 px-2.5 py-1 bg-amber-50 hover:bg-amber-100 text-amber-900 border border-amber-300 rounded-lg text-[11px] font-bold transition-all shadow-xs cursor-pointer"
+                              title="Click to audit submitted government ID proofs and venue photo"
+                            >
+                              <ShieldCheck className="w-3.5 h-3.5 text-amber-700" />
+                              <span>Audit Proofs</span>
+                              <span className="bg-amber-200/90 text-amber-950 text-[10px] px-1.5 py-0.2 rounded font-mono font-bold">
+                                {docs.length}/5
+                              </span>
+                            </button>
+                          )
+                        }
+                        if (hasIdDetails) {
+                          return (
+                            <button
+                              type="button"
+                              onClick={() => setInspectedVerificationVendor(v)}
+                              className="flex items-center gap-1.5 px-2.5 py-1 bg-stone-100 hover:bg-stone-200 text-stone-700 border border-stone-300 rounded-lg text-[11px] font-bold transition-all cursor-pointer"
+                              title="Audit submitted KYC ID numbers"
+                            >
+                              <FileText className="w-3 h-3 text-stone-500" />
+                              <span>Details (0 Docs)</span>
+                            </button>
+                          )
+                        }
+                        return <span className="text-[10px] text-stone-400 italic">No proofs submitted</span>
+                      })()}
                     </td>
                     <td className="py-3.5 px-4">
                       {v.verified ? (
@@ -1153,12 +1176,12 @@ export default function AdminOperationsSuite({
                     </td>
                     <td className="py-3.5 px-4 text-right">
                       <div className="inline-flex items-center gap-1.5">
-                        {v.verificationSelfie && (
+                        {(v.verificationSelfie || v.panDoc || v.aadhaarDocFront || v.gstDoc || v.pan) && (
                           <button
                             type="button"
                             onClick={() => setInspectedVerificationVendor(v)}
                             className="p-1.5 rounded-lg text-stone-600 hover:text-stone-900 hover:bg-stone-100 transition-all cursor-pointer"
-                            title="Inspect on-site proof"
+                            title="Audit submitted ID proofs & documents"
                           >
                             <Eye className="w-3.5 h-3.5" />
                           </button>
@@ -1189,99 +1212,423 @@ export default function AdminOperationsSuite({
             </table>
           </div>
 
-          {/* Vendor On-Site Verification Review Modal */}
+          {/* Vendor Government ID Proofs & KYC Review Modal */}
           {inspectedVerificationVendor && (
-            <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
-              <div className="bg-white rounded-3xl max-w-lg w-full overflow-hidden shadow-2xl border border-stone-200 animate-in fade-in zoom-in duration-200">
-                <div className="p-5 border-b border-stone-200 bg-gradient-to-r from-amber-50 to-orange-50 flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <ShieldCheck className="w-5 h-5 text-amber-700" />
+            <div className="fixed inset-0 z-50 bg-black/75 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4 animate-in fade-in duration-150">
+              <div className="bg-white rounded-3xl max-w-3xl w-full overflow-hidden shadow-2xl border border-stone-200 flex flex-col max-h-[92vh]">
+                {/* Modal Header */}
+                <div className="p-4 sm:p-5 border-b border-stone-200 bg-gradient-to-r from-amber-50 to-orange-50 flex items-center justify-between shrink-0">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-xl bg-amber-100 text-amber-800 flex items-center justify-center font-bold">
+                      <ShieldCheck className="w-5 h-5 text-amber-700" />
+                    </div>
                     <div>
-                      <h3 className="font-serif font-bold text-base text-stone-900">
-                        Vendor On-Site Verification Audit
+                      <h3 className="font-serif font-bold text-base sm:text-lg text-stone-900">
+                        Vendor Government ID Proofs &amp; KYC Audit
                       </h3>
                       <p className="text-[11px] text-stone-600">
-                        Photo clicked with venue / physical premises
+                        Verify PAN Card, Aadhaar Card (Front/Back), GST Registration &amp; Physical Premises Proof
                       </p>
                     </div>
                   </div>
                   <button
                     onClick={() => setInspectedVerificationVendor(null)}
-                    className="p-1.5 rounded-full hover:bg-stone-200 text-stone-500 text-xs cursor-pointer"
+                    className="w-8 h-8 rounded-full hover:bg-stone-200 text-stone-500 text-sm flex items-center justify-center cursor-pointer"
                   >
                     ✕
                   </button>
                 </div>
 
-                <div className="p-5 space-y-4 max-h-[75vh] overflow-y-auto">
-                  <div className="relative rounded-2xl overflow-hidden border-2 border-amber-400 bg-stone-900 shadow-md">
-                    <img
-                      src={inspectedVerificationVendor.verificationSelfie || inspectedVerificationVendor.image}
-                      alt="Vendor on-site proof"
-                      className="w-full max-h-[380px] object-contain mx-auto"
-                    />
-                    <div className="absolute bottom-2 left-2 bg-black/75 text-white text-[10px] px-2.5 py-1 rounded-full backdrop-blur-xs font-mono">
-                      Owner with Venue / Premises
+                {/* Modal Scrollable Body */}
+                <div className="p-4 sm:p-6 space-y-5 overflow-y-auto flex-1 text-xs">
+                  {/* Vendor Summary Card */}
+                  <div className="p-4 bg-stone-50 rounded-2xl border border-stone-200 grid grid-cols-2 sm:grid-cols-4 gap-3">
+                    <div>
+                      <span className="text-[10px] text-stone-500 uppercase block font-bold">Vendor Name</span>
+                      <span className="font-bold text-stone-900 text-sm">{inspectedVerificationVendor.name}</span>
                     </div>
-                  </div>
-
-                  <div className="p-3.5 bg-stone-50 rounded-2xl border border-stone-200 text-xs space-y-2">
-                    <div className="flex justify-between">
-                      <span className="text-stone-500">Business / Venue:</span>
-                      <span className="font-bold text-stone-900">{inspectedVerificationVendor.name}</span>
+                    <div>
+                      <span className="text-[10px] text-stone-500 uppercase block font-bold">Category &amp; City</span>
+                      <span className="font-semibold text-stone-800 capitalize">
+                        {inspectedVerificationVendor.category} • {inspectedVerificationVendor.city}
+                      </span>
                     </div>
-                    <div className="flex justify-between">
-                      <span className="text-stone-500">Category &amp; City:</span>
-                      <span className="font-bold text-stone-900 capitalize">{inspectedVerificationVendor.category} • {inspectedVerificationVendor.city}</span>
+                    <div>
+                      <span className="text-[10px] text-stone-500 uppercase block font-bold">Contact</span>
+                      <span className="font-mono text-stone-800">
+                        {inspectedVerificationVendor.contactPhone || inspectedVerificationVendor.email || 'N/A'}
+                      </span>
                     </div>
-                    <div className="flex justify-between">
-                      <span className="text-stone-500">Contact:</span>
-                      <span className="font-mono text-stone-800">{inspectedVerificationVendor.contactPhone || inspectedVerificationVendor.email || 'N/A'}</span>
-                    </div>
-                    <div className="flex justify-between items-center pt-1 border-t border-stone-200">
-                      <span className="text-stone-500">Current KYC Status:</span>
-                      <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
+                    <div>
+                      <span className="text-[10px] text-stone-500 uppercase block font-bold">Current KYC Status</span>
+                      <span className={`inline-block px-2.5 py-0.5 rounded-full text-[10px] font-bold mt-0.5 ${
                         inspectedVerificationVendor.verified
                           ? 'bg-emerald-100 text-emerald-800'
+                          : inspectedVerificationVendor.kycStatus === 'rejected'
+                          ? 'bg-rose-100 text-rose-800'
                           : 'bg-amber-100 text-amber-800'
                       }`}>
-                        {inspectedVerificationVendor.verified ? 'Verified Partner' : 'Pending Review'}
+                        {inspectedVerificationVendor.verified
+                          ? '✓ Verified Official'
+                          : inspectedVerificationVendor.kycStatus === 'rejected'
+                          ? '✕ Rejected'
+                          : '⏳ Pending Admin Verification'}
                       </span>
                     </div>
                   </div>
 
-                  <div className="p-3 bg-amber-50/80 rounded-xl border border-amber-200 text-[11px] text-amber-900 flex items-start gap-2">
-                    <AlertTriangle className="w-4 h-4 text-amber-700 shrink-0 mt-0.5" />
-                    <span>
-                      <strong>Compliance Guideline:</strong> Confirm that the vendor owner is physically present in the photo with identifiable architectural or signage features matching their venue description.
-                    </span>
+                  {/* 1. PAN CARD AUDIT */}
+                  <div className="bg-white rounded-2xl border border-stone-200 p-4 space-y-3">
+                    <div className="flex items-center justify-between pb-2 border-b border-stone-100">
+                      <div className="flex items-center gap-2">
+                        <CreditCard className="w-4 h-4 text-amber-700" />
+                        <h4 className="font-serif font-bold text-sm text-stone-900">1. Permanent Account Number (PAN) Card</h4>
+                      </div>
+                      <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
+                        inspectedVerificationVendor.panDoc ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-rose-50 text-rose-700'
+                      }`}>
+                        {inspectedVerificationVendor.panDoc ? '✓ Document Uploaded' : 'Missing Document Photo'}
+                      </span>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-center">
+                      <div className="space-y-2">
+                        <div className="flex justify-between py-1 border-b border-stone-100">
+                          <span className="text-stone-500">PAN Number:</span>
+                          <span className="font-mono font-bold text-stone-900 uppercase">
+                            {inspectedVerificationVendor.pan || inspectedVerificationVendor.panNumber || 'Not provided'}
+                          </span>
+                        </div>
+                        <div className="flex justify-between py-1 border-b border-stone-100">
+                          <span className="text-stone-500">Name as per PAN:</span>
+                          <span className="font-semibold text-stone-900">
+                            {inspectedVerificationVendor.panName || 'Not provided'}
+                          </span>
+                        </div>
+                      </div>
+
+                      <div>
+                        {inspectedVerificationVendor.panDoc ? (
+                          <div className="relative group rounded-xl overflow-hidden border border-amber-300 bg-stone-900 h-28 max-w-xs mx-auto md:ml-auto">
+                            <img
+                              src={inspectedVerificationVendor.panDoc}
+                              alt="PAN Card"
+                              className="w-full h-full object-contain"
+                            />
+                            <button
+                              type="button"
+                              onClick={() => setInspectedDocZoom({ title: 'PAN Card Document Proof', url: inspectedVerificationVendor.panDoc })}
+                              className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 flex items-center justify-center text-white text-xs font-bold gap-1.5 transition-opacity cursor-pointer"
+                            >
+                              <Eye className="w-4 h-4" /> Click to Zoom
+                            </button>
+                          </div>
+                        ) : (
+                          <div className="h-28 rounded-xl border-2 border-dashed border-stone-200 bg-stone-50 flex items-center justify-center text-stone-400 text-xs">
+                            No PAN Document Uploaded
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* 2. AADHAAR CARD AUDIT */}
+                  <div className="bg-white rounded-2xl border border-stone-200 p-4 space-y-3">
+                    <div className="flex items-center justify-between pb-2 border-b border-stone-100">
+                      <div className="flex items-center gap-2">
+                        <ShieldCheck className="w-4 h-4 text-amber-700" />
+                        <h4 className="font-serif font-bold text-sm text-stone-900">2. Aadhaar Card UIDAI Verification (Front &amp; Back)</h4>
+                      </div>
+                      <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
+                        (inspectedVerificationVendor.aadhaarDocFront && inspectedVerificationVendor.aadhaarDocBack)
+                          ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
+                          : inspectedVerificationVendor.aadhaarDocFront
+                          ? 'bg-amber-50 text-amber-700 border border-amber-200'
+                          : 'bg-rose-50 text-rose-700'
+                      }`}>
+                        {(inspectedVerificationVendor.aadhaarDocFront && inspectedVerificationVendor.aadhaarDocBack)
+                          ? '✓ Both Sides Uploaded'
+                          : inspectedVerificationVendor.aadhaarDocFront
+                          ? 'Front Uploaded Only'
+                          : 'Missing Document Photos'}
+                      </span>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <div className="flex justify-between py-1 border-b border-stone-100">
+                          <span className="text-stone-500">Aadhaar Number:</span>
+                          <span className="font-mono font-bold text-stone-900">
+                            {inspectedVerificationVendor.aadhaar || inspectedVerificationVendor.aadhaarNumber || 'Not provided'}
+                          </span>
+                        </div>
+                        <div className="flex justify-between py-1 border-b border-stone-100">
+                          <span className="text-stone-500">Name as per Aadhaar:</span>
+                          <span className="font-semibold text-stone-900">
+                            {inspectedVerificationVendor.aadhaarName || 'Not provided'}
+                          </span>
+                        </div>
+                      </div>
+
+                      <div className="grid grid-cols-2 gap-2">
+                        {/* Front photo */}
+                        <div>
+                          <span className="text-[10px] text-stone-500 block mb-1 font-bold">Front Side (Photo &amp; DOB)</span>
+                          {inspectedVerificationVendor.aadhaarDocFront ? (
+                            <div className="relative group rounded-xl overflow-hidden border border-amber-300 bg-stone-900 h-24">
+                              <img
+                                src={inspectedVerificationVendor.aadhaarDocFront}
+                                alt="Aadhaar Front"
+                                className="w-full h-full object-contain"
+                              />
+                              <button
+                                type="button"
+                                onClick={() => setInspectedDocZoom({ title: 'Aadhaar Card Front Side', url: inspectedVerificationVendor.aadhaarDocFront })}
+                                className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 flex items-center justify-center text-white text-[11px] font-bold gap-1 transition-opacity cursor-pointer"
+                              >
+                                <Eye className="w-3.5 h-3.5" /> Zoom
+                              </button>
+                            </div>
+                          ) : (
+                            <div className="h-24 rounded-xl border border-dashed border-stone-200 bg-stone-50 flex items-center justify-center text-stone-400 text-[10px]">
+                              Front Missing
+                            </div>
+                          )}
+                        </div>
+
+                        {/* Back photo */}
+                        <div>
+                          <span className="text-[10px] text-stone-500 block mb-1 font-bold">Back Side (Address)</span>
+                          {inspectedVerificationVendor.aadhaarDocBack ? (
+                            <div className="relative group rounded-xl overflow-hidden border border-amber-300 bg-stone-900 h-24">
+                              <img
+                                src={inspectedVerificationVendor.aadhaarDocBack}
+                                alt="Aadhaar Back"
+                                className="w-full h-full object-contain"
+                              />
+                              <button
+                                type="button"
+                                onClick={() => setInspectedDocZoom({ title: 'Aadhaar Card Back Side (Address)', url: inspectedVerificationVendor.aadhaarDocBack })}
+                                className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 flex items-center justify-center text-white text-[11px] font-bold gap-1 transition-opacity cursor-pointer"
+                              >
+                                <Eye className="w-3.5 h-3.5" /> Zoom
+                              </button>
+                            </div>
+                          ) : (
+                            <div className="h-24 rounded-xl border border-dashed border-stone-200 bg-stone-50 flex items-center justify-center text-stone-400 text-[10px]">
+                              Back Missing
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* 3. GST REGISTRATION AUDIT */}
+                  <div className="bg-white rounded-2xl border border-stone-200 p-4 space-y-3">
+                    <div className="flex items-center justify-between pb-2 border-b border-stone-100">
+                      <div className="flex items-center gap-2">
+                        <Building2 className="w-4 h-4 text-amber-700" />
+                        <h4 className="font-serif font-bold text-sm text-stone-900">3. GST / e-GST Registration Certificate</h4>
+                      </div>
+                      <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
+                        inspectedVerificationVendor.gstDoc ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-stone-100 text-stone-500'
+                      }`}>
+                        {inspectedVerificationVendor.gstDoc ? '✓ Certificate Uploaded' : 'Optional / Not Uploaded'}
+                      </span>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-center">
+                      <div className="space-y-1.5">
+                        <div className="flex justify-between py-1 border-b border-stone-100">
+                          <span className="text-stone-500">GSTIN:</span>
+                          <span className="font-mono font-bold text-stone-900 uppercase">
+                            {inspectedVerificationVendor.gstin || 'Not provided'}
+                          </span>
+                        </div>
+                        <div className="flex justify-between py-1 border-b border-stone-100">
+                          <span className="text-stone-500">Business / Trade Name:</span>
+                          <span className="font-semibold text-stone-900">
+                            {inspectedVerificationVendor.gstBusinessName || 'Not provided'}
+                          </span>
+                        </div>
+                        <div className="flex justify-between py-1 border-b border-stone-100">
+                          <span className="text-stone-500">Registration Scheme:</span>
+                          <span className="font-semibold text-stone-900 capitalize">
+                            {inspectedVerificationVendor.gstType || 'Regular'}
+                          </span>
+                        </div>
+                      </div>
+
+                      <div>
+                        {inspectedVerificationVendor.gstDoc ? (
+                          <div className="relative group rounded-xl overflow-hidden border border-amber-300 bg-stone-900 h-28 max-w-xs mx-auto md:ml-auto">
+                            <img
+                              src={inspectedVerificationVendor.gstDoc}
+                              alt="GST Certificate"
+                              className="w-full h-full object-contain"
+                            />
+                            <button
+                              type="button"
+                              onClick={() => setInspectedDocZoom({ title: 'GST Registration Certificate', url: inspectedVerificationVendor.gstDoc })}
+                              className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 flex items-center justify-center text-white text-xs font-bold gap-1.5 transition-opacity cursor-pointer"
+                            >
+                              <Eye className="w-4 h-4" /> Click to Zoom
+                            </button>
+                          </div>
+                        ) : (
+                          <div className="h-28 rounded-xl border border-dashed border-stone-200 bg-stone-50 flex items-center justify-center text-stone-400 text-xs">
+                            No GST Certificate Uploaded
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* 4. ESCROW BANK ACCOUNT DETAILS */}
+                  <div className="bg-white rounded-2xl border border-stone-200 p-4 space-y-2">
+                    <div className="flex items-center gap-2 pb-2 border-b border-stone-100">
+                      <DollarSign className="w-4 h-4 text-amber-700" />
+                      <h4 className="font-serif font-bold text-sm text-stone-900">4. Escrow Payout Bank Coordinates</h4>
+                    </div>
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs pt-1">
+                      <div>
+                        <span className="text-[10px] text-stone-400 block">Beneficiary Name</span>
+                        <span className="font-bold text-stone-900">{inspectedVerificationVendor.accountHolder || 'N/A'}</span>
+                      </div>
+                      <div>
+                        <span className="text-[10px] text-stone-400 block">Bank Name &amp; Branch</span>
+                        <span className="font-semibold text-stone-800">{inspectedVerificationVendor.bankName || 'N/A'}</span>
+                      </div>
+                      <div>
+                        <span className="text-[10px] text-stone-400 block">Account Number</span>
+                        <span className="font-mono font-bold text-stone-900">{inspectedVerificationVendor.accountNumber || 'N/A'}</span>
+                      </div>
+                      <div>
+                        <span className="text-[10px] text-stone-400 block">IFSC Code</span>
+                        <span className="font-mono font-bold text-stone-900 uppercase">{inspectedVerificationVendor.ifsc || 'N/A'}</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* 5. ON-SITE PHYSICAL PREMISES PHOTO */}
+                  <div className="bg-white rounded-2xl border border-stone-200 p-4 space-y-3">
+                    <div className="flex items-center justify-between pb-2 border-b border-stone-100">
+                      <div className="flex items-center gap-2">
+                        <Camera className="w-4 h-4 text-amber-700" />
+                        <h4 className="font-serif font-bold text-sm text-stone-900">5. On-Site Physical Property / Venue Proof</h4>
+                      </div>
+                      <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
+                        inspectedVerificationVendor.verificationSelfie ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-stone-100 text-stone-500'
+                      }`}>
+                        {inspectedVerificationVendor.verificationSelfie ? '✓ Photo Attached' : 'Using Cover Photo'}
+                      </span>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-center">
+                      <div className="p-3 bg-stone-50 rounded-xl border border-stone-200 text-stone-600 leading-relaxed text-[11px] space-y-1.5">
+                        <p>
+                          <strong>Compliance Rule:</strong> Confirm that the property matches the venue description and photos listed on the marketplace.
+                        </p>
+                        <p className="text-stone-500">
+                          Timestamp: {inspectedVerificationVendor.verificationRequestedAt ? new Date(inspectedVerificationVendor.verificationRequestedAt).toLocaleString('en-IN') : 'Standard Registration'}
+                        </p>
+                      </div>
+
+                      <div className="relative group rounded-xl overflow-hidden border border-amber-300 bg-stone-900 h-36 max-w-xs mx-auto md:ml-auto">
+                        <img
+                          src={inspectedVerificationVendor.verificationSelfie || inspectedVerificationVendor.image}
+                          alt="Vendor On-Site Proof"
+                          className="w-full h-full object-contain"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => setInspectedDocZoom({ title: 'On-Site Physical Venue Proof', url: inspectedVerificationVendor.verificationSelfie || inspectedVerificationVendor.image })}
+                          className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 flex items-center justify-center text-white text-xs font-bold gap-1.5 transition-opacity cursor-pointer"
+                        >
+                          <Eye className="w-4 h-4" /> Click to Zoom
+                        </button>
+                      </div>
+                    </div>
                   </div>
                 </div>
 
-                <div className="p-4 bg-stone-50 border-t border-stone-200 flex items-center justify-end gap-2.5">
+                {/* Modal Footer with Actions */}
+                <div className="p-4 sm:p-5 bg-stone-50 border-t border-stone-200 flex flex-wrap items-center justify-between gap-3 shrink-0">
+                  <div className="text-[11px] text-stone-500">
+                    Approving activates this vendor's storefront across the marketplace.
+                  </div>
+
+                  <div className="flex items-center gap-2.5">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        if (onRejectVendor) onRejectVendor(inspectedVerificationVendor.id)
+                        setInspectedVerificationVendor(null)
+                      }}
+                      disabled={adminActionBusy}
+                      className="px-4 py-2 rounded-xl text-xs font-bold text-rose-700 bg-rose-50 hover:bg-rose-100 border border-rose-200 transition-all cursor-pointer"
+                    >
+                      Reject KYC
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        if (onVerifyToggle) onVerifyToggle(inspectedVerificationVendor.id, true)
+                        setInspectedVerificationVendor(null)
+                      }}
+                      disabled={adminActionBusy}
+                      className="px-5 py-2 rounded-xl text-xs font-bold text-white bg-emerald-700 hover:bg-emerald-800 shadow-md transition-all cursor-pointer flex items-center gap-1.5"
+                    >
+                      <CheckCircle2 className="w-4 h-4" />
+                      <span>Approve &amp; Activate Vendor</span>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Admin Lightbox Full Resolution Zoom */}
+          {inspectedDocZoom && (
+            <div className="fixed inset-0 z-60 bg-black/85 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4 animate-in fade-in duration-150">
+              <div className="bg-white rounded-3xl max-w-2xl w-full overflow-hidden shadow-2xl border border-stone-200">
+                <div className="p-4 border-b border-stone-200 bg-stone-50 flex items-center justify-between">
+                  <h4 className="font-serif font-bold text-base text-stone-900">{inspectedDocZoom.title}</h4>
                   <button
-                    type="button"
-                    onClick={() => {
-                      if (onRejectVendor) onRejectVendor(inspectedVerificationVendor.id)
-                      setInspectedVerificationVendor(null)
-                    }}
-                    disabled={adminActionBusy}
-                    className="px-4 py-2 rounded-xl text-xs font-bold text-rose-700 bg-rose-50 hover:bg-rose-100 border border-rose-200 transition-all cursor-pointer"
+                    onClick={() => setInspectedDocZoom(null)}
+                    className="w-8 h-8 rounded-full bg-stone-200 hover:bg-stone-300 text-stone-700 flex items-center justify-center font-bold text-sm cursor-pointer"
                   >
-                    Reject KYC
+                    ✕
                   </button>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      if (onVerifyToggle) onVerifyToggle(inspectedVerificationVendor.id, true)
-                      setInspectedVerificationVendor(null)
-                    }}
-                    disabled={adminActionBusy}
-                    className="px-5 py-2 rounded-xl text-xs font-bold text-white bg-emerald-700 hover:bg-emerald-800 shadow-md transition-all cursor-pointer flex items-center gap-1.5"
-                  >
-                    <CheckCircle2 className="w-3.5 h-3.5" />
-                    <span>Approve &amp; Verify Vendor</span>
-                  </button>
+                </div>
+                <div className="p-4 bg-stone-950 flex items-center justify-center min-h-[300px] max-h-[75vh] overflow-auto">
+                  <img
+                    src={inspectedDocZoom.url}
+                    alt={inspectedDocZoom.title}
+                    className="max-h-[70vh] w-auto object-contain rounded-lg shadow-lg"
+                  />
+                </div>
+                <div className="p-3.5 bg-stone-50 border-t border-stone-200 flex items-center justify-between text-xs">
+                  <span className="text-stone-500 font-mono">High Resolution Document Audit</span>
+                  <div className="flex items-center gap-2">
+                    <a
+                      href={inspectedDocZoom.url}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="px-3.5 py-1.5 rounded-xl bg-stone-200 hover:bg-stone-300 text-stone-800 font-bold flex items-center gap-1.5"
+                    >
+                      <ExternalLink className="w-3.5 h-3.5" />
+                      <span>Open Full Size</span>
+                    </a>
+                    <button
+                      type="button"
+                      onClick={() => setInspectedDocZoom(null)}
+                      className="px-4 py-1.5 rounded-xl bg-stone-900 text-white font-bold cursor-pointer"
+                    >
+                      Close
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>
