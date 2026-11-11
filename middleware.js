@@ -11,6 +11,18 @@ export function middleware(request) {
     return NextResponse.rewrite(url)
   }
 
+  // 2. Global Maintenance Mode (Phase 20)
+  // Controlled via environment variable: MAINTENANCE_MODE=true
+  if (
+    process.env.MAINTENANCE_MODE === 'true' &&
+    !url.pathname.startsWith('/maintenance') &&
+    !url.pathname.startsWith('/api/health') &&
+    !url.pathname.startsWith('/admin')
+  ) {
+    url.pathname = '/maintenance'
+    return NextResponse.rewrite(url)
+  }
+
   const response = NextResponse.next()
 
   // 2. Staging Search Engine Isolation (Phase 2 & Phase 11)
