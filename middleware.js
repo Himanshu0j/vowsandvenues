@@ -11,16 +11,17 @@ export function middleware(request) {
     return NextResponse.rewrite(url)
   }
 
-  // 2. Global Maintenance / Suspension Mode (Phase 20)
+  // 2. Global Service Unavailable / Maintenance Mode (Phase 20)
   // Controlled via environment variable: MAINTENANCE_MODE=true
   if (
     process.env.MAINTENANCE_MODE === 'true' &&
+    !url.pathname.startsWith('/service-unavailable') &&
     !url.pathname.startsWith('/maintenance') &&
     !url.pathname.startsWith('/suspended') &&
     !url.pathname.startsWith('/api/health') &&
     !url.pathname.startsWith('/admin')
   ) {
-    url.pathname = '/suspended'
+    url.pathname = '/service-unavailable'
     return NextResponse.rewrite(url)
   }
 

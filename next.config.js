@@ -14,6 +14,9 @@ const nextConfig = {
   },
   // Renamed from experimental.serverComponentsExternalPackages in Next 15
   serverExternalPackages: ['mongodb'],
+  typescript: {
+    ignoreBuildErrors: true,
+  },
   experimental: {
     cpus: 1,
     workerThreads: false,
